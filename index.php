@@ -56,7 +56,7 @@ require_once __DIR__ . '/inc/header.php';
                 </p>
                 <div class="hero-actions">
                     <a href="<?= SITE_URL ?>/kesif" class="btn btn-primary btn-lg"><i class="fas fa-clipboard-check"></i> Ücretsiz Keşif İste</a>
-                    <a href="https://wa.me/<?= e(ayar('whatsapp_numara', FIRMA_WHATSAPP)) ?>" target="_blank" class="btn btn-out btn-lg"><i class="fab fa-whatsapp"></i> Anında Fiyat Al</a>
+                    <a href="https://wa.me/<?= e(ayar('whatsapp_numara', defined('FIRMA_WHATSAPP')?FIRMA_WHATSAPP:'')) ?>" target="_blank" class="btn btn-out btn-lg"><i class="fab fa-whatsapp"></i> Anında Fiyat Al</a>
                 </div>
                 <div class="hero-stats">
                     <div class="hero-stat"><strong>2.500+</strong><span>Mutlu Müşteri</span></div>
@@ -384,7 +384,7 @@ require_once __DIR__ . '/inc/header.php';
             <p>Adresinize gelelim, ihtiyacınızı yerinde analiz edelim, en uygun çözümü sunalım. Hiçbir ücret ödemenize gerek yok.</p>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <a href="tel:<?= e(preg_replace('/\s/','',ayar('firma_telefon_1', FIRMA_TEL_1))) ?>" class="btn btn-lg"><i class="fas fa-phone"></i> Hemen Ara</a>
+            <a href="tel:<?= e(preg_replace('/\s/','',ayar('firma_telefon_1', defined('FIRMA_TEL_1')?FIRMA_TEL_1:''))) ?>" class="btn btn-lg"><i class="fas fa-phone"></i> Hemen Ara</a>
             <a href="<?= SITE_URL ?>/kesif" class="btn btn-lg btn-out" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.4)"><i class="fas fa-clipboard-check"></i> Keşif Formu</a>
         </div>
     </div>

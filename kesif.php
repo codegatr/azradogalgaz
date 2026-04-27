@@ -128,8 +128,8 @@ require_once __DIR__ . '/inc/header.php';
 
                 <div style="background:#fff;border:1px solid var(--c-line);border-radius:var(--r-lg);padding:28px">
                     <h3 style="font-family:var(--font-display);font-size:1.05rem;margin-bottom:14px"><i class="fas fa-headset" style="color:var(--c-primary)"></i> Hemen iletişim</h3>
-                    <a href="tel:<?= e(preg_replace('/\s/','',ayar('firma_telefon_1', FIRMA_TEL_1))) ?>" class="btn btn-out btn-block" style="margin-bottom:8px"><i class="fas fa-phone"></i> <?= e(ayar('firma_telefon_1', FIRMA_TEL_1)) ?></a>
-                    <a href="https://wa.me/<?= e(ayar('whatsapp_numara', FIRMA_WHATSAPP)) ?>" target="_blank" class="btn btn-green btn-block"><i class="fab fa-whatsapp"></i> WhatsApp\'tan Yaz</a>
+                    <a href="tel:<?= e(preg_replace('/\s/','',ayar('firma_telefon_1', defined('FIRMA_TEL_1')?FIRMA_TEL_1:''))) ?>" class="btn btn-out btn-block" style="margin-bottom:8px"><i class="fas fa-phone"></i> <?= e(ayar('firma_telefon_1', defined('FIRMA_TEL_1')?FIRMA_TEL_1:'')) ?></a>
+                    <a href="https://wa.me/<?= e(ayar('whatsapp_numara', defined('FIRMA_WHATSAPP')?FIRMA_WHATSAPP:'')) ?>" target="_blank" class="btn btn-green btn-block"><i class="fab fa-whatsapp"></i> WhatsApp\'tan Yaz</a>
                 </div>
             </div>
         </div>

@@ -1,11 +1,11 @@
 {
   "name": "Azra Doğalgaz Web Sistemi",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "release_date": "2026-04-27",
   "min_php": "8.1",
   "repo": "codegatr/azradogalgaz",
   "branch": "main",
   "channel": "stable",
-  "changelog": "Büyük revizyon: Açık tema (light theme), zengin ana sayfa, Ücretsiz Keşif sayfası, mega menü, müşteri yorumları, FAQ. Hesaplama araçları, projeler, SSS sayfaları sonraki sürümde.",
-  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema-revizyon"]
+  "changelog": "Hotfix: FIRMA_WHATSAPP/FIRMA_TEL/FIRMA_EMAIL sabitleri yoksa fatal error veren sayfalar duzeltildi. Tum sabit referanslari defined() kontrolu ile sarildi.",
+  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema"]
 }

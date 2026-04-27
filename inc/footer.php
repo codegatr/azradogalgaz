@@ -1,8 +1,8 @@
 <?php
-$tel1 = ayar('firma_telefon_1', FIRMA_TEL_1);
-$tel2 = ayar('firma_telefon_2', FIRMA_TEL_2);
-$wa   = ayar('whatsapp_numara', FIRMA_WHATSAPP);
-$mail = ayar('firma_eposta', FIRMA_EMAIL);
+$tel1 = ayar('firma_telefon_1', defined('FIRMA_TEL_1')?FIRMA_TEL_1:'');
+$tel2 = ayar('firma_telefon_2', defined('FIRMA_TEL_2')?FIRMA_TEL_2:'');
+$wa   = ayar('whatsapp_numara', defined('FIRMA_WHATSAPP')?FIRMA_WHATSAPP:'');
+$mail = ayar('firma_eposta', defined('FIRMA_EMAIL')?FIRMA_EMAIL:'');
 $adres= ayar('firma_adres', 'İzmir, Türkiye');
 $fb   = ayar('sosyal_facebook', '');
 $ig   = ayar('sosyal_instagram', '');

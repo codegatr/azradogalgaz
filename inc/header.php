@@ -2,16 +2,16 @@
 /**
  * Frontend ortak header — v1.4.0 açık tema
  */
-$tit = $sayfa_baslik ?? ayar('site_baslik', SITE_TITLE);
-$des = $sayfa_aciklama ?? ayar('site_aciklama', SITE_DESC);
+$tit = $sayfa_baslik ?? ayar('site_baslik', defined('SITE_TITLE')?SITE_TITLE:'Azra Doğalgaz');
+$des = $sayfa_aciklama ?? ayar('site_aciklama', defined('SITE_DESC')?SITE_DESC:'');
 $can = $kanonik_url ?? (SITE_URL . $_SERVER['REQUEST_URI']);
 $og  = $og_resim ?? (SITE_URL . '/assets/img/og-default.jpg');
-$key = $sayfa_anahtar ?? ayar('site_anahtar_kelime', SITE_KEYWORDS);
+$key = $sayfa_anahtar ?? ayar('site_anahtar_kelime', defined('SITE_KEYWORDS')?SITE_KEYWORDS:'');
 
-$tel1 = ayar('firma_telefon_1', FIRMA_TEL_1);
-$tel2 = ayar('firma_telefon_2', FIRMA_TEL_2);
-$wa   = ayar('whatsapp_numara', FIRMA_WHATSAPP);
-$mail = ayar('firma_eposta', FIRMA_EMAIL);
+$tel1 = ayar('firma_telefon_1', defined('FIRMA_TEL_1')?FIRMA_TEL_1:'');
+$tel2 = ayar('firma_telefon_2', defined('FIRMA_TEL_2')?FIRMA_TEL_2:'');
+$wa   = ayar('whatsapp_numara', defined('FIRMA_WHATSAPP')?FIRMA_WHATSAPP:'');
+$mail = ayar('firma_eposta', defined('FIRMA_EMAIL')?FIRMA_EMAIL:'');
 $saat = ayar('firma_calisma_saatleri', 'Pzt-Cmt 08:00-20:00');
 
 $ga = trim((string)ayar('google_analytics', ''));
