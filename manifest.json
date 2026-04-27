@@ -6,6 +6,6 @@
   "repo": "codegatr/azradogalgaz",
   "branch": "main",
   "channel": "stable",
-  "changelog": "Asama 6 (Paket 1): Acik tema yenilemesi + icerik genisletme. Yeni hero, 8 hizmet karti, hesaplama araclari teaser, 3 musteri yorumu, FAQ, CTA band. Yeni sayfa: Ucretsiz Kesif (kesif.php). Mega menu dropdown.",
-  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema"]
+  "changelog": "Büyük revizyon: Açık tema (light theme), zengin ana sayfa, Ücretsiz Keşif sayfası, mega menü, müşteri yorumları, FAQ. Hesaplama araçları, projeler, SSS sayfaları sonraki sürümde.",
+  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema-revizyon"]
 }
