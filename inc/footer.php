@@ -1,112 +1,127 @@
-</main>
+<?php
+$tel1 = ayar('firma_telefon_1', FIRMA_TEL_1);
+$tel2 = ayar('firma_telefon_2', FIRMA_TEL_2);
+$wa   = ayar('whatsapp_numara', FIRMA_WHATSAPP);
+$mail = ayar('firma_eposta', FIRMA_EMAIL);
+$adres= ayar('firma_adres', 'İzmir, Türkiye');
+$fb   = ayar('sosyal_facebook', '');
+$ig   = ayar('sosyal_instagram', '');
+$yt   = ayar('sosyal_youtube', '');
+$tw   = ayar('sosyal_x', '');
+?>
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <span class="azra">AZRA</span>
+                <span class="doga">DOĞALGAZ</span>
+                <p>İzmir'in güvenilir doğalgaz tesisat ve ısıtma çözümleri firması. Demirdöküm yetkili, İZMİRGAZ uyumlu, garantili işçilik ve 7/24 teknik destek.</p>
+                <div class="footer-social">
+                    <?php if ($fb): ?><a href="<?= e($fb) ?>" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a><?php endif; ?>
+                    <?php if ($ig): ?><a href="<?= e($ig) ?>" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a><?php endif; ?>
+                    <?php if ($yt): ?><a href="<?= e($yt) ?>" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a><?php endif; ?>
+                    <?php if ($tw): ?><a href="<?= e($tw) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fab fa-x-twitter"></i></a><?php endif; ?>
+                    <a href="https://wa.me/<?= e($wa) ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
 
-<!-- FOOTER -->
-<footer class="footer">
-    <div class="container footer-grid">
-        <div class="footer-col">
-            <a href="<?= SITE_URL ?>/" class="logo">
-                <span class="logo-text">
-                    <span class="logo-azra">AZRA</span>
-                    <span class="logo-doga">DOĞALGAZ</span>
-                </span>
-            </a>
-            <p class="footer-desc">Konforlu yaşam, güvenli gelecek. İzmir'de Demirdöküm yetkili tesisat firması olarak doğalgaz, kombi, klima ve tesisat hizmetleri sunuyoruz.</p>
-            <div class="footer-social">
-                <?php
-                $sosyal = [
-                    'facebook'  => ayar('sosyal_facebook'),
-                    'instagram' => ayar('sosyal_instagram'),
-                    'youtube'   => ayar('sosyal_youtube'),
-                    'twitter'   => ayar('sosyal_x'),
-                ];
-                foreach ($sosyal as $tip => $link) {
-                    if ($link) echo '<a href="' . e($link) . '" target="_blank" rel="noopener" aria-label="' . $tip . '"><i class="fab fa-' . $tip . '"></i></a>';
-                }
-                ?>
+            <div class="footer-col">
+                <h4>Hizmetler</h4>
+                <ul>
+                    <li><a href="<?= SITE_URL ?>/kategori/dogalgaz-tesisati">Doğalgaz Tesisatı</a></li>
+                    <li><a href="<?= SITE_URL ?>/kategori/kombi-servisi">Kombi Servisi</a></li>
+                    <li><a href="<?= SITE_URL ?>/kategori/klima-montaji">Klima Montajı</a></li>
+                    <li><a href="<?= SITE_URL ?>/kategori/yerden-isitma">Yerden Isıtma</a></li>
+                    <li><a href="<?= SITE_URL ?>/kategori/havalandirma">Havalandırma</a></li>
+                    <li><a href="<?= SITE_URL ?>/kategori/sihhi-tesisat">Sıhhi Tesisat</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Kurumsal</h4>
+                <ul>
+                    <li><a href="<?= SITE_URL ?>/hakkimizda">Hakkımızda</a></li>
+                    <li><a href="<?= SITE_URL ?>/projeler">Projelerimiz</a></li>
+                    <li><a href="<?= SITE_URL ?>/kampanyalar">Kampanyalar</a></li>
+                    <li><a href="<?= SITE_URL ?>/blog">Blog</a></li>
+                    <li><a href="<?= SITE_URL ?>/sss">Sık Sorulan Sorular</a></li>
+                    <li><a href="<?= SITE_URL ?>/kesif">Ücretsiz Keşif</a></li>
+                    <li><a href="<?= SITE_URL ?>/kvkk">KVKK</a></li>
+                    <li><a href="<?= SITE_URL ?>/gizlilik">Gizlilik Politikası</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col footer-contact">
+                <h4>İletişim</h4>
+                <div class="item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <strong>Telefon</strong>
+                        <a href="tel:<?= e(preg_replace('/\s/','',$tel1)) ?>"><?= e($tel1) ?></a><br>
+                        <a href="tel:<?= e(preg_replace('/\s/','',$tel2)) ?>"><?= e($tel2) ?></a>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <strong>E-posta</strong>
+                        <a href="mailto:<?= e($mail) ?>"><?= e($mail) ?></a>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="fab fa-whatsapp"></i>
+                    <div>
+                        <strong>WhatsApp</strong>
+                        <a href="https://wa.me/<?= e($wa) ?>" target="_blank">7/24 Hızlı Destek</a>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <strong>Adres</strong>
+                        <?= e($adres) ?>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="footer-col">
-            <h4>Kurumsal</h4>
-            <ul>
-                <li><a href="<?= SITE_URL ?>/hakkimizda">Hakkımızda</a></li>
-                <li><a href="<?= SITE_URL ?>/hizmetler">Hizmetlerimiz</a></li>
-                <li><a href="<?= SITE_URL ?>/kampanyalar">Kampanyalar</a></li>
-                <li><a href="<?= SITE_URL ?>/blog">Blog</a></li>
-                <li><a href="<?= SITE_URL ?>/iletisim">İletişim</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-col">
-            <h4>Hizmetlerimiz</h4>
-            <ul>
-                <?php foreach (db_all("SELECT ad, slug FROM hizmet_kategorileri WHERE aktif=1 ORDER BY sira ASC LIMIT 6") as $k): ?>
-                    <li><a href="<?= SITE_URL ?>/kategori/<?= e($k['slug']) ?>"><?= e($k['ad']) ?></a></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-
-        <div class="footer-col">
-            <h4>İletişim</h4>
-            <ul class="footer-contact">
-                <li><i class="fas fa-phone-volume"></i> <a href="tel:<?= preg_replace('/\s/','',ayar('firma_telefon_1', FIRMA_TEL_1)) ?>"><?= e(ayar('firma_telefon_1', FIRMA_TEL_1)) ?></a></li>
-                <li><i class="fas fa-phone-volume"></i> <a href="tel:<?= preg_replace('/\s/','',ayar('firma_telefon_2', FIRMA_TEL_2)) ?>"><?= e(ayar('firma_telefon_2', FIRMA_TEL_2)) ?></a></li>
-                <li><i class="fas fa-envelope"></i> <a href="mailto:<?= e(ayar('firma_eposta', FIRMA_EMAIL)) ?>"><?= e(ayar('firma_eposta', FIRMA_EMAIL)) ?></a></li>
-                <li><i class="fas fa-map-marker-alt"></i> <?= e(ayar('firma_adres', FIRMA_ADRES)) ?></li>
-                <li><i class="fas fa-clock"></i> <?= e(ayar('firma_calisma_saatleri','Pzt-Cmt 08:00-20:00')) ?></li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="footer-bottom">
-        <div class="container footer-bottom-inner">
-            <span>© <?= date('Y') ?> <?= e(SITE_TITLE) ?> — Tüm hakları saklıdır.</span>
-            <span>
-                <a href="<?= SITE_URL ?>/kvkk">KVKK</a>
-                <a href="<?= SITE_URL ?>/gizlilik">Gizlilik</a>
-                <a href="https://codega.com.tr" target="_blank" rel="noopener">CODEGA</a>
-            </span>
+        <div class="footer-bottom">
+            © <?= date('Y') ?> Azra Doğalgaz Tesisat — Tüm hakları saklıdır. ·
+            Web Tasarım: <a href="https://codega.com.tr" target="_blank" rel="noopener">CODEGA</a>
         </div>
     </div>
 </footer>
 
-<!-- WHATSAPP DÜĞMESİ -->
-<?php $wp = ayar('whatsapp_numara'); if ($wp): ?>
-<a href="https://wa.me/<?= e($wp) ?>?text=Merhaba%20Azra%20Do%C4%9Falgaz%2C%20bilgi%20almak%20istiyorum." class="float-wp" target="_blank" rel="noopener" aria-label="WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-</a>
-<?php endif; ?>
+<a href="https://wa.me/<?= e($wa) ?>" target="_blank" class="fab-whatsapp" aria-label="WhatsApp ile iletişim"><i class="fab fa-whatsapp"></i></a>
 
-<!-- ALT MOBİL BAR (Yunus'un imza navigasyonu) -->
-<nav class="mobile-bottom-nav">
-    <a href="<?= SITE_URL ?>/" class="mb-item"><i class="fas fa-home"></i><span>Ana Sayfa</span></a>
-    <a href="<?= SITE_URL ?>/hizmetler" class="mb-item"><i class="fas fa-tools"></i><span>Hizmetler</span></a>
-    <a href="tel:<?= preg_replace('/\s/','',ayar('firma_telefon_1', FIRMA_TEL_1)) ?>" class="mb-item mb-call"><i class="fas fa-phone-volume"></i><span>Hemen Ara</span></a>
-    <a href="<?= SITE_URL ?>/kampanyalar" class="mb-item"><i class="fas fa-tags"></i><span>Kampanyalar</span></a>
-    <a href="<?= SITE_URL ?>/iletisim" class="mb-item"><i class="fas fa-paper-plane"></i><span>İletişim</span></a>
+<nav class="mobile-bar" aria-label="Mobil hızlı erişim">
+    <div class="container">
+        <div class="mobile-bar-grid">
+            <a href="tel:<?= e(preg_replace('/\s/','',$tel1)) ?>" class="call"><i class="fas fa-phone"></i>Ara</a>
+            <a href="https://wa.me/<?= e($wa) ?>" class="wa" target="_blank"><i class="fab fa-whatsapp"></i>WhatsApp</a>
+            <a href="<?= SITE_URL ?>/kesif"><i class="fas fa-clipboard-check"></i>Keşif</a>
+            <a href="<?= SITE_URL ?>/iletisim"><i class="fas fa-envelope"></i>İletişim</a>
+        </div>
+    </div>
 </nav>
 
 <script>
-// Sticky header
-(function(){
-    const h = document.getElementById('header');
-    const onScroll = () => h.classList.toggle('scrolled', window.scrollY > 50);
-    window.addEventListener('scroll', onScroll, {passive:true});
-    onScroll();
-})();
-// Mobile menu toggle
+document.addEventListener('scroll', () => {
+    const h = document.getElementById('siteHeader');
+    if (h) h.classList.toggle('scrolled', window.scrollY > 20);
+});
 (function(){
     const t = document.getElementById('menuToggle');
     const n = document.getElementById('mainNav');
     if (!t || !n) return;
-    t.addEventListener('click', () => {
-        t.classList.toggle('open');
-        n.classList.toggle('open');
+    t.addEventListener('click', () => n.classList.toggle('open'));
+    document.addEventListener('click', e => {
+        if (window.innerWidth <= 1100 && !n.contains(e.target) && !t.contains(e.target)) {
+            n.classList.remove('open');
+        }
     });
-    n.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-        t.classList.remove('open'); n.classList.remove('open');
-    }));
 })();
 </script>
+
 </body>
 </html>

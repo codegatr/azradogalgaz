@@ -38,6 +38,14 @@ DirectoryIndex index.php index.html
     RewriteRule ^kvkk/?$ kvkk.php [L]
     RewriteRule ^gizlilik/?$ gizlilik.php [L]
 
+    # v1.4.0 — Yeni sayfalar
+    RewriteRule ^kesif/?$ kesif.php [L]
+    RewriteRule ^projeler/?$ projeler.php [L]
+    RewriteRule ^sss/?$ sss.php [L]
+    RewriteRule ^kombi-hesaplama/?$ kombi-hesaplama.php [L]
+    RewriteRule ^klima-hesaplama/?$ klima-hesaplama.php [L]
+    RewriteRule ^bilgi-bankasi/?$ bilgi-bankasi.php [L]
+
     # Trailing slash kaldır
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} ^(.+)/$
