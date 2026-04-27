@@ -17,7 +17,7 @@ if ($arama) {
 if ($kat_id)   { $where .= " AND u.kategori_id = ?"; $params[] = $kat_id; }
 if ($marka_id) { $where .= " AND u.marka_id = ?";    $params[] = $marka_id; }
 
-$toplam = (int)db_get("SELECT COUNT(*) c FROM urunler u WHERE $where", $params)['c'];
+$toplam = (int)(db_get("SELECT COUNT(*) c FROM urunler u WHERE $where", $params)['c'] ?? 0);
 $toplam_sayfa = max(1, (int)ceil($toplam / $limit));
 
 $urunler = db_all(
@@ -34,146 +34,135 @@ $urunler = db_all(
 $kategoriler = db_all("SELECT id, ad FROM urun_kategorileri WHERE aktif=1 ORDER BY sira ASC, ad ASC");
 $markalar    = db_all("SELECT id, ad FROM markalar WHERE aktif=1 ORDER BY ad ASC");
 
-set_meta([
-    'baslik'    => 'Ürünler — Kombi, Klima, Tesisat Malzemeleri | ' . SITE_TITLE,
-    'aciklama'  => 'İzmir\'de Demirdöküm, Bosch, Vaillant, Baymak ve Daikin marka kombi, klima ve tesisat ürünleri. Yetkili bayi fiyatlarıyla.',
-    'kelimeler' => 'demirdöküm kombi, bosch kombi, vaillant kombi, daikin klima, izmir kombi fiyat',
-    'canonical' => SITE_URL . '/urunler' . ($sayfa > 1 ? '?sayfa=' . $sayfa : ''),
-]);
+$sayfa_baslik   = 'Ürünler — Kombi, Klima, Tesisat Malzemeleri | Azra Doğalgaz';
+$sayfa_aciklama = 'İzmir\'de Demirdöküm, Bosch, Vaillant, Daikin, Mitsubishi marka kombi, klima ve tesisat ürünleri. Yetkili bayi fiyatlarıyla.';
+$kanonik_url    = SITE_URL . '/urunler' . ($sayfa > 1 ? '?sayfa=' . $sayfa : '');
 
-$ekstra = schema_org([
+$schema_jsonld = [
     '@context' => 'https://schema.org',
     '@type'    => 'BreadcrumbList',
     'itemListElement' => [
         ['@type'=>'ListItem','position'=>1,'name'=>'Ana Sayfa','item'=>SITE_URL.'/'],
         ['@type'=>'ListItem','position'=>2,'name'=>'Ürünler','item'=>SITE_URL.'/urunler'],
     ],
-]);
-set_meta(['extra_schema' => $ekstra]);
+];
 
-// QS yardımcı
-function qs(array $degis): string {
-    $g = $_GET; foreach ($degis as $k=>$v) $g[$k] = $v;
-    foreach ($g as $k=>$v) if ($v === '' || $v === 0 || $v === '0') unset($g[$k]);
-    return $g ? '?' . http_build_query($g) : '';
-}
-
-require_once INC_PATH . '/header.php';
+require_once __DIR__ . '/inc/header.php';
 ?>
 
-<section class="page-hero">
+<section class="page-header">
     <div class="container">
-        <nav class="breadcrumb">
+        <div class="breadcrumb">
             <a href="<?= SITE_URL ?>/">Ana Sayfa</a>
-            <i class="fas fa-chevron-right"></i>
+            <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
             <span>Ürünler</span>
-        </nav>
-        <h1>Ürünler</h1>
-        <p>Demirdöküm, Bosch, Vaillant, Baymak ve daha fazlası — yetkili bayi güvencesiyle.</p>
+        </div>
+        <h1>Ürünlerimiz</h1>
+        <p style="max-width:680px;margin:0 auto;color:var(--c-muted)">Kombi, klima, ısı pompası, radyatör, kazan ve tesisat ürünleri — yetkili bayi olduğumuz markaların orijinal ürünleri.</p>
     </div>
 </section>
 
-<section class="sec">
-    <div class="container list-grid">
-        <aside class="filter-side">
-            <form class="filter-form" method="get" action="<?= SITE_URL ?>/urunler">
-                <h4><i class="fas fa-magnifying-glass"></i> Arama</h4>
-                <input type="search" name="q" value="<?= e($arama) ?>" placeholder="Ürün ara…" class="filter-input">
+<section class="s">
+    <div class="container">
 
-                <?php if ($kategoriler): ?>
-                <h4 style="margin-top:18px"><i class="fas fa-tags"></i> Kategori</h4>
-                <select name="kategori" class="filter-input">
-                    <option value="0">Tümü</option>
-                    <?php foreach ($kategoriler as $k): ?>
-                        <option value="<?= (int)$k['id'] ?>" <?= $kat_id===(int)$k['id']?'selected':'' ?>><?= e($k['ad']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <?php endif; ?>
-
-                <?php if ($markalar): ?>
-                <h4 style="margin-top:18px"><i class="fas fa-trademark"></i> Marka</h4>
-                <select name="marka" class="filter-input">
-                    <option value="0">Tümü</option>
-                    <?php foreach ($markalar as $m): ?>
-                        <option value="<?= (int)$m['id'] ?>" <?= $marka_id===(int)$m['id']?'selected':'' ?>><?= e($m['ad']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <?php endif; ?>
-
-                <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:18px" type="submit">
-                    <i class="fas fa-filter"></i> Filtrele
-                </button>
-                <?php if ($arama || $kat_id || $marka_id): ?>
-                    <a href="<?= SITE_URL ?>/urunler" class="filter-clear">Filtreleri Temizle</a>
-                <?php endif; ?>
-            </form>
-        </aside>
-
-        <div class="list-content">
-            <div class="list-toolbar">
-                <span><strong><?= $toplam ?></strong> ürün bulundu</span>
-                <span class="muted">Sayfa <?= $sayfa ?> / <?= $toplam_sayfa ?></span>
+        <!-- Filtre formu -->
+        <form method="get" class="card" style="background:#fff;padding:20px;margin-bottom:30px">
+            <div class="form-row cols-3" style="margin-bottom:12px">
+                <div class="field">
+                    <label>Ürün Ara</label>
+                    <input type="text" name="q" value="<?= e($arama) ?>" class="input" placeholder="Kombi, klima, marka...">
+                </div>
+                <div class="field">
+                    <label>Kategori</label>
+                    <select name="kategori">
+                        <option value="">Tümü</option>
+                        <?php foreach ($kategoriler as $k): ?>
+                        <option value="<?= (int)$k['id'] ?>" <?= $kat_id == $k['id'] ? 'selected' : '' ?>><?= e($k['ad']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Marka</label>
+                    <select name="marka">
+                        <option value="">Tümü</option>
+                        <?php foreach ($markalar as $m): ?>
+                        <option value="<?= (int)$m['id'] ?>" <?= $marka_id == $m['id'] ? 'selected' : '' ?>><?= e($m['ad']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
-
-            <?php if ($urunler): ?>
-                <div class="cards-grid">
-                    <?php foreach ($urunler as $u): ?>
-                        <article class="product-card">
-                            <div class="thumb">
-                                <?php if ($u['gorsel']): ?>
-                                    <img src="<?= UPLOAD_URL . '/' . e($u['gorsel']) ?>" alt="<?= e($u['ad']) ?>" loading="lazy">
-                                <?php else: ?>
-                                    <i class="fas fa-fire-flame-curved"></i>
-                                <?php endif; ?>
-                                <?php if ((float)$u['indirimli_fiyat'] > 0 && $u['indirimli_fiyat'] < $u['fiyat']): ?>
-                                    <span class="badge-discount">İndirim</span>
-                                <?php elseif ($u['one_cikan']): ?>
-                                    <span class="badge-featured">Öne Çıkan</span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="body">
-                                <span class="brand"><?= e($u['marka_ad'] ?? '—') ?></span>
-                                <h4><?= e($u['ad']) ?></h4>
-                                <p class="desc"><?= e(mb_substr((string)$u['kisa_aciklama'], 0, 110)) ?></p>
-                                <?php $f = (float)($u['indirimli_fiyat'] ?: $u['fiyat']); if ($f > 0): ?>
-                                    <div class="price">
-                                        <?php if ((float)$u['indirimli_fiyat'] > 0 && $u['indirimli_fiyat'] < $u['fiyat']): ?>
-                                            <span class="old"><?= number_format((float)$u['fiyat'], 0, ',', '.') ?> ₺</span>
-                                        <?php endif; ?>
-                                        <?= number_format($f, 0, ',', '.') ?> ₺
-                                    </div>
-                                <?php endif; ?>
-                                <a href="<?= SITE_URL ?>/urun/<?= e($u['slug']) ?>" class="btn btn-primary">İncele <i class="fas fa-arrow-right"></i></a>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-
-                <?php if ($toplam_sayfa > 1): ?>
-                    <nav class="pagination">
-                        <?php if ($sayfa > 1): ?>
-                            <a href="<?= qs(['sayfa'=>$sayfa-1]) ?>"><i class="fas fa-chevron-left"></i></a>
-                        <?php endif; ?>
-                        <?php for ($p=1; $p<=$toplam_sayfa; $p++):
-                            if ($p > 3 && $p < $sayfa-1) continue;
-                            if ($p < $toplam_sayfa-2 && $p > $sayfa+1) continue;
-                        ?>
-                            <a href="<?= qs(['sayfa'=>$p]) ?>" class="<?= $p===$sayfa?'active':'' ?>"><?= $p ?></a>
-                        <?php endfor; ?>
-                        <?php if ($sayfa < $toplam_sayfa): ?>
-                            <a href="<?= qs(['sayfa'=>$sayfa+1]) ?>"><i class="fas fa-chevron-right"></i></a>
-                        <?php endif; ?>
-                    </nav>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-magnifying-glass"></i> Filtrele</button>
+                <?php if ($arama || $kat_id || $marka_id): ?>
+                <a href="<?= SITE_URL ?>/urunler" class="btn btn-out btn-sm">Filtreleri Temizle</a>
                 <?php endif; ?>
-            <?php else: ?>
-                <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <p>Aramanıza uygun ürün bulunamadı.</p>
-                    <a href="<?= SITE_URL ?>/urunler" class="btn btn-outline">Tüm Ürünler</a>
+                <span style="margin-left:auto;color:var(--c-muted);font-size:.88rem"><?= $toplam ?> ürün bulundu</span>
+            </div>
+        </form>
+
+        <?php if ($urunler): ?>
+        <div class="products">
+            <?php foreach ($urunler as $u):
+                $fiyat = (float)($u['indirimli_fiyat'] ?: $u['fiyat']);
+                $eski  = (float)$u['fiyat'];
+                $indirim = ($u['indirimli_fiyat'] && $eski > $fiyat);
+            ?>
+            <a href="<?= SITE_URL ?>/urun/<?= e($u['slug']) ?>" class="product-card" style="text-decoration:none;color:inherit">
+                <div class="product-image">
+                    <?php if ($u['gorsel']): ?>
+                        <img src="<?= e(UPLOAD_URL . '/' . $u['gorsel']) ?>" alt="<?= e($u['ad']) ?>" loading="lazy">
+                    <?php else: ?>
+                        <i class="fas fa-fire-flame-curved" style="font-size:3rem;color:var(--c-primary);opacity:.4"></i>
+                    <?php endif; ?>
+                    <?php if ($indirim): ?><span class="badge">İndirim</span>
+                    <?php elseif ($u['one_cikan']): ?><span class="badge">Öne Çıkan</span><?php endif; ?>
                 </div>
+                <div class="product-body">
+                    <?php if (!empty($u['marka_ad'])): ?><span class="product-brand"><?= e($u['marka_ad']) ?></span><?php endif; ?>
+                    <h4><?= e($u['ad']) ?></h4>
+                    <?php if ($fiyat > 0): ?>
+                    <div class="product-price">
+                        <?php if ($indirim): ?><span class="old"><?= tl($eski) ?></span><?php endif; ?>
+                        <?= tl($fiyat) ?>
+                    </div>
+                    <?php endif; ?>
+                    <span class="btn btn-out btn-sm btn-block">Detaylar <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+            <?php endforeach; ?>
+        </div>
+
+        <?php if ($toplam_sayfa > 1): ?>
+        <div class="pager">
+            <?php if ($sayfa > 1): ?>
+                <a href="?<?= http_build_query(array_merge($_GET, ['sayfa'=>$sayfa-1])) ?>"><i class="fas fa-chevron-left"></i></a>
+            <?php endif; ?>
+            <?php for ($i=1;$i<=$toplam_sayfa;$i++):
+                if ($i==$sayfa): ?>
+                <span class="active"><?= $i ?></span>
+                <?php else: ?>
+                <a href="?<?= http_build_query(array_merge($_GET, ['sayfa'=>$i])) ?>"><?= $i ?></a>
+            <?php endif; endfor; ?>
+            <?php if ($sayfa < $toplam_sayfa): ?>
+                <a href="?<?= http_build_query(array_merge($_GET, ['sayfa'=>$sayfa+1])) ?>"><i class="fas fa-chevron-right"></i></a>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
+
+        <?php else: ?>
+        <div class="alert alert-info" style="max-width:680px;margin:0 auto">
+            <i class="fas fa-circle-info"></i>
+            <div>
+                <strong>Filtreye uygun ürün bulunamadı.</strong>
+                <?php if ($arama || $kat_id || $marka_id): ?>
+                <br><a href="<?= SITE_URL ?>/urunler" style="color:var(--c-primary);font-weight:600">Filtreleri temizleyin</a> veya farklı kelime deneyin.
+                <?php else: ?>
+                Ürünler henüz eklenmedi. Bilgi almak için bize ulaşın.
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 
-<?php require_once INC_PATH . '/footer.php'; ?>
+<?php require_once __DIR__ . '/inc/footer.php'; ?>

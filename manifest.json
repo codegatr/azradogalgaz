@@ -1,11 +1,11 @@
 {
   "name": "Azra Doğalgaz Web Sistemi",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "release_date": "2026-04-27",
   "min_php": "8.1",
   "repo": "codegatr/azradogalgaz",
   "branch": "main",
   "channel": "stable",
-  "changelog": "Asama 6 Paket 2: 5 yeni sayfa eklendi. Kombi Hesaplama (interaktif), Klima BTU Hesaplama (interaktif), Projeler galerisi, SSS (25 detayli soru, FAQPage Schema), Bilgi Bankasi (uzun rehber). DB migration: 5 yeni hizmet kategorisi + projeler tablosu.",
-  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema", "6b-yeni-sayfalar"]
+  "changelog": "Asama 6 Paket 3: KRITIK FIX + tum ic sayfalar acik temaya uyarlandi. Onceki surumlerde ic sayfalarda INC_PATH sabiti tanimsiz oldugu icin fatal error veriliyordu (Yunus tarafindan canlida raporlandi). 13 sayfa yeniden yazildi: 404, hakkimizda, iletisim, kvkk, gizlilik, hizmetler, hizmet, kategori, urunler, urun, kampanyalar, kampanya, blog. Hepsi yeni acik tema (page-header, prose, services, products, calc-widget, cta-band) kullaniyor ve __DIR__/inc/header.php yapisina gecirildi. 25 sayfada simulasyon basarili.",
+  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema", "6b-yeni-sayfalar", "6c-ic-sayfalar-tema-uyarlama-fatal-fix"]
 }

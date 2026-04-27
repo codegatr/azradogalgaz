@@ -3,89 +3,97 @@ require_once __DIR__ . '/config.php';
 
 $kampanyalar = db_all("SELECT * FROM kampanyalar WHERE aktif=1 ORDER BY id DESC");
 
-set_meta([
-    'baslik'    => 'Kampanyalar — Kombi & Klima Paket Fiyatları | ' . SITE_TITLE,
-    'aciklama'  => 'İzmir\'de Demirdöküm kombi paketi 80.000 ₺\'den başlayan fiyatlarla. 6 taksit, ücretsiz keşif, İzmirgaz uyumlu kurulum.',
-    'kelimeler' => 'izmir kombi kampanya, kombi paket fiyat, demirdöküm kampanya, izmir doğalgaz indirim',
-    'canonical' => SITE_URL . '/kampanyalar',
-]);
+$sayfa_baslik   = 'Kampanyalar — Kombi & Klima Paket Fiyatları | Azra Doğalgaz';
+$sayfa_aciklama = 'İzmir\'de Demirdöküm kombi paketi 80.000 ₺\'den başlayan fiyatlarla. 6 taksit, ücretsiz keşif, İzmirgaz uyumlu kurulum.';
+$kanonik_url    = SITE_URL . '/kampanyalar';
 
-$ekstra = schema_org([
+$schema_jsonld = [
     '@context' => 'https://schema.org',
     '@type'    => 'BreadcrumbList',
     'itemListElement' => [
         ['@type'=>'ListItem','position'=>1,'name'=>'Ana Sayfa','item'=>SITE_URL.'/'],
         ['@type'=>'ListItem','position'=>2,'name'=>'Kampanyalar','item'=>SITE_URL.'/kampanyalar'],
     ],
-]);
-set_meta(['extra_schema' => $ekstra]);
+];
 
-require_once INC_PATH . '/header.php';
+require_once __DIR__ . '/inc/header.php';
 ?>
 
-<section class="page-hero">
+<section class="page-header">
     <div class="container">
-        <nav class="breadcrumb">
+        <div class="breadcrumb">
             <a href="<?= SITE_URL ?>/">Ana Sayfa</a>
-            <i class="fas fa-chevron-right"></i>
+            <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
             <span>Kampanyalar</span>
-        </nav>
+        </div>
         <h1>Kampanyalar</h1>
-        <p>Kombi, klima ve tesisat paketlerinde fırsat fiyatları. Sınırlı süreli kampanyaları kaçırmayın!</p>
+        <p style="max-width:680px;margin:0 auto;color:var(--c-muted)">Kombi, klima ve tesisat paketlerinde fırsat fiyatları. Sınırlı süreli kampanyaları kaçırmayın!</p>
     </div>
 </section>
 
-<section class="sec">
+<section class="s">
     <div class="container">
         <?php if ($kampanyalar): ?>
-            <div class="campaign-grid">
-                <?php foreach ($kampanyalar as $k): ?>
-                    <article class="campaign-card">
-                        <div class="thumb">
-                            <?php if ($k['gorsel']): ?>
-                                <img src="<?= UPLOAD_URL . '/' . e($k['gorsel']) ?>" alt="<?= e($k['baslik']) ?>" loading="lazy">
-                            <?php else: ?>
-                                <div class="thumb-placeholder">
-                                    <i class="fas fa-fire-flame-curved"></i>
-                                </div>
-                            <?php endif; ?>
-                            <span class="campaign-tag">🔥 Kampanya</span>
-                        </div>
-                        <div class="body">
-                            <h3><?= e($k['baslik']) ?></h3>
-                            <p><?= e(mb_substr((string)$k['kisa_aciklama'], 0, 160)) ?></p>
-                            <div class="price-row" style="margin-top:14px">
-                                <?php if ((float)$k['nakit_fiyat'] > 0): ?>
-                                    <div class="price-box cash">
-                                        <small>Nakit</small>
-                                        <strong><?= number_format((float)$k['nakit_fiyat'], 0, ',', '.') ?> ₺</strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ((float)$k['kart_fiyat'] > 0): ?>
-                                    <div class="price-box card">
-                                        <small>Kart</small>
-                                        <strong><?= number_format((float)$k['kart_fiyat'], 0, ',', '.') ?> ₺</strong>
-                                        <?php if ((int)$k['taksit_sayisi'] > 0): ?>
-                                            <span><?= (int)$k['taksit_sayisi'] ?> Taksit</span>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
+        <div class="services">
+            <?php foreach ($kampanyalar as $k):
+                $nakit = (float)$k['nakit_fiyat'];
+                $kart  = (float)$k['kart_fiyat'];
+                $taksit = (int)($k['taksit_sayisi'] ?? 0);
+            ?>
+            <article class="service-card">
+                <div class="service-image" style="position:relative">
+                    <?php if (!empty($k['gorsel'])): ?>
+                        <img src="<?= e(UPLOAD_URL.'/'.$k['gorsel']) ?>" alt="<?= e($k['baslik']) ?>" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                    <?php else: ?>
+                        <i class="fas fa-fire-flame-curved"></i>
+                    <?php endif; ?>
+                    <span style="position:absolute;top:12px;left:12px;background:var(--c-red);color:#fff;padding:5px 12px;border-radius:50px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;z-index:2">🔥 Kampanya</span>
+                </div>
+                <div class="service-body">
+                    <h3><?= e($k['baslik']) ?></h3>
+                    <?php if (!empty($k['kisa_aciklama'])): ?>
+                    <p><?= e(mb_strimwidth($k['kisa_aciklama'], 0, 130, '…', 'UTF-8')) ?></p>
+                    <?php endif; ?>
+
+                    <?php if ($nakit > 0): ?>
+                    <div style="background:var(--c-primary-l);border-radius:10px;padding:14px;margin:12px 0">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                            <div>
+                                <div style="font-size:.7rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:.5px">Peşin</div>
+                                <div style="font-family:var(--font-display);font-weight:800;color:var(--c-primary-d);font-size:1.05rem"><?= tl($nakit) ?></div>
                             </div>
-                            <a href="<?= SITE_URL ?>/kampanya/<?= e($k['slug']) ?>" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">
-                                <i class="fas fa-arrow-right"></i> Detayları Gör
-                            </a>
+                            <?php if ($kart > 0): ?>
+                            <div>
+                                <div style="font-size:.7rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:.5px">Kart<?= $taksit ? ' / '.$taksit.' Taksit' : '' ?></div>
+                                <div style="font-family:var(--font-display);font-weight:800;color:var(--c-blue-d);font-size:1.05rem"><?= tl($kart) ?></div>
+                            </div>
+                            <?php endif; ?>
                         </div>
-                    </article>
-                <?php endforeach; ?>
-            </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <a href="<?= SITE_URL ?>/kampanya/<?= e($k['slug']) ?>" class="btn btn-primary btn-block"><i class="fas fa-fire"></i> Kampanya Detayları</a>
+                </div>
+            </article>
+            <?php endforeach; ?>
+        </div>
         <?php else: ?>
-            <div class="empty-state">
-                <i class="fas fa-tags"></i>
-                <p>Şu anda aktif kampanya bulunmamaktadır. Yakında yeni fırsatlar için takipte kalın!</p>
-                <a href="<?= SITE_URL ?>/iletisim" class="btn btn-primary">Bize Ulaşın</a>
-            </div>
+        <div class="alert alert-info" style="max-width:680px;margin:0 auto">
+            <i class="fas fa-circle-info"></i>
+            <div><strong>Şu an aktif kampanya yok.</strong> Yeni kampanyalardan haberdar olmak için bizi takip edebilir veya iletişime geçebilirsiniz.</div>
+        </div>
         <?php endif; ?>
     </div>
 </section>
 
-<?php require_once INC_PATH . '/footer.php'; ?>
+<section class="cta-band">
+    <div class="container">
+        <div>
+            <h3>Size özel teklif hazırlayalım</h3>
+            <p>Adresinize keşif ekibi gönderelim, ihtiyacınıza özel kampanya teklifi sunalım.</p>
+        </div>
+        <a href="<?= SITE_URL ?>/kesif" class="btn btn-lg"><i class="fas fa-clipboard-check"></i> Ücretsiz Keşif</a>
+    </div>
+</section>
+
+<?php require_once __DIR__ . '/inc/footer.php'; ?>

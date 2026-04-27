@@ -17,7 +17,6 @@ $benzer = db_all(
      FROM urunler WHERE kategori_id=? AND id<>? AND aktif=1 ORDER BY one_cikan DESC, id DESC LIMIT 4",
     [$u['kategori_id'], $u['id']]);
 
-// Galeri JSON çözümle
 $galeri = [];
 if ($u['galeri']) {
     $tmp = json_decode((string)$u['galeri'], true);
@@ -25,192 +24,168 @@ if ($u['galeri']) {
 }
 
 $fiyat = (float)($u['indirimli_fiyat'] ?: $u['fiyat']);
+$eski  = (float)$u['fiyat'];
+$indirim = ($u['indirimli_fiyat'] && $eski > $fiyat);
 
-set_meta([
-    'baslik'    => e($u['meta_baslik'] ?: ($u['ad'] . ' — ' . ($u['marka_ad'] ?? ''))) . ' | ' . SITE_TITLE,
-    'aciklama'  => e($u['meta_aciklama'] ?: meta_aciklama((string)$u['kisa_aciklama'])),
-    'canonical' => SITE_URL . '/urun/' . e($slug),
-    'og_image'  => $u['gorsel'] ? UPLOAD_URL . '/' . e($u['gorsel']) : SITE_URL . '/assets/img/og-default.jpg',
-]);
+$sayfa_baslik   = e($u['meta_baslik'] ?: ($u['ad'] . ($u['marka_ad'] ? ' — ' . $u['marka_ad'] : ''))) . ' | Azra Doğalgaz';
+$sayfa_aciklama = e($u['meta_aciklama'] ?: meta_aciklama((string)$u['kisa_aciklama']));
+$kanonik_url    = SITE_URL . '/urun/' . e($slug);
+$og_resim       = $u['gorsel'] ? UPLOAD_URL . '/' . e($u['gorsel']) : SITE_URL . '/assets/img/og-default.jpg';
 
-$ekstra = schema_org([
-    '@context' => 'https://schema.org',
-    '@type'    => 'BreadcrumbList',
-    'itemListElement' => array_filter([
-        ['@type'=>'ListItem','position'=>1,'name'=>'Ana Sayfa','item'=>SITE_URL.'/'],
-        ['@type'=>'ListItem','position'=>2,'name'=>'Ürünler','item'=>SITE_URL.'/urunler'],
-        ['@type'=>'ListItem','position'=>3,'name'=>$u['ad'],'item'=>SITE_URL.'/urun/'.$slug],
+$schema_jsonld = [
+    [
+        '@context' => 'https://schema.org',
+        '@type'    => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type'=>'ListItem','position'=>1,'name'=>'Ana Sayfa','item'=>SITE_URL.'/'],
+            ['@type'=>'ListItem','position'=>2,'name'=>'Ürünler','item'=>SITE_URL.'/urunler'],
+            ['@type'=>'ListItem','position'=>3,'name'=>$u['ad'],'item'=>SITE_URL.'/urun/'.$slug],
+        ],
+    ],
+    array_filter([
+        '@context' => 'https://schema.org',
+        '@type'    => 'Product',
+        'name'     => $u['ad'],
+        'description' => $u['kisa_aciklama'] ?: $u['meta_aciklama'],
+        'image'    => $u['gorsel'] ? UPLOAD_URL . '/' . $u['gorsel'] : null,
+        'sku'      => $u['sku'] ?: null,
+        'brand'    => $u['marka_ad'] ? ['@type'=>'Brand','name'=>$u['marka_ad']] : null,
+        'offers'   => $fiyat > 0 ? [
+            '@type'=>'Offer',
+            'priceCurrency'=>'TRY',
+            'price'=>$fiyat,
+            'availability'=>'https://schema.org/InStock',
+            'url'=>SITE_URL.'/urun/'.$slug,
+            'seller'=>['@type'=>'Organization','name'=>'Azra Doğalgaz'],
+        ] : null,
     ]),
-]) . schema_org(array_filter([
-    '@context'=>'https://schema.org',
-    '@type'=>'Product',
-    'name'=>$u['ad'],
-    'description'=>$u['kisa_aciklama'] ?: $u['meta_aciklama'],
-    'image'=>$u['gorsel'] ? UPLOAD_URL . '/' . $u['gorsel'] : null,
-    'sku'=>$u['sku'] ?: null,
-    'brand'=>$u['marka_ad'] ? ['@type'=>'Brand','name'=>$u['marka_ad']] : null,
-    'offers'=> $fiyat>0 ? [
-        '@type'=>'Offer',
-        'priceCurrency'=>'TRY',
-        'price'=>$fiyat,
-        'availability'=> ((int)$u['stok'] > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder'),
-        'url'=>SITE_URL.'/urun/'.$slug,
-        'seller'=>['@type'=>'Organization','name'=>SITE_TITLE],
-    ] : null,
-]));
-set_meta(['extra_schema' => $ekstra]);
+];
 
-require_once INC_PATH . '/header.php';
+require_once __DIR__ . '/inc/header.php';
 ?>
 
-<section class="page-hero">
+<section class="page-header">
     <div class="container">
-        <nav class="breadcrumb">
+        <div class="breadcrumb">
             <a href="<?= SITE_URL ?>/">Ana Sayfa</a>
-            <i class="fas fa-chevron-right"></i>
+            <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
             <a href="<?= SITE_URL ?>/urunler">Ürünler</a>
-            <i class="fas fa-chevron-right"></i>
-            <span><?= e($u['ad']) ?></span>
-        </nav>
+            <?php if ($u['kat_slug']): ?>
+                <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
+                <span><?= e($u['kat_ad']) ?></span>
+            <?php endif; ?>
+        </div>
     </div>
 </section>
 
-<section class="sec">
-    <div class="container product-detail">
-        <div class="product-gallery">
-            <div class="main-img" id="mainImg">
-                <?php if ($u['gorsel']): ?>
-                    <img src="<?= UPLOAD_URL . '/' . e($u['gorsel']) ?>" alt="<?= e($u['ad']) ?>" loading="eager">
-                <?php else: ?>
-                    <i class="fas fa-fire-flame-curved"></i>
-                <?php endif; ?>
-            </div>
-            <?php if ($galeri): ?>
-                <div class="thumbs">
+<section class="s">
+    <div class="container">
+        <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start" class="urun-grid">
+
+            <!-- Görseller -->
+            <div>
+                <div style="background:#fff;border:1px solid var(--c-line);border-radius:var(--r-lg);padding:30px;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;overflow:hidden">
                     <?php if ($u['gorsel']): ?>
-                        <button class="thumb-btn active" onclick="document.getElementById('mainImg').firstElementChild.src='<?= UPLOAD_URL . '/' . e($u['gorsel']) ?>'">
-                            <img src="<?= UPLOAD_URL . '/' . e($u['gorsel']) ?>" alt="">
-                        </button>
+                        <img src="<?= e(UPLOAD_URL . '/' . $u['gorsel']) ?>" alt="<?= e($u['ad']) ?>" style="max-width:90%;max-height:90%;object-fit:contain" id="ana-gorsel">
+                    <?php else: ?>
+                        <i class="fas fa-fire-flame-curved" style="font-size:6rem;color:var(--c-primary);opacity:.3"></i>
                     <?php endif; ?>
+                </div>
+
+                <?php if ($galeri): ?>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px">
                     <?php foreach ($galeri as $g): ?>
-                        <button class="thumb-btn" onclick="document.getElementById('mainImg').firstElementChild.src='<?= UPLOAD_URL . '/' . e($g) ?>'">
-                            <img src="<?= UPLOAD_URL . '/' . e($g) ?>" alt="">
-                        </button>
+                    <button type="button" onclick="document.getElementById('ana-gorsel').src='<?= e(UPLOAD_URL.'/'.$g) ?>'" style="aspect-ratio:1;background:#fff;border:1px solid var(--c-line);border-radius:8px;padding:6px;cursor:pointer;overflow:hidden">
+                        <img src="<?= e(UPLOAD_URL.'/'.$g) ?>" style="width:100%;height:100%;object-fit:contain">
+                    </button>
                     <?php endforeach; ?>
                 </div>
-            <?php endif; ?>
-        </div>
+                <?php endif; ?>
+            </div>
 
-        <div class="product-info">
-            <?php if ($u['marka_ad']): ?>
-                <span class="brand-tag"><?= e($u['marka_ad']) ?></span>
-            <?php endif; ?>
-            <h1><?= e($u['ad']) ?></h1>
-            <?php if ($u['kisa_aciklama']): ?>
-                <p class="lead"><?= e($u['kisa_aciklama']) ?></p>
-            <?php endif; ?>
+            <!-- Detay -->
+            <div>
+                <?php if (!empty($u['marka_ad'])): ?>
+                <div style="margin-bottom:8px"><span class="tag tag-primary"><?= e($u['marka_ad']) ?></span></div>
+                <?php endif; ?>
 
-            <?php if ($fiyat > 0): ?>
-                <div class="price-block">
-                    <?php if ((float)$u['indirimli_fiyat'] > 0 && $u['indirimli_fiyat'] < $u['fiyat']): ?>
-                        <span class="old"><?= number_format((float)$u['fiyat'], 0, ',', '.') ?> ₺</span>
+                <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;margin-bottom:14px"><?= e($u['ad']) ?></h1>
+
+                <?php if (!empty($u['kisa_aciklama'])): ?>
+                <p style="color:var(--c-muted);font-size:1rem;margin-bottom:20px;line-height:1.7"><?= e($u['kisa_aciklama']) ?></p>
+                <?php endif; ?>
+
+                <?php if ($fiyat > 0): ?>
+                <div style="background:var(--c-primary-l);border:1px solid #fed7aa;border-radius:var(--r);padding:22px;margin-bottom:24px">
+                    <div style="font-size:.78rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Fiyat</div>
+                    <?php if ($indirim): ?>
+                    <div style="text-decoration:line-through;color:var(--c-muted);font-size:1rem"><?= tl($eski) ?></div>
                     <?php endif; ?>
-                    <strong><?= number_format($fiyat, 0, ',', '.') ?> ₺</strong>
-                    <span class="kdv">KDV Dahil</span>
+                    <div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--c-primary-d);line-height:1.1"><?= tl($fiyat) ?></div>
+                    <?php if ($indirim): ?>
+                    <div style="margin-top:6px"><span class="tag tag-green">İndirimli Fiyat</span></div>
+                    <?php endif; ?>
+                    <p style="color:var(--c-muted);font-size:.82rem;margin-top:8px">* Fiyatlara KDV dahildir, montaj hariç. Net fiyat keşif sonrası belirlenir.</p>
                 </div>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <div class="info-meta">
-                <?php if ($u['sku']): ?><div><strong>Stok Kodu:</strong> <?= e($u['sku']) ?></div><?php endif; ?>
-                <?php if ($u['kat_ad']): ?><div><strong>Kategori:</strong> <?= e($u['kat_ad']) ?></div><?php endif; ?>
-                <?php if ((int)$u['stok'] > 0): ?>
-                    <div><strong>Durum:</strong> <span class="in-stock">Stokta</span></div>
-                <?php else: ?>
-                    <div><strong>Durum:</strong> <span class="out-stock">Sipariş Üzerine</span></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+                    <a href="<?= SITE_URL ?>/kesif" class="btn btn-primary btn-lg"><i class="fas fa-clipboard-check"></i> Keşif & Teklif İste</a>
+                    <a href="https://wa.me/<?= e(ayar('whatsapp_numara', defined('FIRMA_WHATSAPP')?FIRMA_WHATSAPP:'')) ?>?text=<?= urlencode($u['ad'] . ' hakkında bilgi almak istiyorum.') ?>" target="_blank" class="btn btn-green btn-lg"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                </div>
+
+                <?php if (!empty($u['ozellikler'])):
+                    $ozellikler = json_decode((string)$u['ozellikler'], true);
+                ?>
+                <div class="card" style="background:var(--c-bg-alt)">
+                    <h4 style="font-family:var(--font-display);font-size:1.05rem;margin-bottom:14px"><i class="fas fa-list-check" style="color:var(--c-primary);margin-right:8px"></i>Teknik Özellikler</h4>
+                    <table style="width:100%;font-size:.92rem">
+                        <?php foreach ((array)$ozellikler as $key => $val): ?>
+                        <tr style="border-bottom:1px solid var(--c-line)"><td style="padding:8px 0;color:var(--c-muted)"><?= e($key) ?></td><td style="padding:8px 0;text-align:right;font-weight:600"><?= e($val) ?></td></tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
                 <?php endif; ?>
             </div>
 
-            <div class="info-actions">
-                <a href="tel:<?= preg_replace('/\s/','',ayar('firma_telefon_1',FIRMA_TEL_1)) ?>" class="btn btn-primary">
-                    <i class="fas fa-phone-volume"></i> Hemen Ara
-                </a>
-                <?php $wp = ayar('whatsapp_numara'); if ($wp): ?>
-                    <a href="https://wa.me/<?= e($wp) ?>?text=<?= urlencode($u['ad'].' ürünü hakkında bilgi almak istiyorum.') ?>" target="_blank" rel="noopener" class="btn btn-green">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </a>
-                <?php endif; ?>
-            </div>
-
-            <ul class="info-trust">
-                <li><i class="fas fa-shield-halved"></i> Yetkili bayi garantisi</li>
-                <li><i class="fas fa-truck-fast"></i> Hızlı keşif & montaj</li>
-                <li><i class="fas fa-headset"></i> 7/24 teknik destek</li>
-            </ul>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="tabs" id="urunTabs">
-            <div class="tab-heads">
-                <button class="th active" data-tab="aciklama">Açıklama</button>
-                <?php if ($u['ozellikler']): ?><button class="th" data-tab="ozellikler">Teknik Özellikler</button><?php endif; ?>
-            </div>
-            <div class="tab-bodies">
-                <div class="tb active" data-tab="aciklama">
-                    <?= $u['aciklama'] ?: '<p>'.e((string)$u['kisa_aciklama']).'</p>' ?>
-                </div>
-                <?php if ($u['ozellikler']): ?>
-                    <div class="tb" data-tab="ozellikler">
-                        <?= $u['ozellikler'] ?>
+        <?php if (!empty($u['aciklama'])): ?>
+        <div class="prose" style="margin-top:50px">
+            <h2>Ürün Açıklaması</h2>
+            <?= $u['aciklama'] ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($benzer): ?>
+        <div style="margin-top:60px">
+            <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;margin-bottom:24px">Benzer Ürünler</h2>
+            <div class="products">
+                <?php foreach ($benzer as $b):
+                    $bf = (float)($b['indirimli_fiyat'] ?: $b['fiyat']);
+                ?>
+                <a href="<?= SITE_URL ?>/urun/<?= e($b['slug']) ?>" class="product-card" style="text-decoration:none;color:inherit">
+                    <div class="product-image">
+                        <?php if ($b['gorsel']): ?>
+                            <img src="<?= e(UPLOAD_URL . '/' . $b['gorsel']) ?>" alt="<?= e($b['ad']) ?>" loading="lazy">
+                        <?php else: ?>
+                            <i class="fas fa-fire-flame-curved" style="font-size:3rem;color:var(--c-primary);opacity:.4"></i>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <?php if ($benzer): ?>
-        <div class="container">
-            <h2 style="margin:40px 0 24px">Benzer Ürünler</h2>
-            <div class="cards-grid">
-                <?php foreach ($benzer as $b): ?>
-                    <article class="product-card">
-                        <div class="thumb">
-                            <?php if ($b['gorsel']): ?>
-                                <img src="<?= UPLOAD_URL . '/' . e($b['gorsel']) ?>" alt="<?= e($b['ad']) ?>" loading="lazy">
-                            <?php else: ?>
-                                <i class="fas fa-fire-flame-curved"></i>
-                            <?php endif; ?>
-                        </div>
-                        <div class="body">
-                            <h4><?= e($b['ad']) ?></h4>
-                            <p class="desc"><?= e(mb_substr((string)$b['kisa_aciklama'], 0, 100)) ?></p>
-                            <?php $bf = (float)($b['indirimli_fiyat'] ?: $b['fiyat']); if ($bf > 0): ?>
-                                <div class="price"><?= number_format($bf, 0, ',', '.') ?> ₺</div>
-                            <?php endif; ?>
-                            <a href="<?= SITE_URL ?>/urun/<?= e($b['slug']) ?>" class="btn btn-primary">İncele <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </article>
+                    <div class="product-body">
+                        <h4><?= e($b['ad']) ?></h4>
+                        <?php if ($bf > 0): ?><div class="product-price"><?= tl($bf) ?></div><?php endif; ?>
+                    </div>
+                </a>
                 <?php endforeach; ?>
             </div>
         </div>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 </section>
 
-<script>
-// sekme + galeri
-(function(){
-    const tabs = document.getElementById('urunTabs');
-    if (!tabs) return;
-    tabs.querySelectorAll('.th').forEach(b => b.addEventListener('click', () => {
-        const t = b.dataset.tab;
-        tabs.querySelectorAll('.th').forEach(x => x.classList.toggle('active', x===b));
-        tabs.querySelectorAll('.tb').forEach(x => x.classList.toggle('active', x.dataset.tab===t));
-    }));
-    document.querySelectorAll('.thumb-btn').forEach(btn => btn.addEventListener('click', e => {
-        document.querySelectorAll('.thumb-btn').forEach(x => x.classList.remove('active'));
-        btn.classList.add('active');
-    }));
-})();
-</script>
+<style>
+@media (max-width: 880px) { .urun-grid { grid-template-columns: 1fr !important; } }
+</style>
 
-<?php require_once INC_PATH . '/footer.php'; ?>
+<?php require_once __DIR__ . '/inc/footer.php'; ?>

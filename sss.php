@@ -33,7 +33,7 @@ $faq_kategoriler = [
             ],
             [
                 'Boş dairenin doğalgazı açılır mı?',
-                'Evet. Adreste kullanılacak yakıcı cihazların (kombi, ocak vb.) bağlı olması ve sözleşme sahibinin gaz açım sırasında orada bulunması koşulu ile boş dairenin gazı açılır. Cihaz bağlı değilse <strong>yetkili tesisat firması</strong>'ndan destek alınmalıdır.',
+                'Evet. Adreste kullanılacak yakıcı cihazların (kombi, ocak vb.) bağlı olması ve sözleşme sahibinin gaz açım sırasında orada bulunması koşulu ile boş dairenin gazı açılır. Cihaz bağlı değilse <strong>yetkili tesisat firması</strong>\'ndan destek alınmalıdır.',
             ],
         ],
     ],
