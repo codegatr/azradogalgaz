@@ -9,7 +9,7 @@
 require_once __DIR__ . '/config.php';
 
 // Sadece admin
-if (!is_admin_logged_in()) {
+if (!admin_giris_var()) {
     header('Location: ' . SITE_URL . '/admin/giris-yap.php?donus=' . urlencode('/migrate.php'));
     exit;
 }

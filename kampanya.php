@@ -43,7 +43,7 @@ $schema_jsonld = [
             'price'=>$nakit,
             'availability'=>'https://schema.org/InStock',
             'url'=>SITE_URL.'/kampanya/'.$slug,
-            'priceValidUntil'=>$k['bitis_tarihi'] ?? null,
+            'priceValidUntil'=>$k['bitis'] ?? null,
             'seller'=>['@type'=>'Organization','name'=>'Azra Doğalgaz'],
         ] : null,
     ]),
@@ -119,8 +119,8 @@ require_once __DIR__ . '/inc/header.php';
                     <a href="<?= SITE_URL ?>/kesif" class="btn btn-primary btn-block btn-lg" style="margin-bottom:8px"><i class="fas fa-clipboard-check"></i> Şimdi Talep Et</a>
                     <a href="https://wa.me/<?= e(ayar('whatsapp_numara', defined('FIRMA_WHATSAPP')?FIRMA_WHATSAPP:'')) ?>?text=<?= urlencode($k['baslik'] . ' kampanyası hakkında bilgi almak istiyorum.') ?>" target="_blank" class="btn btn-green btn-block"><i class="fab fa-whatsapp"></i> WhatsApp ile Sor</a>
 
-                    <?php if (!empty($k['bitis_tarihi'])): ?>
-                    <p style="text-align:center;color:var(--c-muted);font-size:.82rem;margin-top:14px"><i class="fas fa-clock"></i> Kampanya bitişi: <?= date('d.m.Y', strtotime((string)$k['bitis_tarihi'])) ?></p>
+                    <?php if (!empty($k['bitis'])): ?>
+                    <p style="text-align:center;color:var(--c-muted);font-size:.82rem;margin-top:14px"><i class="fas fa-clock"></i> Kampanya bitişi: <?= date('d.m.Y', strtotime((string)$k['bitis'])) ?></p>
                     <?php endif; ?>
                 </div>
                 <?php endif; ?>
