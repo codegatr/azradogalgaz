@@ -31,6 +31,20 @@ require_once __DIR__ . '/_header.php';
     <a href="<?= SITE_URL ?>/" target="_blank" class="btn btn-out"><i class="fas fa-external-link-alt"></i> Siteyi Gör</a>
 </div>
 
+<?php
+// v1.3.1 — Güncelleme bildirimi (manifest tabanlı)
+$_manifest_yol = __DIR__ . '/../manifest.json';
+$_son_guncelleme_log = db_get("SELECT olusturma_tarihi, yeni_surum, durum FROM guncelleme_log ORDER BY id DESC LIMIT 1");
+?>
+<?php if ($_son_guncelleme_log): ?>
+<div class="alert alert-info" style="margin-bottom:14px">
+    <i class="fas fa-cloud-arrow-down"></i>
+    Son güncelleme: <strong>v<?= e($_son_guncelleme_log['yeni_surum'] ?? '?') ?></strong>
+    · <?= tarih_tr($_son_guncelleme_log['olusturma_tarihi'], true) ?>
+    · <a href="<?= SITE_URL ?>/admin/guncelleme.php" style="color:var(--c-orange)">Güncelleme Merkezi →</a>
+</div>
+<?php endif; ?>
+
 <!-- İstatistikler -->
 <div class="stats">
     <div class="stat">
