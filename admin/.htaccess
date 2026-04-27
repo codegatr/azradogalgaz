@@ -1,0 +1,4 @@
+# Admin altında '_' ile başlayan dosyalar (header/footer/baslat) doğrudan açılamaz
+<FilesMatch "^_">
+    Require all denied
+</FilesMatch>

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /inc/
+Disallow: /api/private/
+Disallow: /assets/uploads/temp/
+Disallow: /kurulum.php
+Disallow: /config.php
+Disallow: /*.json$
+Disallow: /404.php
+
+Sitemap: https://azradogalgaz.com/sitemap.xml

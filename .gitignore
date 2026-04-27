@@ -1,0 +1,17 @@
+# User uploads & system folders
+assets/uploads/_yedekler/*.zip
+assets/uploads/_temp/*.zip
+
+# Backup files
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Logs
+*.log
