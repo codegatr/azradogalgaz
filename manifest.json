@@ -1,11 +1,11 @@
 {
   "name": "Azra Doğalgaz Web Sistemi",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "release_date": "2026-04-27",
   "min_php": "8.1",
   "repo": "codegatr/azradogalgaz",
   "branch": "main",
   "channel": "stable",
-  "changelog": "Hotfix: FIRMA_WHATSAPP/FIRMA_TEL/FIRMA_EMAIL sabitleri yoksa fatal error veren sayfalar duzeltildi. Tum sabit referanslari defined() kontrolu ile sarildi.",
-  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema"]
+  "changelog": "Asama 6 Paket 2: 5 yeni sayfa eklendi. Kombi Hesaplama (interaktif), Klima BTU Hesaplama (interaktif), Projeler galerisi, SSS (25 detayli soru, FAQPage Schema), Bilgi Bankasi (uzun rehber). DB migration: 5 yeni hizmet kategorisi + projeler tablosu.",
+  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema", "6b-yeni-sayfalar"]
 }
