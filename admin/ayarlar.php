@@ -58,13 +58,21 @@ require_once __DIR__ . '/_header.php';
     <input type="hidden" name="_tab" id="_tab" value="<?= e($aktif_tab) ?>">
 
     <div class="tabs-h">
-        <div class="t <?= $aktif_tab==='genel'?'active':'' ?>" data-tab="genel" onclick="document.getElementById('_tab').value='genel'">Genel</div>
-        <div class="t <?= $aktif_tab==='firma'?'active':'' ?>" data-tab="firma" onclick="document.getElementById('_tab').value='firma'">Firma Bilgileri</div>
-        <div class="t <?= $aktif_tab==='sosyal'?'active':'' ?>" data-tab="sosyal" onclick="document.getElementById('_tab').value='sosyal'">Sosyal & İletişim</div>
-        <div class="t <?= $aktif_tab==='seo'?'active':'' ?>" data-tab="seo" onclick="document.getElementById('_tab').value='seo'">SEO & Analytics</div>
-        <div class="t <?= $aktif_tab==='harita'?'active':'' ?>" data-tab="harita" onclick="document.getElementById('_tab').value='harita'">Harita & Anasayfa</div>
-        <div class="t <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp" onclick="document.getElementById('_tab').value='smtp'">SMTP & Bildirim</div>
-        <div class="t <?= $aktif_tab==='github'?'active':'' ?>" data-tab="github" onclick="document.getElementById('_tab').value='github'">GitHub Güncelleme</div>
+<?php
+$_tabs = [
+    'genel'  => 'Genel',
+    'firma'  => 'Firma Bilgileri',
+    'sosyal' => 'Sosyal & İletişim',
+    'seo'    => 'SEO & Analytics',
+    'harita' => 'Harita & Anasayfa',
+    'smtp'   => 'SMTP & Bildirim',
+    'github' => 'GitHub Güncelleme',
+];
+$_tabSwitchJs = "var k=this.dataset.tab;var f=this.closest('form');if(!f)return;f.querySelectorAll('.tabs-h .t').forEach(function(x){x.classList.toggle('active',x.dataset.tab===k)});f.querySelectorAll('.tab-body').forEach(function(x){x.classList.toggle('active',x.dataset.tab===k)});var h=document.getElementById('_tab');if(h)h.value=k;";
+foreach ($_tabs as $_k => $_l):
+?>
+        <div class="t <?= $aktif_tab===$_k?'active':'' ?>" data-tab="<?= $_k ?>" onclick="<?= e($_tabSwitchJs) ?>"><?= e($_l) ?></div>
+<?php endforeach; ?>
     </div>
 
     <!-- GENEL -->
