@@ -109,10 +109,14 @@ class Mail
             $boundary = '=_b_' . md5(uniqid('', true));
             $headers  = $this->_headers($alici_eposta, $alici_ad, $konu, $boundary);
             $body     = $this->_multipart($duz, $html, $boundary);
-            $msg = $headers . "\r\n" . $body . "\r\n.";
-            // CRLF.CRLF nokta dot-stuffing güvenliği
-            $msg = preg_replace('/\r?\n\./m', "\r\n..", $msg);
-            fwrite($sock, $msg . "\r\n");
+
+            // RFC 5321: önce CRLF normalize, sonra dot-stuffing (SADECE body'de),
+            // EN SON terminator (\r\n.\r\n) eklenir — terminator escape EDİLMEZ.
+            $body = preg_replace("/\r?\n/", "\r\n", $body);
+            $body = preg_replace('/^\./m', '..', $body);
+            $msg = $headers . "\r\n" . $body;
+            // Mesajı sonlandır: tek başına nokta + CRLF
+            fwrite($sock, $msg . "\r\n.\r\n");
             $this->_oku($sock, 250);
 
             $this->_yaz($sock, "QUIT");
