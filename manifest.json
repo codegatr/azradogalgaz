@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.8.0: ÖNEMLİ — Veritabanı şeması fix (cariler/faturalar/fisler tabloları yoksa otomatik oluşturulur). Yeni inc/sema-muhasebe.php dosyası 6 tabloyu CREATE TABLE IF NOT EXISTS ile garanti eder: cariler, cari_hareketler, faturalar, fatura_kalemleri, fisler, fis_kalemleri. Modül başlarına include eklendi. Faturalar/Fişler içerik gelmeme sorunu (boş tablo bile görünmüyor) bu fix ile çözülüyor. Header/sidebar reorganizasyonu: Bakım Hatırlatıcıları sidebar'dan kaldırıldı, topbar 'İşlemler' dropdown'a Servis bölümü olarak eklendi (Muhasebe + Servis iki bölümlü dropdown). Sağ üstteki kullanıcı avatarı tıklanabilir oldu, dropdown'dan Profil & Şifre + Çıkış Yap erişilebiliyor (sidebar'dan kaldırıldılar). Sidebar artık 3 grup: Genel/İçerik/Sistem.",
+    "changelog": "v1.8.1: Topbar düzenlemesi geri alındı. Muhasebe dropdown eski haline döndü (sadece Cariler/Cari Ekstre/Faturalar/Fişler), Bakım Hatırlatıcıları AYRI yeşil buton olarak topbar'a eklendi (badge'li, tek tıkla erişim). v1.8.0: kritik DB şema fix (cariler/faturalar/fisler tabloları otomatik oluşur). Kullanıcı dropdown korundu (sağ üst avatar tıklanınca Profil/Çıkış).",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -15,6 +15,6 @@
         "11-css-uyum-gorsel-onarim","12-cari-hesap-ekstresi",
         "13-akilli-guncelleme-merkezi","13a-guncelleme-bugfix",
         "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme",
-        "16-db-sema-fix-header-reorganizasyon"
+        "16-db-sema-fix","17-bakim-ayri-buton"
     ]
 }
