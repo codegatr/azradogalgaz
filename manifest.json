@@ -1,29 +1,19 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.7.1: Akıllı Güncelleme bugfix'leri. (1) .gitignore/.gitattributes/.editorconfig dotfile'ları artık sync edilebiliyor (PHP pathinfo dotfile'ları extension olarak parse ediyor — izinli listeye eklendi). (2) 'Zorla Senkronize' butonu artık gerçekten zorla yeniden indiriyor (önceki sürümde yine durum filtresi uyguluyordu, sadece değişmiş/eksik dosyaları indiriyordu). akilli_senkronize() fonksiyonuna zorla=bool parametresi eklendi. (3) Log mesajındaki yedek dosya adı düzeltildi (artık basename(yol) gösteriyor, eskiden boş geliyordu). v1.7.0 değişmedi: ERP tarzı 5 sekmeli güncelleme merkezi, GitHub Tree API + Git blob SHA1 karşılaştırması, dosya bazlı sync.",
+    "changelog": "v1.7.2: Cari & Muhasebe sidebar grubu kaldırıldı, üst topbar'a 'Muhasebe ▾' kompakt dropdown eklendi. Cariler / Cari Ekstre / Faturalar / Fişler artık tek tıkla erişilebilir, sayfa fark etmez. Aktif sayfa highlight, mobilde sadece ikon, dış tıklamada otomatik kapanır. v1.7.1: .gitignore izinli, zorla sync gerçekten zorlasın, yedek log adı düzeltmesi. v1.7.0: ERP tarzı Akıllı Güncelleme Merkezi.",
     "stages_completed": [
-        "1-temel-altyapi",
-        "2-frontend-sayfalari",
-        "3a-admin-temeli",
-        "3b-icerik-modulleri",
-        "5-guncelleme-sistemi",
-        "6a-acik-tema",
-        "6b-yeni-sayfalar",
-        "6c-ic-sayfalar-tema-fix",
-        "6d-sektorel-icerik-seed",
-        "7-admin-modulleri-tamamlama",
-        "8-sss-fix-admin-crud",
-        "9-cari-muhasebe-modulleri",
-        "10-bakim-hatirlatici-sistemi",
-        "11-css-uyum-gorsel-onarim",
-        "12-cari-hesap-ekstresi",
-        "13-akilli-guncelleme-merkezi",
-        "13a-guncelleme-bugfix"
+        "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
+        "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
+        "6d-sektorel-icerik-seed","7-admin-modulleri-tamamlama","8-sss-fix-admin-crud",
+        "9-cari-muhasebe-modulleri","10-bakim-hatirlatici-sistemi",
+        "11-css-uyum-gorsel-onarim","12-cari-hesap-ekstresi",
+        "13-akilli-guncelleme-merkezi","13a-guncelleme-bugfix",
+        "14-topbar-muhasebe-dropdown"
     ]
 }
