@@ -490,4 +490,289 @@ class Guncelleyici
                 [$eski, $yeni, $durum, mb_substr($detay, 0, 5000, 'UTF-8')]);
         } catch (Throwable $e) { /* tablo yoksa sessiz geç */ }
     }
+
+    // ==============================================================
+    //  AKILLI SENKRONİZASYON (CodeGa ERP tarzı dosya bazlı kontrol)
+    // ==============================================================
+
+    /**
+     * Git blob SHA1 hesapla (GitHub Tree API'deki SHA ile birebir aynı format).
+     * Format: sha1("blob " + length + "\0" + content)
+     */
+    public function git_blob_sha1(string $icerik): string
+    {
+        return sha1("blob " . strlen($icerik) . "\0" . $icerik);
+    }
+
+    /**
+     * Yerel dosyanın Git blob SHA1'ini hesapla. Dosya yoksa null döner.
+     */
+    public function yerel_dosya_sha1(string $rel_yol): ?string
+    {
+        $tam = $this->kok . '/' . ltrim($rel_yol, '/');
+        if (!is_file($tam)) return null;
+        $icerik = file_get_contents($tam);
+        if ($icerik === false) return null;
+        return $this->git_blob_sha1($icerik);
+    }
+
+    /**
+     * GitHub repository tree (recursive) — tüm dosyalar + SHA'leri.
+     * @return array{ok:bool, files?:array<string,array{sha:string,size:int}>, hata?:string}
+     */
+    public function github_tree(string $repo, string $token = '', string $branch = 'main'): array
+    {
+        if (!preg_match('~^[\w.\-]+/[\w.\-]+$~', $repo)) {
+            return ['ok'=>false, 'hata'=>'Geçersiz repo formatı.'];
+        }
+
+        // Branch'ın commit SHA'sını al
+        $url = "https://api.github.com/repos/$repo/branches/" . urlencode($branch);
+        [$body, $code] = $this->http_get($url, $token, 'application/vnd.github+json');
+        if ($code !== 200) {
+            $msg = (json_decode((string)$body, true)['message'] ?? '') ?: "HTTP $code";
+            return ['ok'=>false, 'hata'=>"Branch alınamadı ($branch): $msg"];
+        }
+        $branch_data = json_decode((string)$body, true);
+        $tree_sha = $branch_data['commit']['commit']['tree']['sha'] ?? '';
+        if (!$tree_sha) return ['ok'=>false, 'hata'=>'Branch tree SHA bulunamadı.'];
+
+        // Recursive tree
+        $url = "https://api.github.com/repos/$repo/git/trees/$tree_sha?recursive=1";
+        [$body, $code] = $this->http_get($url, $token, 'application/vnd.github+json');
+        if ($code !== 200) {
+            return ['ok'=>false, 'hata'=>"Tree alınamadı: HTTP $code"];
+        }
+        $tree = json_decode((string)$body, true);
+        if (!isset($tree['tree']) || !is_array($tree['tree'])) {
+            return ['ok'=>false, 'hata'=>'Tree çözümlenemedi.'];
+        }
+
+        $files = [];
+        foreach ($tree['tree'] as $node) {
+            if (($node['type'] ?? '') !== 'blob') continue;
+            $path = (string)($node['path'] ?? '');
+            if (!$path) continue;
+            $files[$path] = [
+                'sha'  => (string)($node['sha'] ?? ''),
+                'size' => (int)($node['size'] ?? 0),
+            ];
+        }
+
+        return ['ok'=>true, 'files'=>$files, 'truncated'=>!empty($tree['truncated']), 'sayi'=>count($files)];
+    }
+
+    /**
+     * Tek dosyayı GitHub raw content'ten indir.
+     */
+    public function github_raw_indir(string $repo, string $branch, string $rel_yol, string $token = ''): array
+    {
+        $rel_yol = ltrim($rel_yol, '/');
+        $url = "https://api.github.com/repos/$repo/contents/" . str_replace('%2F','/', rawurlencode($rel_yol)) . "?ref=" . urlencode($branch);
+        [$body, $code] = $this->http_get($url, $token, 'application/vnd.github.raw');
+        if ($code !== 200) {
+            return ['ok'=>false, 'hata'=>"İndirilemedi ($rel_yol): HTTP $code"];
+        }
+        return ['ok'=>true, 'icerik'=>(string)$body, 'boyut'=>strlen((string)$body)];
+    }
+
+    /**
+     * GitHub repo'sundaki son N commit'i al.
+     */
+    public function github_commits(string $repo, string $token = '', string $branch = 'main', int $n = 20): array
+    {
+        $n = max(1, min(100, $n));
+        $url = "https://api.github.com/repos/$repo/commits?sha=" . urlencode($branch) . "&per_page=$n";
+        [$body, $code] = $this->http_get($url, $token, 'application/vnd.github+json');
+        if ($code !== 200) return ['ok'=>false, 'hata'=>"HTTP $code"];
+        $list = json_decode((string)$body, true);
+        if (!is_array($list)) return ['ok'=>false, 'hata'=>'Çözümlenemedi.'];
+        $out = [];
+        foreach ($list as $c) {
+            $out[] = [
+                'sha'     => substr((string)($c['sha'] ?? ''), 0, 7),
+                'sha_full'=> (string)($c['sha'] ?? ''),
+                'mesaj'   => mb_substr((string)($c['commit']['message'] ?? ''), 0, 200, 'UTF-8'),
+                'yazar'   => (string)($c['commit']['author']['name'] ?? '?'),
+                'tarih'   => (string)($c['commit']['author']['date'] ?? ''),
+                'url'     => (string)($c['html_url'] ?? ''),
+            ];
+        }
+        return ['ok'=>true, 'commits'=>$out];
+    }
+
+    /**
+     * GitHub ile yerel dosya durumunu karşılaştır.
+     * @return array{ok:bool, dosyalar?:array<string,array{durum:string,yerel_sha:?string,github_sha:string,boyut:int}>,
+     *               istatistik?:array{guncel:int,degismis:int,eksik:int,toplam:int}, hata?:string}
+     */
+    public function dosya_durumu(string $repo, string $token = '', string $branch = 'main'): array
+    {
+        $tree = $this->github_tree($repo, $token, $branch);
+        if (!$tree['ok']) return $tree;
+
+        $sonuc = [];
+        $stat = ['guncel'=>0, 'degismis'=>0, 'eksik'=>0, 'toplam'=>0, 'korumali'=>0];
+
+        foreach ($tree['files'] as $rel => $info) {
+            $stat['toplam']++;
+
+            // Korumalı yol mu? (config.php, uploads/ vb)
+            $korumali = false;
+            foreach ($this->korumali_yollar as $k) {
+                if ($rel === $k || str_starts_with($rel, rtrim($k,'/').'/')) { $korumali = true; break; }
+            }
+
+            $yerel_sha = $this->yerel_dosya_sha1($rel);
+            if ($yerel_sha === null) {
+                $durum = 'eksik';
+                $stat['eksik']++;
+            } elseif ($yerel_sha === $info['sha']) {
+                $durum = 'guncel';
+                $stat['guncel']++;
+            } else {
+                $durum = 'degismis';
+                $stat['degismis']++;
+            }
+            if ($korumali) $stat['korumali']++;
+
+            $sonuc[$rel] = [
+                'durum'      => $durum,
+                'yerel_sha'  => $yerel_sha,
+                'github_sha' => $info['sha'],
+                'boyut'      => $info['size'],
+                'korumali'   => $korumali,
+            ];
+        }
+
+        ksort($sonuc);
+        return ['ok'=>true, 'dosyalar'=>$sonuc, 'istatistik'=>$stat];
+    }
+
+    /**
+     * Tek dosyayı yerel olarak günceller (GitHub raw'dan indirip yazar).
+     */
+    public function tek_dosya_sync(string $repo, string $token, string $branch, string $rel_yol): array
+    {
+        $rel_yol = str_replace('\\', '/', ltrim($rel_yol, '/'));
+
+        // Path traversal
+        if (str_contains($rel_yol, '..') || str_starts_with($rel_yol, '/')) {
+            return ['ok'=>false, 'hata'=>'Geçersiz yol.'];
+        }
+
+        // Korumalı mı?
+        foreach ($this->korumali_yollar as $k) {
+            if ($rel_yol === $k || str_starts_with($rel_yol, rtrim($k,'/').'/')) {
+                return ['ok'=>false, 'hata'=>"Korumalı yol: $rel_yol"];
+            }
+        }
+
+        // İzinli uzantı mı?
+        $ext = strtolower(pathinfo($rel_yol, PATHINFO_EXTENSION));
+        if ($ext && !in_array($ext, $this->izinli_uzantilar, true)) {
+            return ['ok'=>false, 'hata'=>"İzinsiz uzantı: .$ext"];
+        }
+
+        $r = $this->github_raw_indir($repo, $branch, $rel_yol, $token);
+        if (!$r['ok']) return $r;
+
+        // Hedef klasör
+        $hedef = $this->kok . '/' . $rel_yol;
+        $hedef_dir = dirname($hedef);
+        if (!is_dir($hedef_dir)) {
+            if (!@mkdir($hedef_dir, 0755, true)) {
+                return ['ok'=>false, 'hata'=>"Klasör oluşturulamadı: $hedef_dir"];
+            }
+        }
+
+        // Path traversal son kontrol
+        $tam_yol = realpath($hedef_dir);
+        if (!$tam_yol || !str_starts_with($tam_yol . '/', realpath($this->kok) . '/')) {
+            return ['ok'=>false, 'hata'=>'Kök dizini dışına yazma reddedildi.'];
+        }
+
+        if (file_put_contents($hedef, $r['icerik']) === false) {
+            return ['ok'=>false, 'hata'=>"Yazılamadı: $rel_yol"];
+        }
+
+        return ['ok'=>true, 'rel'=>$rel_yol, 'boyut'=>$r['boyut']];
+    }
+
+    /**
+     * Akıllı senkronizasyon: değişmiş + eksik tüm dosyaları sırayla günceller.
+     * Önce yedek alır, sonra her dosyayı tek_dosya_sync ile yazar.
+     * @param array $sadece_bunlari Sadece bu yolları senkronize et (boşsa: hepsi)
+     */
+    public function akilli_senkronize(string $repo, string $token, string $branch, array $sadece_bunlari = []): array
+    {
+        $log = [];
+        $log[] = "Dosya durumu sorgulanıyor: $repo / $branch";
+
+        $durum = $this->dosya_durumu($repo, $token, $branch);
+        if (!$durum['ok']) return ['ok'=>false, 'hata'=>$durum['hata'], 'log'=>$log];
+
+        // Senkronize edilecekler
+        $hedefler = [];
+        foreach ($durum['dosyalar'] as $rel => $d) {
+            if ($sadece_bunlari && !in_array($rel, $sadece_bunlari, true)) continue;
+            if ($d['korumali']) continue;
+            if (in_array($d['durum'], ['degismis', 'eksik'], true)) {
+                $hedefler[] = $rel;
+            }
+        }
+
+        if (!$hedefler) {
+            return ['ok'=>true, 'log'=>array_merge($log, ['Güncellenecek dosya yok.']), 'sayi'=>0];
+        }
+
+        $log[] = count($hedefler) . " dosya güncellenecek.";
+
+        // Yedek al
+        $eski_surum = $this->mevcut_surum();
+        $yedek = $this->yedek_al(array_filter($hedefler, fn($p) => is_file($this->kok.'/'.$p)), $eski_surum . '_pre-sync');
+        if ($yedek['ok']) {
+            $log[] = "Yedek alındı: " . $yedek['ad'] . ' (' . $this->boyut_format($yedek['boyut']) . ')';
+        } else {
+            $log[] = "[UYARI] Yedek alınamadı: " . ($yedek['hata'] ?? '?');
+        }
+
+        // Her dosyayı senkronize et
+        $basarili = 0; $hatalar = [];
+        foreach ($hedefler as $rel) {
+            $r = $this->tek_dosya_sync($repo, $token, $branch, $rel);
+            if ($r['ok']) {
+                $basarili++;
+                $log[] = "✓ $rel (" . $this->boyut_format($r['boyut']) . ")";
+            } else {
+                $hatalar[] = "✗ $rel: " . ($r['hata'] ?? '?');
+                $log[] = end($hatalar);
+            }
+        }
+
+        // Manifest'i yenile (GitHub'dan en taze halini al)
+        $r = $this->github_raw_indir($repo, $branch, 'manifest.json', $token);
+        if ($r['ok']) {
+            @file_put_contents($this->manifest_yolu, $r['icerik']);
+            $log[] = "manifest.json yenilendi.";
+        }
+
+        $yeni_surum = $this->mevcut_surum();
+        $this->db_log($eski_surum, $yeni_surum, $hatalar ? 'kismi' : 'basarili',
+            "Akıllı sync: $basarili başarılı, " . count($hatalar) . " hata");
+
+        // OPcache reset
+        if (function_exists('opcache_reset')) @opcache_reset();
+        clearstatcache(true);
+
+        return [
+            'ok'        => true,
+            'log'       => $log,
+            'basarili'  => $basarili,
+            'hata_sayisi' => count($hatalar),
+            'hatalar'   => $hatalar,
+            'eski_surum'=> $eski_surum,
+            'yeni_surum'=> $yeni_surum,
+        ];
+    }
 }
