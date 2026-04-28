@@ -760,6 +760,30 @@ class Guncelleyici
             $log[] = "manifest.json yenilendi.";
         }
 
+        // Migrasyonları otomatik uygula
+        if (file_exists($this->kok . '/inc/migrator.php')) {
+            require_once $this->kok . '/inc/migrator.php';
+            try {
+                $M = new Migrator($this->kok);
+                $mig = $M->bekleyenleri_uygula();
+                if (!empty($mig['uygulananlar'])) {
+                    $log[] = '──── Migrasyon ────';
+                    foreach ($mig['uygulananlar'] as $u) {
+                        $log[] = "✓ DB: {$u['dosya']} ({$u['stmts']} stmt, {$u['sure_ms']}ms)";
+                    }
+                    $M->sentinel_kaydet();
+                }
+                if (!empty($mig['hatalar'])) {
+                    foreach ($mig['hatalar'] as $h) {
+                        $log[] = "✗ DB: " . ($h['dosya'] ?? '?') . ': ' . ($h['hata'] ?? '?');
+                        $hatalar[] = "DB migration: " . ($h['dosya'] ?? '?');
+                    }
+                }
+            } catch (Throwable $e) {
+                $log[] = "[UYARI] Migrator yüklenemedi: " . $e->getMessage();
+            }
+        }
+
         $yeni_surum = $this->mevcut_surum();
         $this->db_log($eski_surum, $yeni_surum, $hatalar ? 'kismi' : 'basarili',
             "Akıllı sync: $basarili başarılı, " . count($hatalar) . " hata");
