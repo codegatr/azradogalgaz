@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.9.2",
+    "version": "1.10.0",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.9.2: SQL ambiguous column fix. faturalar.php ve fisler.php'deki JOIN'li $ozet sorgularında 'tip' kolonu prefix'siz kullanılıyordu — hem cariler.tip (bireysel/kurumsal) hem faturalar.tip (satis/alis) olduğu için MySQL 'Column tip is ambiguous' hatası veriyordu. Tüm CASE WHEN ifadeleri f.tip / f.genel_toplam / f.odenen prefix'i ile düzeltildi.",
+    "changelog": "v1.10.0: Kullanıcı adı (username) ile giriş desteği. Migration 003 ile kullanicilar tablosuna kullanici_adi kolonu eklendi (UNIQUE), mevcut kullanıcılar için e-posta'nın @ öncesi otomatik atanır. Login formu artık 'Kullanıcı Adı veya E-posta' alanı kabul ediyor — @ varsa e-posta, yoksa username olarak aranır. Kullanıcılar yönetimi sayfasına username alanı, profil sayfasına username düzenleme eklendi. Kullanıcı listesi tablosunda e-posta altında @username görünür.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -17,6 +17,6 @@
         "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme",
         "16-db-sema-fix","17-bakim-ayri-buton","18-sistem-tani-cikis-yedek",
         "19-migration-sistemi-bulletproof-moduller","20-tek-tik-migration-uygula",
-        "21-sql-ambiguous-fix"
+        "21-sql-ambiguous-fix","22-kullanici-adi-giris"
     ]
 }
