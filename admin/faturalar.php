@@ -400,8 +400,8 @@ try {
     $toplam_sayfa = max(1, (int)ceil($toplam / $limit));
     $rows = db_all("SELECT f.*, c.unvan, c.cari_kodu FROM faturalar f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where ORDER BY f.tarih DESC, f.id DESC LIMIT $limit OFFSET $ofset", $params);
     $ozet = db_get("SELECT
-        COALESCE(SUM(CASE WHEN tip='satis' THEN genel_toplam ELSE 0 END),0) toplam_satis,
-        COALESCE(SUM(CASE WHEN tip='satis' THEN genel_toplam-odenen ELSE 0 END),0) bekleyen
+        COALESCE(SUM(CASE WHEN f.tip='satis' THEN f.genel_toplam ELSE 0 END),0) toplam_satis,
+        COALESCE(SUM(CASE WHEN f.tip='satis' THEN f.genel_toplam-f.odenen ELSE 0 END),0) bekleyen
     FROM faturalar f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params);
 } catch (Throwable $e) {
     $tablo_hatasi = $e->getMessage();
