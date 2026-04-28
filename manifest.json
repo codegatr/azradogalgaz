@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.1",
+    "version": "1.12.2",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.1: Test Mail butonu form-actions wrapper içine alındı (Tüm Ayarları Kaydet butonu ile aynı pattern). Layout güvenilir hâle geldi.",
+    "changelog": "v1.12.2: KRİTİK FIX. Kullanıcının console testinde SMTP sekmesindeki 4 karttan sadece 2'si render ediliyordu (Bakım Hatırlatma + Cron Kurulumu kartları yok). Sebep: butonların onclick attribute'larındaki çok uzun PHP echo + JS karışık string PHP rendering'i kestiriyordu (HTML attribute escape edge case veya OPcache opcode issue). Çözüm: onclick'lerden PHP echo'ları çıkarıldı, csrf_token/SITE_URL/cron_anahtar değerleri tab-body'nin data-csrf, data-url, data-cron-key attribute'larına alındı. Buton onclick'leri kısa global function call (azraSmtpTest, azraBakimBildirim). Fonksiyonlar form sonrası ayrı script blockunda regular function declaration olarak tanımlandı (parse-time hoist, SES bypass). Local PHP render testinde 4 h3 + 2 buton kusursuz oluştu.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -21,6 +21,6 @@
         "24-smtp-bakim-bildirim-sistemi","25-ayarlar-tab-script-fix",
         "26-ayarlar-self-contained-tab-handler","27-ayarlar-inline-onclick-ses-bypass",
         "28-smtp-button-inline-onclick-ses-bypass","29-sitemap-genisletme-search-console-yardim",
-        "30-test-mail-form-actions-wrapper"
+        "30-test-mail-form-actions-wrapper","31-onclick-data-attr-render-fix"
     ]
 }
