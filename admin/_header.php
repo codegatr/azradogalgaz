@@ -4,6 +4,11 @@ $page_title = $GLOBALS['_admin_page_title'] ?? 'Yönetim Paneli';
 
 // Yeni mesaj sayısı (sidebar rozeti)
 $_yeni_mesaj = (int)(db_get("SELECT COUNT(*) c FROM iletisim_mesajlari WHERE durum='yeni'") ?? ['c' => 0])['c'];
+// Yaklaşan/gecikmiş bakım sayısı (sidebar rozeti)
+$_bakim_uyari = 0;
+try {
+    $_bakim_uyari = (int)(db_get("SELECT COUNT(*) c FROM bakim_hatirlaticilari WHERE durum='aktif' AND sonraki_bakim_tarihi <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)") ?? ['c' => 0])['c'];
+} catch (Throwable $e) { /* tablo henüz yok */ }
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -66,6 +71,23 @@ $_yeni_mesaj = (int)(db_get("SELECT COUNT(*) c FROM iletisim_mesajlari WHERE dur
         </a>
         <a href="<?= SITE_URL ?>/admin/sayfalar.php" class="<?= nav_active('sayfalar.php') ?>">
             <i class="fas fa-file-lines"></i> KVKK / Gizlilik
+        </a>
+
+        <div class="group">Cari & Muhasebe</div>
+        <a href="<?= SITE_URL ?>/admin/cariler.php" class="<?= nav_active('cariler.php') ?>">
+            <i class="fas fa-users"></i> Cariler
+        </a>
+        <a href="<?= SITE_URL ?>/admin/faturalar.php" class="<?= nav_active('faturalar.php') ?>">
+            <i class="fas fa-file-invoice-dollar"></i> Faturalar
+        </a>
+        <a href="<?= SITE_URL ?>/admin/fisler.php" class="<?= nav_active('fisler.php') ?>">
+            <i class="fas fa-receipt"></i> Fişler
+        </a>
+
+        <div class="group">Servis</div>
+        <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" class="<?= nav_active('bakim-hatirlaticilari.php') ?>">
+            <i class="fas fa-bell"></i> Bakım Hatırlatıcıları
+            <?php if ($_bakim_uyari > 0): ?><span class="badge"><?= $_bakim_uyari ?></span><?php endif; ?>
         </a>
 
         <?php if (($_kul['rol'] ?? '') === 'admin'): ?>
