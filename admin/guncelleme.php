@@ -40,13 +40,27 @@ if (isset($_GET['ajax']) || isset($_POST['ajax'])) {
             $r['mevcut_surum'] = $mevcut_surum;
             $r['repo'] = $repo;
             $r['branch'] = $branch;
+
+            // GitHub'daki manifest.json'dan sürümü oku (ZIP asset gerektirmez)
+            $mr = $U->github_raw_indir($repo, $branch, 'manifest.json', $token);
+            if ($mr['ok']) {
+                $uzak = json_decode((string)$mr['icerik'], true);
+                $gh_surum = (string)($uzak['version'] ?? '');
+                if ($gh_surum) {
+                    $r['github_surum']   = $gh_surum;
+                    $r['yeni_surum_var'] = version_compare($gh_surum, $mevcut_surum, '>');
+                    $r['github_changelog']= (string)($uzak['changelog'] ?? '');
+                    $r['github_tarih']   = (string)($uzak['release_date'] ?? '');
+                }
+            }
+
+            // Release info (varsa, ZIP asset'li) — opsiyonel ek bilgi
             $rel = $U->github_kontrol($repo, $token);
             if ($rel['ok']) {
-                $r['github_surum'] = $rel['version'];
-                $r['yeni_surum_var'] = (bool)($rel['yeni_sürüm_var'] ?? false);
                 $r['release_url']    = $rel['asset_url'] ?? '';
-                $r['release_body']   = $rel['body'] ?? '';
-                $r['release_tarih']  = $rel['tarih'] ?? '';
+                $r['release_body']   = $rel['body']      ?? '';
+                $r['release_tarih']  = $rel['tarih']     ?? '';
+                if (empty($r['github_surum'])) $r['github_surum'] = $rel['version'];
             }
         }
         echo json_encode($r);
@@ -199,7 +213,7 @@ $csrf = csrf_field();
 <div class="page-head">
     <div>
         <h1 class="page-h1">Güncelleme Merkezi</h1>
-        <p class="page-sub">Yüklü sürüm: <strong>v<?= e($mevcut_surum) ?></strong> · Repo: <code><?= e($repo ?: '(ayarlanmamış)') ?></code> · Branch: <code><?= e($branch) ?></code></p>
+        <p class="page-sub">Yüklü sürüm: <strong id="mevcutSurumLabel">v<?= e($mevcut_surum) ?></strong> · Repo: <code><?= e($repo ?: '(ayarlanmamış)') ?></code> · Branch: <code><?= e($branch) ?></code></p>
     </div>
     <a href="panel.php" class="btn btn-out"><i class="fas fa-arrow-left"></i> Panel</a>
 </div>
@@ -396,6 +410,10 @@ async function durumYukle(force=false) {
         return;
     }
     DOSYA_DURUMU = r;
+    // Sayfa header'ında yüklü sürüm etiketini de yenile
+    const lbl = document.getElementById('mevcutSurumLabel');
+    if (lbl && r.mevcut_surum) lbl.textContent = 'v' + r.mevcut_surum;
+
     const s = r.istatistik;
     $('#durumOzet').innerHTML = `
         <div class="upd-stat">
