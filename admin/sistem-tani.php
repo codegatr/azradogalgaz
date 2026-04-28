@@ -188,6 +188,117 @@ $csrf = csrf_field();
     </div>
 </div>
 
+<?php
+// Kritik dosya bütünlüğü kontrolü
+$kritik_dosyalar = [
+    'manifest.json'                  => 1500,
+    'admin/ayarlar.php'              => 25000,
+    'admin/guncelleme.php'           => 18000,
+    'admin/sistem-tani.php'          => 9000,
+    'admin/bakim-hatirlaticilari.php'=> 12000,
+    'admin/faturalar.php'            => 10000,
+    'admin/cariler.php'              => 10000,
+    'admin/giris-yap.php'            => 1500,
+    'admin/smtp-test.php'            => 800,
+    'inc/mail.php'                   => 4000,
+    'inc/migrator.php'               => 4000,
+    'inc/updater.php'                => 8000,
+    'inc/sema-muhasebe.php'          => 200,
+    'cron/bakim-bildirim.php'        => 2000,
+    'sitemap.php'                    => 1500,
+];
+$site_kok = realpath(__DIR__ . '/..');
+$dosya_durumu = [];
+$eksik_say = 0; $yarim_say = 0;
+foreach ($kritik_dosyalar as $rel => $min_size) {
+    $tam = $site_kok . '/' . $rel;
+    if (!file_exists($tam)) {
+        $dosya_durumu[] = ['rel'=>$rel, 'durum'=>'yok', 'boyut'=>0, 'mtime'=>0];
+        $eksik_say++;
+    } else {
+        $boyut = filesize($tam);
+        $mtime = filemtime($tam);
+        $durum = $boyut < $min_size ? 'yarim' : 'var';
+        if ($durum === 'yarim') $yarim_say++;
+        $dosya_durumu[] = ['rel'=>$rel, 'durum'=>$durum, 'boyut'=>$boyut, 'mtime'=>$mtime, 'min'=>$min_size];
+    }
+}
+?>
+
+<div class="card">
+    <h3><i class="fas fa-shield-halved"></i> Kritik Dosya Bütünlüğü</h3>
+    <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+        Akıllı Güncelleme bazen yarım dosya yazabilir. Bu tablo dosyaların gerçekten deploy edildiğini gösterir.
+        <?php if ($eksik_say): ?>
+            <strong style="color:#ef4444"><?= $eksik_say ?> dosya EKSİK!</strong>
+        <?php elseif ($yarim_say): ?>
+            <strong style="color:#fbbf24"><?= $yarim_say ?> dosya yarım olabilir.</strong>
+        <?php else: ?>
+            <strong style="color:#22c55e">Tüm dosyalar tam.</strong>
+        <?php endif; ?>
+    </p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+        <thead><tr><th>Dosya</th><th style="width:120px">Boyut</th><th style="width:160px">Son Değişiklik</th><th style="width:100px">Durum</th></tr></thead>
+        <tbody>
+        <?php foreach ($dosya_durumu as $d): ?>
+            <tr>
+                <td><code><?= e($d['rel']) ?></code></td>
+                <td>
+                    <?php if ($d['durum'] === 'yok'): ?>
+                        <span style="color:#ef4444">—</span>
+                    <?php else: ?>
+                        <?= number_format($d['boyut']) ?> b
+                        <?php if ($d['durum'] === 'yarim'): ?>
+                            <small style="color:#fbbf24">(min ~<?= number_format($d['min']) ?>)</small>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($d['mtime']): ?>
+                        <?= date('d.m.Y H:i', $d['mtime']) ?>
+                    <?php else: ?>
+                        —
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($d['durum'] === 'var'): ?>
+                        <span class="badge badge-ok">VAR</span>
+                    <?php elseif ($d['durum'] === 'yarim'): ?>
+                        <span class="badge badge-no" style="background:#f59e0b">YARIM?</span>
+                    <?php else: ?>
+                        <span class="badge badge-no">YOK</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    </div>
+    <?php if ($yarim_say || $eksik_say): ?>
+        <p style="color:var(--c-muted);font-size:.85rem;margin-top:12px">
+            <strong>Çözüm:</strong> Admin → Güncelleme → <strong>Akıllı Senkronize</strong> butonuna bas.
+            Sorun devam ederse FTP/DirectAdmin File Manager ile manuel ZIP yükle.
+        </p>
+    <?php endif; ?>
+</div>
+
+<div class="card" style="background:rgba(59,130,246,.05);border-left:3px solid #3b82f6">
+    <h3><i class="fas fa-bolt"></i> OPcache & Tarayıcı Cache</h3>
+    <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:12px">
+        Akıllı Güncelleme dosyayı yeniledi ama hâlâ eski sayfayı görüyorsan, <strong>OPcache eski PHP bytecode'unu sunuyor</strong> demektir.
+        Aşağıdaki butona basarak temizle. Sonra tarayıcıda <kbd>Ctrl+Shift+R</kbd> yap.
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="<?= SITE_URL ?>/admin/cache-temizle.php" class="btn btn-blue btn-sm">
+            <i class="fas fa-eraser"></i> OPcache + Stat Cache Temizle
+        </a>
+        <a href="<?= SITE_URL ?>/admin/ayarlar.php?tab=smtp&_=<?= time() ?>" class="btn btn-out btn-sm">
+            <i class="fas fa-arrow-rotate-right"></i> Ayarlar Sayfasını Cache-bypass Aç
+        </a>
+    </div>
+</div>
+
 <div class="card">
     <h3>Sistem Bilgisi</h3>
     <div class="tbl-wrap">
