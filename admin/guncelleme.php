@@ -10,18 +10,134 @@ if ($_kul['rol'] !== 'admin') {
 
 $U = new Guncelleyici(__DIR__ . '/..');
 $mevcut_surum = $U->mevcut_surum();
-
-// Ayarlardan repo + token oku
 $repo  = (string)(db_get("SELECT deger FROM ayarlar WHERE anahtar='github_repo'")['deger']  ?? '');
 $token = (string)(db_get("SELECT deger FROM ayarlar WHERE anahtar='github_token'")['deger'] ?? '');
+$branch = (string)(db_get("SELECT deger FROM ayarlar WHERE anahtar='github_branch'")['deger'] ?? '') ?: 'main';
 
-// Sonuç placeholder'ları
-$kontrol_sonuc = null;
-$uygulama_sonuc = null;
+/* ============================================================
+   AJAX ENDPOİNTLERİ
+   ============================================================ */
+if (isset($_GET['ajax']) || isset($_POST['ajax'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $ajax = (string)($_POST['ajax'] ?? $_GET['ajax'] ?? '');
 
-// ============================================================
-//  AKSİYONLAR
-// ============================================================
+    // CSRF (POST'larda zorunlu)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_check($_POST['csrf'] ?? null)) {
+        echo json_encode(['ok'=>false, 'hata'=>'CSRF token geçersiz.']);
+        exit;
+    }
+
+    if (!$repo) {
+        echo json_encode(['ok'=>false, 'hata'=>'GitHub repo ayarlanmamış. Ayarlar sekmesinden gir.']);
+        exit;
+    }
+
+    @set_time_limit(120);
+
+    if ($ajax === 'durum') {
+        $r = $U->dosya_durumu($repo, $token, $branch);
+        if ($r['ok']) {
+            $r['mevcut_surum'] = $mevcut_surum;
+            $r['repo'] = $repo;
+            $r['branch'] = $branch;
+            $rel = $U->github_kontrol($repo, $token);
+            if ($rel['ok']) {
+                $r['github_surum'] = $rel['version'];
+                $r['yeni_surum_var'] = (bool)($rel['yeni_sürüm_var'] ?? false);
+                $r['release_url']    = $rel['asset_url'] ?? '';
+                $r['release_body']   = $rel['body'] ?? '';
+                $r['release_tarih']  = $rel['tarih'] ?? '';
+            }
+        }
+        echo json_encode($r);
+        exit;
+    }
+
+    if ($ajax === 'commits') {
+        echo json_encode($U->github_commits($repo, $token, $branch, 20));
+        exit;
+    }
+
+    if ($ajax === 'sync_dosya') {
+        $rel = (string)($_POST['rel'] ?? '');
+        $r = $U->tek_dosya_sync($repo, $token, $branch, $rel);
+        if ($r['ok']) log_yaz('guncelleme_dosya', "Sync: $rel", (int)$_kul['id']);
+        if (function_exists('opcache_reset')) @opcache_reset();
+        echo json_encode($r);
+        exit;
+    }
+
+    if ($ajax === 'akilli_sync') {
+        $r = $U->akilli_senkronize($repo, $token, $branch);
+        if ($r['ok']) log_yaz('guncelleme_akilli', "Akıllı sync: {$r['basarili']} dosya", (int)$_kul['id']);
+        echo json_encode($r);
+        exit;
+    }
+
+    if ($ajax === 'zorla_sync') {
+        // Tüm GitHub dosyalarını yeniden indir (durum farketmeksizin)
+        $tree = $U->github_tree($repo, $token, $branch);
+        if (!$tree['ok']) { echo json_encode($tree); exit; }
+        $tum_dosyalar = array_keys($tree['files']);
+        $r = $U->akilli_senkronize($repo, $token, $branch, $tum_dosyalar);
+        if ($r['ok']) log_yaz('guncelleme_zorla', "Zorla sync: {$r['basarili']} dosya", (int)$_kul['id']);
+        echo json_encode($r);
+        exit;
+    }
+
+    if ($ajax === 'yedekler') {
+        $liste = $U->yedekleri_listele();
+        // Boyut formatı
+        foreach ($liste as &$y) $y['boyut_fmt'] = $U->boyut_format((int)$y['boyut']);
+        echo json_encode(['ok'=>true, 'yedekler'=>$liste]);
+        exit;
+    }
+
+    if ($ajax === 'geri_al') {
+        $yedek = basename((string)($_POST['yedek'] ?? ''));
+        $r = $U->geri_al($yedek);
+        if ($r['ok']) log_yaz('guncelleme_geri_al', $yedek, (int)$_kul['id']);
+        if (function_exists('opcache_reset')) @opcache_reset();
+        echo json_encode($r);
+        exit;
+    }
+
+    if ($ajax === 'yedek_sil') {
+        $yedek = basename((string)($_POST['yedek'] ?? ''));
+        $ok = $U->yedek_sil($yedek);
+        echo json_encode(['ok'=>$ok, 'hata'=>$ok ? null : 'Silinemedi.']);
+        exit;
+    }
+
+    if ($ajax === 'token_kaydet') {
+        $yeni_token  = trim((string)($_POST['github_token']  ?? ''));
+        $yeni_repo   = trim((string)($_POST['github_repo']   ?? ''));
+        $yeni_branch = trim((string)($_POST['github_branch'] ?? 'main'));
+        if ($yeni_repo && !preg_match('~^[\w.\-]+/[\w.\-]+$~', $yeni_repo)) {
+            echo json_encode(['ok'=>false, 'hata'=>'Repo formatı: kullanici/repo']);
+            exit;
+        }
+        db_run("INSERT INTO ayarlar (anahtar, deger) VALUES ('github_token', ?) ON DUPLICATE KEY UPDATE deger=VALUES(deger)", [$yeni_token]);
+        db_run("INSERT INTO ayarlar (anahtar, deger) VALUES ('github_repo', ?) ON DUPLICATE KEY UPDATE deger=VALUES(deger)",  [$yeni_repo]);
+        db_run("INSERT INTO ayarlar (anahtar, deger) VALUES ('github_branch', ?) ON DUPLICATE KEY UPDATE deger=VALUES(deger)",[$yeni_branch ?: 'main']);
+        log_yaz('guncelleme_ayar', "GitHub ayarları güncellendi: $yeni_repo / $yeni_branch", (int)$_kul['id']);
+        echo json_encode(['ok'=>true, 'mesaj'=>'Ayarlar kaydedildi.']);
+        exit;
+    }
+
+    if ($ajax === 'token_test') {
+        $r = $U->github_kontrol($repo, $token);
+        echo json_encode($r);
+        exit;
+    }
+
+    echo json_encode(['ok'=>false, 'hata'=>"Bilinmeyen ajax: $ajax"]);
+    exit;
+}
+
+/* ============================================================
+   POST AKSIYONLARI (zip yükleme — non-AJAX, fallback)
+   ============================================================ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_check($_POST['csrf'] ?? null)) {
         flash_set('err','Oturum süresi doldu.');
@@ -29,385 +145,431 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $islem = $_POST['islem'] ?? '';
 
-    // -- GitHub kontrol ---------------------------------------
-    if ($islem === 'kontrol') {
-        $kontrol_sonuc = $U->github_kontrol($repo, $token);
-        log_yaz('guncelleme_kontrol', 'GitHub kontrolü yapıldı.', (int)$_kul['id']);
-    }
-
-    // -- GitHub indirme + uygulama ----------------------------
-    elseif ($islem === 'github_indir_uygula') {
-        $asset_url = (string)($_POST['asset_url'] ?? '');
-        if (!$asset_url || !str_starts_with($asset_url, 'https://api.github.com/')) {
-            flash_set('err','Geçersiz asset URL.');
-            redirect($_SERVER['REQUEST_URI']);
-        }
-        @set_time_limit(0);
-        $hedef = $U->temp_dir . '/gh-' . date('Ymd-His') . '.zip';
-        $indir = $U->github_indir($asset_url, $token, $hedef);
-        if (!$indir['ok']) {
-            flash_set('err','İndirme hatası: ' . $indir['hata']);
-            redirect($_SERVER['REQUEST_URI']);
-        }
-        $uygulama_sonuc = $U->uygula($hedef);
-        if ($uygulama_sonuc['ok']) {
-            log_yaz('guncelleme_uygulandi', "GitHub: v{$uygulama_sonuc['eski']} → v{$uygulama_sonuc['yeni']}", (int)$_kul['id']);
-            flash_set('ok',"Güncelleme uygulandı: v{$uygulama_sonuc['eski']} → v{$uygulama_sonuc['yeni']}");
-        } else {
-            log_yaz('guncelleme_hata', $uygulama_sonuc['hata'] ?? 'bilinmeyen hata', (int)$_kul['id']);
-        }
-    }
-
-    // -- Manuel ZIP yükleme -----------------------------------
-    elseif ($islem === 'manuel_zip') {
+    if ($islem === 'manuel_zip') {
         if (empty($_FILES['zip']) || $_FILES['zip']['error'] !== UPLOAD_ERR_OK) {
-            flash_set('err','ZIP yüklenemedi (' . ($_FILES['zip']['error'] ?? '?') . ').');
-            redirect($_SERVER['REQUEST_URI']);
-        }
-        if (strtolower(pathinfo($_FILES['zip']['name'], PATHINFO_EXTENSION)) !== 'zip') {
-            flash_set('err','Sadece .zip dosyası yüklenebilir.');
+            flash_set('err','ZIP yüklenemedi.');
             redirect($_SERVER['REQUEST_URI']);
         }
         @set_time_limit(0);
         $hedef = $U->temp_dir . '/manuel-' . date('Ymd-His') . '.zip';
         if (!move_uploaded_file($_FILES['zip']['tmp_name'], $hedef)) {
-            flash_set('err','Yüklenen ZIP taşınamadı.');
+            flash_set('err','ZIP taşınamadı.');
             redirect($_SERVER['REQUEST_URI']);
         }
-        $uygulama_sonuc = $U->uygula($hedef);
-        if ($uygulama_sonuc['ok']) {
-            log_yaz('guncelleme_uygulandi', "Manuel: v{$uygulama_sonuc['eski']} → v{$uygulama_sonuc['yeni']}", (int)$_kul['id']);
-            flash_set('ok',"Güncelleme uygulandı: v{$uygulama_sonuc['eski']} → v{$uygulama_sonuc['yeni']}");
-        } else {
-            log_yaz('guncelleme_hata', $uygulama_sonuc['hata'] ?? 'bilinmeyen hata', (int)$_kul['id']);
-        }
-    }
-
-    // -- Yedekten geri al -------------------------------------
-    elseif ($islem === 'geri_al') {
-        $yedek = basename((string)($_POST['yedek'] ?? ''));
-        $r = $U->geri_al($yedek);
+        $r = $U->uygula($hedef);
         if ($r['ok']) {
-            flash_set('ok',"Geri alındı: $yedek ({$r['yazilan']} dosya)");
-            log_yaz('guncelleme_geri_al', "Yedek: $yedek", (int)$_kul['id']);
+            flash_set('ok', "ZIP uygulandı: v{$r['eski']} → v{$r['yeni']}");
+            log_yaz('guncelleme_zip', "ZIP: v{$r['eski']} → v{$r['yeni']}", (int)$_kul['id']);
         } else {
-            flash_set('err', 'Geri alma hatası: ' . $r['hata']);
+            flash_set('err', 'Hata: ' . ($r['hata'] ?? '?'));
         }
-        redirect($_SERVER['REQUEST_URI']);
-    }
-
-    // -- Yedek sil --------------------------------------------
-    elseif ($islem === 'yedek_sil') {
-        $yedek = basename((string)($_POST['yedek'] ?? ''));
-        if ($U->yedek_sil($yedek)) {
-            flash_set('ok','Yedek silindi: ' . $yedek);
-            log_yaz('yedek_sil', $yedek, (int)$_kul['id']);
-        } else {
-            flash_set('err','Yedek silinemedi.');
-        }
+        if (function_exists('opcache_reset')) @opcache_reset();
         redirect($_SERVER['REQUEST_URI']);
     }
 }
-
-// Yedek indirme (GET)
-if (isset($_GET['indir'])) {
-    $yedek = basename((string)$_GET['indir']);
-    $yol = $U->yedek_dir . '/' . $yedek;
-    if (file_exists($yol) && str_starts_with($yedek, 'yedek-')) {
-        header('Content-Type: application/zip');
-        header('Content-Disposition: attachment; filename="' . $yedek . '"');
-        header('Content-Length: ' . filesize($yol));
-        readfile($yol);
-        exit;
-    }
-    flash_set('err','Yedek bulunamadı.');
-    redirect(SITE_URL . '/admin/guncelleme.php');
-}
-
-// Yedek listesi
-$yedekler = $U->yedekleri_listele();
-
-// Son güncelleme logları
-$son_loglar = db_all("SELECT * FROM guncelleme_log ORDER BY id DESC LIMIT 10");
-
-$aktif_tab = $_GET['tab'] ?? ($uygulama_sonuc !== null ? 'sonuc' : 'github');
 
 require_once __DIR__ . '/_header.php';
+$csrf = csrf_field();
 ?>
+
+<style>
+.upd-tabs{display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap;border-bottom:2px solid var(--c-line);padding-bottom:0}
+.upd-tabs .tab{padding:10px 18px;cursor:pointer;border:0;background:transparent;color:var(--c-muted);font-weight:600;font-size:.92rem;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s}
+.upd-tabs .tab:hover{color:var(--c-text)}
+.upd-tabs .tab.active{color:var(--c-orange);border-bottom-color:var(--c-orange)}
+.upd-pane{display:none}
+.upd-pane.active{display:block}
+.dosya-durum{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dd-guncel{background:#16a34a}
+.dd-degismis{background:#dc2626}
+.dd-eksik{background:#dc2626;border:2px dashed #fff}
+.dd-korumali{background:#64748b}
+.dosya-yol{font-family:'JetBrains Mono',monospace;font-size:.82rem;word-break:break-all}
+.upd-loglar{background:#0a0f1f;color:#aaffcc;font-family:monospace;font-size:.78rem;padding:14px;border-radius:6px;max-height:400px;overflow-y:auto;white-space:pre-wrap}
+.upd-loglar .err{color:#ff7a7a}
+.upd-loglar .ok{color:#aaffcc}
+.upd-spin{display:inline-block;width:14px;height:14px;border:2px solid var(--c-line);border-top-color:var(--c-orange);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.upd-stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.upd-stat .st{padding:18px;background:var(--c-bg);border:1px solid var(--c-line);border-radius:10px;text-align:center}
+.upd-stat .st .v{font-size:2.2rem;font-weight:800;line-height:1}
+.upd-stat .st .l{font-size:.78rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.upd-stat .ok .v{color:#16a34a}
+.upd-stat .warn .v{color:#dc2626}
+.upd-stat .info .v{color:var(--c-orange)}
+</style>
 
 <div class="page-head">
     <div>
         <h1 class="page-h1">Güncelleme Merkezi</h1>
-        <p class="page-sub">Mevcut sürüm: <strong style="color:var(--c-orange)">v<?= e($mevcut_surum) ?></strong> · Yedek sayısı: <?= count($yedekler) ?> · Son log: <?= $son_loglar ? tarih_tr($son_loglar[0]['olusturma_tarihi'], true) : '—' ?></p>
+        <p class="page-sub">Yüklü sürüm: <strong>v<?= e($mevcut_surum) ?></strong> · Repo: <code><?= e($repo ?: '(ayarlanmamış)') ?></code> · Branch: <code><?= e($branch) ?></code></p>
+    </div>
+    <a href="panel.php" class="btn btn-out"><i class="fas fa-arrow-left"></i> Panel</a>
+</div>
+
+<?php foreach (flash_pop() as $f): ?><div class="alert alert-<?= e($f['tip']) ?>"><?= $f['msg'] ?></div><?php endforeach; ?>
+
+<div class="upd-tabs">
+    <button class="tab active" data-pane="durum"><i class="fas fa-radar"></i> Genel Durum</button>
+    <button class="tab" data-pane="dosyalar"><i class="fas fa-folder-tree"></i> Dosyalar</button>
+    <button class="tab" data-pane="commits"><i class="fas fa-code-commit"></i> Commits</button>
+    <button class="tab" data-pane="yedekler"><i class="fas fa-clock-rotate-left"></i> Yedekler</button>
+    <button class="tab" data-pane="ayarlar"><i class="fas fa-gear"></i> Ayarlar</button>
+</div>
+
+<!-- ==================== GENEL DURUM ==================== -->
+<div class="upd-pane active" id="pane-durum">
+    <div class="card">
+        <h3>Genel Durum</h3>
+        <div id="durumOzet" style="padding:30px 0;text-align:center;color:var(--c-muted)"><span class="upd-spin"></span> Yükleniyor...</div>
+        <div class="form-actions" style="margin-top:18px">
+            <button class="btn btn-pri" onclick="durumYukle(true)"><i class="fas fa-sync"></i> Durum Kontrol</button>
+            <button class="btn btn-blue" onclick="akilliSync()"><i class="fas fa-bolt"></i> Akıllı Güncelleme</button>
+            <button class="btn btn-out" onclick="zorlaSync()" data-onay="TÜM dosyaları zorla yenilemek (sağlam olanlar dahil) istediğine emin misin?"><i class="fas fa-rotate"></i> Zorla Senkronize</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Sürüm Bilgisi</h3>
+        <div id="surumBilgi" style="color:var(--c-muted)">Yükleniyor...</div>
+    </div>
+
+    <div class="card">
+        <h3>İşlem Logu</h3>
+        <pre class="upd-loglar" id="loglarKutusu">Henüz işlem yok. "Akıllı Güncelleme" veya "Zorla Senkronize" butonuna bas.</pre>
     </div>
 </div>
 
-<?php if ($uygulama_sonuc): ?>
-<div class="card" style="border-left:4px solid <?= $uygulama_sonuc['ok'] ? 'var(--c-green)' : 'var(--c-red)' ?>">
-    <h3>
-        <?= $uygulama_sonuc['ok'] ? '<i class="fas fa-circle-check" style="color:var(--c-green)"></i> Güncelleme Tamam' : '<i class="fas fa-circle-xmark" style="color:var(--c-red)"></i> Güncelleme Hatası' ?>
-    </h3>
-    <?php if ($uygulama_sonuc['ok']): ?>
-        <p>Sürüm: <strong>v<?= e($uygulama_sonuc['eski']) ?></strong> → <strong style="color:var(--c-green)">v<?= e($uygulama_sonuc['yeni']) ?></strong></p>
-        <p>Yazılan dosya: <?= (int)$uygulama_sonuc['yazilan'] ?> · Atlanan: <?= (int)$uygulama_sonuc['atlanan'] ?> · Yedek: <code><?= e($uygulama_sonuc['yedek']) ?></code></p>
-    <?php else: ?>
-        <p style="color:#ff8b8b"><strong>Hata:</strong> <?= e($uygulama_sonuc['hata'] ?? 'bilinmiyor') ?></p>
-    <?php endif; ?>
-    <?php if (!empty($uygulama_sonuc['log'])): ?>
-        <details style="margin-top:10px">
-            <summary style="cursor:pointer;color:var(--c-orange)">İşlem Logu (<?= count($uygulama_sonuc['log']) ?> satır)</summary>
-            <pre style="margin-top:8px;padding:12px;background:#0a0f1c;border-radius:8px;font-size:.82rem;max-height:280px;overflow:auto;color:#9aa3b8"><?php foreach ($uygulama_sonuc['log'] as $l) echo e($l) . "\n"; ?></pre>
-        </details>
-    <?php endif; ?>
-</div>
-<?php endif; ?>
-
-<div data-tabs>
-<div class="tabs-h">
-    <div class="t <?= $aktif_tab==='github'?'active':'' ?>" data-tab="github"><i class="fab fa-github"></i> GitHub Releases</div>
-    <div class="t <?= $aktif_tab==='manuel'?'active':'' ?>" data-tab="manuel"><i class="fas fa-upload"></i> Manuel ZIP</div>
-    <div class="t <?= $aktif_tab==='yedekler'?'active':'' ?>" data-tab="yedekler"><i class="fas fa-clock-rotate-left"></i> Yedekler & Geri Al (<?= count($yedekler) ?>)</div>
-    <div class="t <?= $aktif_tab==='log'?'active':'' ?>" data-tab="log"><i class="fas fa-list"></i> Geçmiş</div>
-    <div class="t <?= $aktif_tab==='manifest'?'active':'' ?>" data-tab="manifest"><i class="fas fa-file-code"></i> Manifest</div>
-</div>
-
-<!-- ===================================================== -->
-<!-- TAB 1 — GITHUB                                          -->
-<!-- ===================================================== -->
-<div class="tab-body <?= $aktif_tab==='github'?'active':'' ?>" data-tab="github">
+<!-- ==================== DOSYALAR ==================== -->
+<div class="upd-pane" id="pane-dosyalar">
     <div class="card">
-        <h3>GitHub Releases üzerinden otomatik güncelleme</h3>
-
-        <?php if (!$repo): ?>
-            <div class="alert alert-warn">
-                <i class="fas fa-triangle-exclamation"></i>
-                Önce <a href="<?= SITE_URL ?>/admin/ayarlar.php?tab=github" style="color:var(--c-orange);text-decoration:underline">Ayarlar → GitHub</a> sekmesinden repo bilgisini gir. Private repolar için ayrıca Personal Access Token gerekli (<code>repo</code> izni).
-            </div>
-        <?php else: ?>
-            <table style="width:100%;font-size:.92rem;margin-bottom:14px">
-                <tr><td style="color:var(--c-muted);width:160px">Repository</td><td><code><?= e($repo) ?></code></td></tr>
-                <tr><td style="color:var(--c-muted)">Token</td><td><?= $token ? '<span class="badge badge-ok">tanımlı (' . strlen($token) . ' karakter)</span>' : '<span class="badge badge-warn">tanımlı değil — public repo için zorunlu değil</span>' ?></td></tr>
-                <tr><td style="color:var(--c-muted)">Mevcut Sürüm</td><td><strong>v<?= e($mevcut_surum) ?></strong></td></tr>
-            </table>
-
-            <form method="post" style="display:inline">
-                <?= csrf_field() ?>
-                <input type="hidden" name="islem" value="kontrol">
-                <button class="btn btn-pri"><i class="fas fa-cloud-arrow-down"></i> En Son Sürümü Kontrol Et</button>
-            </form>
-            <a href="https://github.com/<?= e($repo) ?>/releases" target="_blank" class="btn btn-out"><i class="fab fa-github"></i> GitHub'da Releases</a>
-
-            <?php if ($kontrol_sonuc !== null): ?>
-                <hr style="border-color:var(--c-line);margin:18px 0">
-                <?php if (!$kontrol_sonuc['ok']): ?>
-                    <div class="alert alert-err"><i class="fas fa-circle-xmark"></i> <?= e($kontrol_sonuc['hata']) ?></div>
-                <?php elseif (!$kontrol_sonuc['yeni_sürüm_var']): ?>
-                    <div class="alert alert-ok"><i class="fas fa-circle-check"></i>
-                        Sistemin güncel. En son sürüm: <strong>v<?= e($kontrol_sonuc['version']) ?></strong> (mevcut: v<?= e($kontrol_sonuc['mevcut']) ?>)
-                    </div>
-                <?php else: ?>
-                    <div class="alert alert-warn"><i class="fas fa-bell"></i>
-                        Yeni sürüm var! <strong style="color:var(--c-orange)">v<?= e($kontrol_sonuc['version']) ?></strong> (mevcut: v<?= e($kontrol_sonuc['mevcut']) ?>)
-                    </div>
-                    <div style="margin-top:10px;padding:14px;background:var(--c-card-2);border-radius:10px">
-                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:10px">
-                            <div>
-                                <strong>v<?= e($kontrol_sonuc['version']) ?></strong>
-                                <span style="color:var(--c-muted);font-size:.85rem">· <?= e($kontrol_sonuc['asset_name']) ?> · <?= $U->boyut_format((int)$kontrol_sonuc['size']) ?></span>
-                            </div>
-                            <form method="post" style="margin:0">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="islem" value="github_indir_uygula">
-                                <input type="hidden" name="asset_url" value="<?= e($kontrol_sonuc['asset_url']) ?>">
-                                <button class="btn btn-pri" data-onay="Sürüm v<?= e($kontrol_sonuc['version']) ?> indirilip uygulansın mı? Otomatik yedek alınır."><i class="fas fa-download"></i> İndir & Uygula</button>
-                            </form>
-                        </div>
-                        <?php if (!empty($kontrol_sonuc['body'])): ?>
-                            <details>
-                                <summary style="cursor:pointer;color:var(--c-orange);font-size:.88rem">Sürüm Notları</summary>
-                                <pre style="margin-top:8px;padding:12px;background:var(--c-bg);border-radius:6px;font-size:.85rem;white-space:pre-wrap;color:var(--c-text)"><?= e($kontrol_sonuc['body']) ?></pre>
-                            </details>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-            <?php endif; ?>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- ===================================================== -->
-<!-- TAB 2 — MANUEL ZIP                                      -->
-<!-- ===================================================== -->
-<div class="tab-body <?= $aktif_tab==='manuel'?'active':'' ?>" data-tab="manuel">
-    <div class="card">
-        <h3>Manuel ZIP yükleyerek güncelle</h3>
-        <p style="color:var(--c-muted);font-size:.9rem">
-            CODEGA tarafından sağlanan ZIP paketini buraya yükle. ZIP içinde
-            <code>manifest.json</code> bulunmalı. Sistem önce yedek alır, sonra dosyaları yazar.
-            <strong style="color:var(--c-orange)"><code>config.php</code> ve <code>assets/uploads/</code> içeriğine asla dokunulmaz.</strong>
+        <h3>Dosya Bazlı Durum</h3>
+        <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+            🟢 Güncel · 🔴 Değişmiş/Eksik · ⚫ Korumalı (config.php, uploads/ — asla yazılmaz). Tek tek "Güncelle" tıklayabilir veya "Akıllı Güncelleme" ile hepsini birden senkronize edebilirsin.
         </p>
-
-        <form method="post" enctype="multipart/form-data" id="zip-form">
-            <?= csrf_field() ?>
-            <input type="hidden" name="islem" value="manuel_zip">
-
-            <div id="dropzone" style="
-                border:2px dashed var(--c-line);border-radius:14px;padding:40px 20px;text-align:center;
-                cursor:pointer;transition:.2s;background:rgba(255,255,255,.02);margin-top:14px">
-                <i class="fas fa-cloud-arrow-up" style="font-size:2.5rem;color:var(--c-orange);margin-bottom:10px;display:block"></i>
-                <strong>ZIP dosyasını sürükle bırak</strong>
-                <p style="color:var(--c-muted);font-size:.85rem;margin-top:6px">veya tıklayarak seç (max <?= ini_get('upload_max_filesize') ?>)</p>
-                <input type="file" name="zip" accept=".zip" id="zip-input" style="display:none" required>
-                <p id="zip-name" style="margin-top:14px;color:var(--c-green);font-weight:600"></p>
+        <div class="toolbar">
+            <div class="filters">
+                <input class="input" type="search" id="dosyaArama" placeholder="Yol ara…" oninput="dosyaFiltre()">
+                <select id="dosyaDurumFiltre" onchange="dosyaFiltre()">
+                    <option value="">Tümü</option>
+                    <option value="degismis">🔴 Değişmiş</option>
+                    <option value="eksik">🔴 Eksik</option>
+                    <option value="guncel">🟢 Güncel</option>
+                </select>
+                <button class="btn btn-out btn-sm" onclick="durumYukle(true)"><i class="fas fa-sync"></i> Yenile</button>
             </div>
-
-            <div class="form-actions">
-                <button class="btn btn-pri" id="zip-submit" disabled><i class="fas fa-rocket"></i> Yükle ve Uygula</button>
-            </div>
-        </form>
-
-        <div style="margin-top:18px;padding:14px;background:var(--c-card-2);border-radius:10px;font-size:.85rem">
-            <strong>📦 manifest.json formatı:</strong>
-            <pre style="margin-top:8px;background:var(--c-bg);padding:12px;border-radius:6px;font-size:.8rem;color:#86efac;overflow:auto">{
-  "name": "Azra Doğalgaz Web Sistemi",
-  "version": "1.3.0",
-  "release_date": "2026-04-27",
-  "min_php": "8.1",
-  "changelog": "Ne değişti açıklaması",
-  "files": ["index.php", "admin/panel.php"]
-}</pre>
-            <p style="color:var(--c-muted);margin-top:6px;font-size:.82rem">
-                <code>files</code> alanı varsa sadece o dosyalar yazılır. Yoksa ZIP içindeki tüm güvenli dosyalar yazılır.
-            </p>
+            <div id="dosyaSayim"><span class="badge badge-info">—</span></div>
+        </div>
+        <div class="tbl-wrap" style="margin-top:14px">
+            <table class="tbl" id="dosyaTbl">
+                <thead>
+                    <tr><th style="width:60px">Durum</th><th>Yol</th><th style="width:90px">Boyut</th><th style="width:120px">İşlem</th></tr>
+                </thead>
+                <tbody><tr><td colspan="4" class="empty">Önce "Genel Durum" sekmesinde durum kontrol et.</td></tr></tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<!-- ===================================================== -->
-<!-- TAB 3 — YEDEKLER                                        -->
-<!-- ===================================================== -->
-<div class="tab-body <?= $aktif_tab==='yedekler'?'active':'' ?>" data-tab="yedekler">
+<!-- ==================== COMMITS ==================== -->
+<div class="upd-pane" id="pane-commits">
     <div class="card">
-        <h3>Yedekler — Tek tıkla geri alma</h3>
-        <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
-            Her güncellemeden ÖNCE etkilenen dosyaların yedeği alınır. En son <?= $U->max_yedek ?> yedek tutulur, eskiler otomatik silinir.
-        </p>
-
-        <?php if (!$yedekler): ?>
-            <div class="tbl-wrap"><table class="tbl"><tbody><tr><td class="empty">Henüz yedek yok.</td></tr></tbody></table></div>
-        <?php else: ?>
+        <h3>Son GitHub Commit'leri</h3>
+        <div class="form-actions" style="margin-bottom:14px">
+            <button class="btn btn-out btn-sm" onclick="commitsYukle()"><i class="fas fa-sync"></i> Yenile</button>
+        </div>
         <div class="tbl-wrap">
-        <table class="tbl">
-        <thead><tr><th>Yedek Adı</th><th style="width:120px">Boyut</th><th style="width:160px">Tarih</th><th style="width:240px;text-align:right">İşlem</th></tr></thead>
-        <tbody>
-        <?php foreach ($yedekler as $y): ?>
-            <tr>
-                <td><code style="font-size:.82rem"><?= e($y['ad']) ?></code></td>
-                <td class="num"><?= $U->boyut_format((int)$y['boyut']) ?></td>
-                <td class="num"><?= tarih_tr(date('Y-m-d H:i:s', (int)$y['tarih']), true) ?></td>
-                <td>
-                    <div class="actions">
-                        <a href="?indir=<?= urlencode($y['ad']) ?>" class="btn btn-out btn-sm" title="ZIP indir"><i class="fas fa-download"></i></a>
-                        <form method="post" style="display:inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="islem" value="geri_al">
-                            <input type="hidden" name="yedek" value="<?= e($y['ad']) ?>">
-                            <button class="btn btn-blue btn-sm" data-onay="Bu yedekten geri alınsın mı? Mevcut dosyalar üzerine yazılır."><i class="fas fa-rotate-left"></i> Geri Al</button>
-                        </form>
-                        <form method="post" style="display:inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="islem" value="yedek_sil">
-                            <input type="hidden" name="yedek" value="<?= e($y['ad']) ?>">
-                            <button class="btn btn-danger btn-sm" data-onay="Bu yedek silinsin mi?"><i class="fas fa-trash"></i></button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody></table></div>
-        <?php endif; ?>
+            <table class="tbl" id="commitTbl">
+                <thead><tr><th style="width:90px">SHA</th><th>Mesaj</th><th style="width:140px">Yazar</th><th style="width:140px">Tarih</th></tr></thead>
+                <tbody><tr><td colspan="4" class="empty">Yenile butonuna bas.</td></tr></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<!-- ===================================================== -->
-<!-- TAB 4 — LOG GEÇMİŞİ                                     -->
-<!-- ===================================================== -->
-<div class="tab-body <?= $aktif_tab==='log'?'active':'' ?>" data-tab="log">
+<!-- ==================== YEDEKLER ==================== -->
+<div class="upd-pane" id="pane-yedekler">
     <div class="card">
-        <h3>Güncelleme Geçmişi</h3>
-        <?php if (!$son_loglar): ?>
-            <p style="color:var(--c-muted)">Henüz güncelleme kaydı yok.</p>
-        <?php else: ?>
-            <div class="tbl-wrap">
-            <table class="tbl">
-            <thead><tr><th style="width:160px">Tarih</th><th style="width:120px">Eski</th><th style="width:120px">Yeni</th><th style="width:90px">Durum</th><th>Detay</th></tr></thead>
-            <tbody>
-            <?php foreach ($son_loglar as $l): ?>
-                <tr>
-                    <td class="num"><?= tarih_tr($l['olusturma_tarihi'], true) ?></td>
-                    <td><code><?= e($l['eski_surum'] ?? '—') ?></code></td>
-                    <td><code><?= e($l['yeni_surum'] ?? '—') ?></code></td>
-                    <td><span class="badge <?= $l['durum']==='basarili'?'badge-ok':'badge-danger' ?>"><?= e($l['durum']) ?></span></td>
-                    <td><details><summary style="cursor:pointer;color:var(--c-orange);font-size:.85rem">Detay gör</summary><pre style="margin-top:6px;padding:8px;background:var(--c-bg);border-radius:6px;font-size:.78rem;color:var(--c-muted);max-height:200px;overflow:auto"><?= e($l['detay'] ?? '') ?></pre></details></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody></table></div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- ===================================================== -->
-<!-- TAB 5 — MANIFEST                                        -->
-<!-- ===================================================== -->
-<div class="tab-body <?= $aktif_tab==='manifest'?'active':'' ?>" data-tab="manifest">
-    <div class="card">
-        <h3>Mevcut manifest.json</h3>
-        <pre style="background:var(--c-bg);padding:14px;border-radius:8px;font-size:.85rem;color:#86efac;overflow:auto;max-height:400px"><?= e(json_encode($U->manifest_oku(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
-        <p style="color:var(--c-muted);font-size:.85rem;margin-top:10px">
-            Bu dosya manuel düzenlenmemeli — güncelleme paketi uygulandığında otomatik yenilenir.
+        <h3>Yedekler</h3>
+        <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+            Her güncelleme/sync öncesi etkilenen dosyaların ZIP yedeği alınır. "Geri Al" tıklayarak rollback yapabilirsin.
         </p>
+        <div class="form-actions" style="margin-bottom:14px">
+            <button class="btn btn-out btn-sm" onclick="yedeklerYukle()"><i class="fas fa-sync"></i> Yenile</button>
+        </div>
+        <div class="tbl-wrap">
+            <table class="tbl" id="yedekTbl">
+                <thead><tr><th>Yedek Adı</th><th style="width:90px">Boyut</th><th style="width:160px">Tarih</th><th style="width:200px">İşlem</th></tr></thead>
+                <tbody><tr><td colspan="4" class="empty">Yenile butonuna bas.</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Manuel ZIP Yükle (Yedekleme amaçlı)</h3>
+        <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+            GitHub erişimi yoksa yerel ZIP'i buradan yükleyip uygulayabilirsin (manifest.json içermesi şart).
+        </p>
+        <form method="post" enctype="multipart/form-data">
+            <?= $csrf ?>
+            <input type="hidden" name="islem" value="manuel_zip">
+            <div class="form-row cols-2">
+                <div class="field"><label>ZIP Dosyası</label><input class="input" type="file" name="zip" accept=".zip" required></div>
+                <div class="field" style="display:flex;align-items:flex-end"><button class="btn btn-pri" data-onay="ZIP uygulansın mı?"><i class="fas fa-upload"></i> Yükle ve Uygula</button></div>
+            </div>
+        </form>
     </div>
 </div>
 
+<!-- ==================== AYARLAR ==================== -->
+<div class="upd-pane" id="pane-ayarlar">
+    <div class="card">
+        <h3>GitHub Ayarları</h3>
+        <form id="ayarForm">
+            <div class="form-row cols-2">
+                <div class="field"><label>Repo (kullanici/repo)</label><input class="input" type="text" id="ayar_repo" value="<?= e($repo) ?>" placeholder="codegatr/azradogalgaz"></div>
+                <div class="field"><label>Branch</label><input class="input" type="text" id="ayar_branch" value="<?= e($branch) ?>" placeholder="main"></div>
+            </div>
+            <div class="form-row">
+                <div class="field"><label>GitHub Token <span class="opt">(private repo veya rate limit için)</span></label><input class="input" type="password" id="ayar_token" value="<?= e($token) ?>" placeholder="ghp_..." autocomplete="off"></div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-pri" onclick="ayarKaydet()"><i class="fas fa-save"></i> Kaydet</button>
+                <button type="button" class="btn btn-blue" onclick="ayarTest()"><i class="fas fa-vial"></i> Test Et</button>
+            </div>
+            <div id="ayarMesaj" style="margin-top:10px"></div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Korumalı Yollar</h3>
+        <p style="color:var(--c-muted);font-size:.9rem">Bu yollar hiçbir koşulda yazılmaz/üzerine yazılmaz:</p>
+        <ul style="margin-top:10px;padding-left:24px;color:var(--c-text);font-family:monospace;font-size:.88rem">
+            <li>config.php — DB bilgileri</li>
+            <li>assets/uploads/ — kullanıcı yüklemeleri (yedekler dahil)</li>
+        </ul>
+    </div>
 </div>
 
 <script>
-// Drag & drop ZIP
-(function(){
-    const dz = document.getElementById('dropzone');
-    const fi = document.getElementById('zip-input');
-    const nm = document.getElementById('zip-name');
-    const sb = document.getElementById('zip-submit');
-    const fr = document.getElementById('zip-form');
-    if (!dz || !fi) return;
-    dz.addEventListener('click', () => fi.click());
-    fi.addEventListener('change', () => {
-        if (fi.files[0]) {
-            nm.textContent = '✓ ' + fi.files[0].name + ' (' + (fi.files[0].size/1024/1024).toFixed(2) + ' MB)';
-            sb.disabled = false;
-        }
+const CSRF = document.querySelector('input[name=csrf]').value;
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+let DOSYA_DURUMU = null;
+
+// Tab switching
+$$('.upd-tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+        $$('.upd-tabs .tab').forEach(x => x.classList.remove('active'));
+        $$('.upd-pane').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        $('#pane-' + t.dataset.pane).classList.add('active');
+        // Lazy load
+        if (t.dataset.pane === 'commits' && !commitsLoaded) commitsYukle();
+        if (t.dataset.pane === 'yedekler' && !yedeklerLoaded) yedeklerYukle();
     });
-    ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => {
-        ev.preventDefault();
-        dz.style.borderColor = 'var(--c-orange)';
-        dz.style.background = 'rgba(255,140,0,.06)';
-    }));
-    ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => {
-        ev.preventDefault();
-        dz.style.borderColor = '';
-        dz.style.background = '';
-    }));
-    dz.addEventListener('drop', ev => {
-        if (ev.dataTransfer.files[0]) {
-            fi.files = ev.dataTransfer.files;
-            fi.dispatchEvent(new Event('change'));
-        }
+});
+
+function logYaz(metin, tip='ok') {
+    const k = $('#loglarKutusu');
+    if (k.textContent.startsWith('Henüz')) k.textContent = '';
+    const span = document.createElement('span');
+    span.className = tip === 'err' ? 'err' : 'ok';
+    span.textContent = metin + '\n';
+    k.appendChild(span);
+    k.scrollTop = k.scrollHeight;
+}
+
+async function api(ajax, data={}) {
+    const fd = new FormData();
+    fd.append('ajax', ajax);
+    fd.append('csrf', CSRF);
+    for (const [k,v] of Object.entries(data)) fd.append(k, v);
+    const r = await fetch('?ajax=' + ajax, {method:'POST', body:fd});
+    return await r.json();
+}
+
+// ===== DURUM =====
+async function durumYukle(force=false) {
+    $('#durumOzet').innerHTML = '<span class="upd-spin"></span> GitHub Tree API\'den dosyalar çekiliyor, lokal SHA1 hesaplanıyor...';
+    const r = await api('durum');
+    if (!r.ok) {
+        $('#durumOzet').innerHTML = '<div class="alert alert-err">' + r.hata + '</div>';
+        return;
+    }
+    DOSYA_DURUMU = r;
+    const s = r.istatistik;
+    $('#durumOzet').innerHTML = `
+        <div class="upd-stat">
+            <div class="st ok"><div class="v">${s.guncel}</div><div class="l">Güncel</div></div>
+            <div class="st warn"><div class="v">${s.degismis}</div><div class="l">Değişmiş</div></div>
+            <div class="st warn"><div class="v">${s.eksik}</div><div class="l">Eksik</div></div>
+            <div class="st info"><div class="v">${s.toplam}</div><div class="l">Toplam Dosya</div></div>
+        </div>`;
+    let bilgi = `<table class="tbl" style="font-size:.92rem">
+        <tr><td><strong>Yüklü Sürüm</strong></td><td>v${r.mevcut_surum}</td></tr>
+        <tr><td><strong>GitHub Sürüm</strong></td><td>${r.github_surum ? 'v'+r.github_surum : '—'} ${r.yeni_surum_var ? '<span class="badge badge-warn">Yeni Sürüm Var</span>' : '<span class="badge badge-ok">Güncel</span>'}</td></tr>
+        <tr><td><strong>Repo / Branch</strong></td><td><code>${r.repo}</code> @ <code>${r.branch}</code></td></tr>
+        <tr><td><strong>Korumalı Dosya</strong></td><td>${s.korumali} adet</td></tr>`;
+    if (r.release_tarih) bilgi += `<tr><td><strong>Son Release</strong></td><td>${new Date(r.release_tarih).toLocaleString('tr-TR')}</td></tr>`;
+    bilgi += `</table>`;
+    $('#surumBilgi').innerHTML = bilgi;
+    if (force) logYaz(`✓ Durum kontrolü: ${s.toplam} dosya tarandı (${s.guncel} güncel, ${s.degismis} değişmiş, ${s.eksik} eksik)`);
+    dosyaTabloYaz();
+}
+
+function dosyaTabloYaz() {
+    if (!DOSYA_DURUMU) return;
+    const arama = $('#dosyaArama').value.toLowerCase();
+    const filtre = $('#dosyaDurumFiltre').value;
+    const tbody = $('#dosyaTbl tbody');
+    tbody.innerHTML = '';
+    let n = 0;
+    for (const [yol, d] of Object.entries(DOSYA_DURUMU.dosyalar)) {
+        if (arama && !yol.toLowerCase().includes(arama)) continue;
+        if (filtre && d.durum !== filtre) continue;
+        const ddCls = d.korumali ? 'dd-korumali' : 'dd-' + d.durum;
+        const ddTxt = d.korumali ? 'Korumalı' : (d.durum === 'guncel' ? 'Güncel' : (d.durum === 'degismis' ? 'Değişmiş' : 'Eksik'));
+        const boyut = d.boyut < 1024 ? d.boyut + ' B' : (d.boyut < 1048576 ? (d.boyut/1024).toFixed(1) + ' KB' : (d.boyut/1048576).toFixed(2) + ' MB');
+        const aksiyon = d.korumali
+            ? '<span class="badge badge-no">—</span>'
+            : (d.durum === 'guncel'
+                ? '<button class="btn btn-out btn-sm" onclick="syncDosya(\'' + yol.replace(/'/g,"\\'") + '\', this)">Yenile</button>'
+                : '<button class="btn btn-pri btn-sm" onclick="syncDosya(\'' + yol.replace(/'/g,"\\'") + '\', this)">Güncelle</button>');
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr data-yol="${yol}">
+                <td><span class="dosya-durum ${ddCls}" title="${ddTxt}"></span><small style="color:var(--c-muted)">${ddTxt}</small></td>
+                <td class="dosya-yol">${yol}</td>
+                <td class="num">${boyut}</td>
+                <td>${aksiyon}</td>
+            </tr>`);
+        n++;
+    }
+    if (n === 0) tbody.innerHTML = '<tr><td colspan="4" class="empty">Sonuç yok.</td></tr>';
+    $('#dosyaSayim').innerHTML = `<span class="badge badge-info">${n} dosya gösteriliyor</span>`;
+}
+
+function dosyaFiltre() { dosyaTabloYaz(); }
+
+async function syncDosya(yol, btn) {
+    btn.disabled = true; btn.innerHTML = '<span class="upd-spin"></span>';
+    const r = await api('sync_dosya', {rel: yol});
+    if (r.ok) {
+        logYaz(`✓ Sync: ${yol} (${r.boyut} B)`);
+        await durumYukle();
+    } else {
+        logYaz(`✗ ${yol}: ${r.hata}`, 'err');
+        btn.disabled = false; btn.textContent = 'Güncelle';
+        alert('Hata: ' + r.hata);
+    }
+}
+
+async function akilliSync() {
+    if (!confirm('Değişmiş ve eksik dosyalar GitHub\'dan indirilip yazılacak. Önce yedek alınır. Devam?')) return;
+    logYaz('▶ Akıllı senkronizasyon başlıyor...');
+    const r = await api('akilli_sync');
+    if (!r.ok) { logYaz('✗ Hata: ' + r.hata, 'err'); return; }
+    (r.log || []).forEach(l => logYaz(l, l.startsWith('✗') ? 'err' : 'ok'));
+    logYaz(`◆ Tamamlandı: ${r.basarili} başarılı, ${r.hata_sayisi} hata. v${r.eski_surum} → v${r.yeni_surum}`);
+    await durumYukle();
+    setTimeout(() => alert(`Akıllı sync tamam: ${r.basarili} dosya. ${r.hata_sayisi ? r.hata_sayisi + ' hata var, log\'a bak.' : ''}`), 100);
+}
+
+async function zorlaSync() {
+    if (!confirm('TÜM dosyalar yeniden indirilecek (güncel olanlar bile). Devam?')) return;
+    logYaz('▶ Zorla senkronizasyon başlıyor (tüm dosyalar)...');
+    const r = await api('zorla_sync');
+    if (!r.ok) { logYaz('✗ Hata: ' + r.hata, 'err'); return; }
+    (r.log || []).forEach(l => logYaz(l, l.startsWith('✗') ? 'err' : 'ok'));
+    logYaz(`◆ Zorla sync tamam: ${r.basarili} dosya, ${r.hata_sayisi} hata.`);
+    await durumYukle();
+}
+
+// ===== COMMITS =====
+let commitsLoaded = false;
+async function commitsYukle() {
+    commitsLoaded = true;
+    const tbody = $('#commitTbl tbody');
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><span class="upd-spin"></span> Yükleniyor...</td></tr>';
+    const r = await api('commits');
+    if (!r.ok) { tbody.innerHTML = '<tr><td colspan="4" class="empty">' + r.hata + '</td></tr>'; return; }
+    if (!r.commits.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">Commit yok.</td></tr>'; return; }
+    tbody.innerHTML = '';
+    for (const c of r.commits) {
+        const tarih = c.tarih ? new Date(c.tarih).toLocaleString('tr-TR') : '—';
+        const msg = c.mesaj.split('\n')[0];
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td><a href="${c.url}" target="_blank" style="font-family:monospace;color:var(--c-orange);text-decoration:none">${c.sha}</a></td>
+                <td>${msg.replace(/</g,'&lt;')}</td>
+                <td>${c.yazar}</td>
+                <td class="num">${tarih}</td>
+            </tr>`);
+    }
+}
+
+// ===== YEDEKLER =====
+let yedeklerLoaded = false;
+async function yedeklerYukle() {
+    yedeklerLoaded = true;
+    const tbody = $('#yedekTbl tbody');
+    tbody.innerHTML = '<tr><td colspan="4" class="empty"><span class="upd-spin"></span> Yükleniyor...</td></tr>';
+    const r = await api('yedekler');
+    if (!r.ok || !r.yedekler.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">Henüz yedek yok.</td></tr>'; return; }
+    tbody.innerHTML = '';
+    for (const y of r.yedekler) {
+        const tarih = y.tarih ? new Date(y.tarih * 1000).toLocaleString('tr-TR') : '—';
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td><code>${y.ad}</code></td>
+                <td class="num">${y.boyut_fmt}</td>
+                <td class="num">${tarih}</td>
+                <td>
+                    <button class="btn btn-pri btn-sm" onclick="yedekGeriAl('${y.ad}')"><i class="fas fa-undo"></i> Geri Al</button>
+                    <button class="btn btn-danger btn-sm" onclick="yedekSil('${y.ad}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`);
+    }
+}
+
+async function yedekGeriAl(ad) {
+    if (!confirm('Yedekten geri alınsın mı?\n\nDikkat: Mevcut dosyalar yedek içeriğiyle değiştirilecek.\n\n' + ad)) return;
+    const r = await api('geri_al', {yedek: ad});
+    alert(r.ok ? 'Geri alındı: ' + ad : 'Hata: ' + r.hata);
+    if (r.ok) location.reload();
+}
+
+async function yedekSil(ad) {
+    if (!confirm('Yedek silinsin mi?\n' + ad)) return;
+    const r = await api('yedek_sil', {yedek: ad});
+    if (r.ok) yedeklerYukle();
+    else alert('Silinemedi.');
+}
+
+// ===== AYARLAR =====
+async function ayarKaydet() {
+    const r = await api('token_kaydet', {
+        github_repo:   $('#ayar_repo').value.trim(),
+        github_branch: $('#ayar_branch').value.trim(),
+        github_token:  $('#ayar_token').value.trim(),
     });
-    fr?.addEventListener('submit', () => {
-        sb.disabled = true;
-        sb.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uygulanıyor… (sayfayı kapatma)';
-    });
-})();
+    $('#ayarMesaj').innerHTML = r.ok
+        ? '<div class="alert alert-ok">' + r.mesaj + '</div>'
+        : '<div class="alert alert-err">' + r.hata + '</div>';
+    if (r.ok) setTimeout(() => location.reload(), 800);
+}
+
+async function ayarTest() {
+    $('#ayarMesaj').innerHTML = '<span class="upd-spin"></span> Test ediliyor...';
+    const r = await api('token_test');
+    $('#ayarMesaj').innerHTML = r.ok
+        ? '<div class="alert alert-ok">✓ Bağlantı OK. GitHub son release: v' + r.version + '</div>'
+        : '<div class="alert alert-err">✗ ' + r.hata + '</div>';
+}
+
+// İlk yükleme
+durumYukle();
 </script>
 
 <?php require_once __DIR__ . '/_footer.php'; ?>
