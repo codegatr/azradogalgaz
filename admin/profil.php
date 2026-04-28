@@ -1,6 +1,17 @@
 <?php
 require_once __DIR__ . '/_baslat.php';
+require_once __DIR__ . '/../inc/sema-muhasebe.php';
 page_title('Profil & Şifre');
+
+// Taze kullanıcı verisi (kullanici_adi vb. session'da olmayabilir)
+try {
+    $taze = db_get("SELECT id, ad, eposta, kullanici_adi, rol FROM kullanicilar WHERE id=?", [(int)$_kul['id']]);
+    if ($taze) $_kul = array_merge($_kul, $taze);
+} catch (Throwable $e) {
+    // kullanici_adi kolonu yoksa eski şema
+    $taze = db_get("SELECT id, ad, eposta, rol FROM kullanicilar WHERE id=?", [(int)$_kul['id']]);
+    if ($taze) $_kul = array_merge($_kul, $taze);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_check($_POST['csrf'] ?? null)) {
@@ -13,15 +24,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($islem === 'profil') {
         $ad = clean($_POST['ad'] ?? '');
         $eposta = clean($_POST['eposta'] ?? '');
+        $kullanici_adi = trim((string)($_POST['kullanici_adi'] ?? ''));
         if ($ad === '' || !filter_var($eposta, FILTER_VALIDATE_EMAIL)) {
             flash_set('err', 'Ad ve geçerli bir e-posta adresi gerekli.');
+        } elseif ($kullanici_adi !== '' && !preg_match('/^[a-zA-Z0-9_.\-]{3,60}$/', $kullanici_adi)) {
+            flash_set('err', 'Kullanıcı adı 3-60 karakter; harf, rakam, "_", ".", "-" kullanılabilir.');
         } else {
             // E-posta başkasında var mı?
             $cak = db_get("SELECT id FROM kullanicilar WHERE eposta=? AND id<>?", [$eposta, (int)$_kul['id']]);
             if ($cak) {
                 flash_set('err', 'Bu e-posta başka bir hesapta kayıtlı.');
+            } elseif ($kullanici_adi !== '') {
+                // Kullanıcı adı çakışma kontrolü
+                try {
+                    $cak2 = db_get("SELECT id FROM kullanicilar WHERE kullanici_adi=? AND id<>?", [$kullanici_adi, (int)$_kul['id']]);
+                    if ($cak2) {
+                        flash_set('err', 'Bu kullanıcı adı başka bir hesapta kayıtlı.');
+                        redirect($_SERVER['REQUEST_URI']);
+                    }
+                } catch (Throwable $e) { /* kolon yoksa atla */ }
+                try {
+                    db_run("UPDATE kullanicilar SET ad=?, eposta=?, kullanici_adi=? WHERE id=?", [$ad, $eposta, $kullanici_adi, (int)$_kul['id']]);
+                } catch (Throwable $e) {
+                    db_run("UPDATE kullanicilar SET ad=?, eposta=? WHERE id=?", [$ad, $eposta, (int)$_kul['id']]);
+                }
+                $_SESSION['admin_ad'] = $ad;
+                log_yaz('profil_guncelle', 'Profil güncellendi.', (int)$_kul['id']);
+                flash_set('ok', 'Profil bilgilerin güncellendi.');
             } else {
-                db_run("UPDATE kullanicilar SET ad=?, eposta=? WHERE id=?", [$ad, $eposta, (int)$_kul['id']]);
+                try {
+                    db_run("UPDATE kullanicilar SET ad=?, eposta=?, kullanici_adi=NULL WHERE id=?", [$ad, $eposta, (int)$_kul['id']]);
+                } catch (Throwable $e) {
+                    db_run("UPDATE kullanicilar SET ad=?, eposta=? WHERE id=?", [$ad, $eposta, (int)$_kul['id']]);
+                }
                 $_SESSION['admin_ad'] = $ad;
                 log_yaz('profil_guncelle', 'Profil güncellendi.', (int)$_kul['id']);
                 flash_set('ok', 'Profil bilgilerin güncellendi.');
@@ -79,6 +114,12 @@ require_once __DIR__ . '/_header.php';
                 <div class="field">
                     <label>E-posta</label>
                     <input class="input" type="email" name="eposta" value="<?= e($_kul['eposta']) ?>" required maxlength="160">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label>Kullanıcı Adı <span style="color:var(--c-muted);font-weight:400;font-size:.78rem">(opsiyonel — e-posta yerine girişte kullanabilirsin)</span></label>
+                    <input class="input" name="kullanici_adi" value="<?= e($_kul['kullanici_adi'] ?? '') ?>" maxlength="60" pattern="[a-zA-Z0-9_.\-]{3,60}" placeholder="ornek_kullanici" autocomplete="username">
                 </div>
             </div>
             <div class="form-row">
