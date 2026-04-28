@@ -35,6 +35,8 @@ class Guncelleyici
         'jpg','jpeg','png','gif','webp','svg','ico',
         'woff','woff2','ttf','eot',
         'sql','htaccess',
+        // Dotfile'lar (PHP pathinfo('.gitignore', EXT) === 'gitignore')
+        'gitignore','gitattributes','editorconfig','env','sample','example',
     ];
 
     public function __construct(string $kok)
@@ -703,8 +705,9 @@ class Guncelleyici
      * Akıllı senkronizasyon: değişmiş + eksik tüm dosyaları sırayla günceller.
      * Önce yedek alır, sonra her dosyayı tek_dosya_sync ile yazar.
      * @param array $sadece_bunlari Sadece bu yolları senkronize et (boşsa: hepsi)
+     * @param bool  $zorla          true ise durum farketmez tüm uygun dosyaları yeniden indirir
      */
-    public function akilli_senkronize(string $repo, string $token, string $branch, array $sadece_bunlari = []): array
+    public function akilli_senkronize(string $repo, string $token, string $branch, array $sadece_bunlari = [], bool $zorla = false): array
     {
         $log = [];
         $log[] = "Dosya durumu sorgulanıyor: $repo / $branch";
@@ -717,22 +720,22 @@ class Guncelleyici
         foreach ($durum['dosyalar'] as $rel => $d) {
             if ($sadece_bunlari && !in_array($rel, $sadece_bunlari, true)) continue;
             if ($d['korumali']) continue;
-            if (in_array($d['durum'], ['degismis', 'eksik'], true)) {
+            if ($zorla || in_array($d['durum'], ['degismis', 'eksik'], true)) {
                 $hedefler[] = $rel;
             }
         }
 
         if (!$hedefler) {
-            return ['ok'=>true, 'log'=>array_merge($log, ['Güncellenecek dosya yok.']), 'sayi'=>0];
+            return ['ok'=>true, 'log'=>array_merge($log, ['Güncellenecek dosya yok.']), 'sayi'=>0, 'basarili'=>0, 'hata_sayisi'=>0, 'hatalar'=>[], 'eski_surum'=>$this->mevcut_surum(), 'yeni_surum'=>$this->mevcut_surum()];
         }
 
-        $log[] = count($hedefler) . " dosya güncellenecek.";
+        $log[] = count($hedefler) . " dosya güncellenecek" . ($zorla ? ' (zorla)' : '') . ".";
 
         // Yedek al
         $eski_surum = $this->mevcut_surum();
         $yedek = $this->yedek_al(array_filter($hedefler, fn($p) => is_file($this->kok.'/'.$p)), $eski_surum . '_pre-sync');
         if ($yedek['ok']) {
-            $log[] = "Yedek alındı: " . $yedek['ad'] . ' (' . $this->boyut_format($yedek['boyut']) . ')';
+            $log[] = "Yedek alındı: " . basename($yedek['yol']) . ' (' . $this->boyut_format((int)$yedek['boyut']) . ')';
         } else {
             $log[] = "[UYARI] Yedek alınamadı: " . ($yedek['hata'] ?? '?');
         }
@@ -743,7 +746,7 @@ class Guncelleyici
             $r = $this->tek_dosya_sync($repo, $token, $branch, $rel);
             if ($r['ok']) {
                 $basarili++;
-                $log[] = "✓ $rel (" . $this->boyut_format($r['boyut']) . ")";
+                $log[] = "✓ $rel (" . $this->boyut_format((int)$r['boyut']) . ")";
             } else {
                 $hatalar[] = "✗ $rel: " . ($r['hata'] ?? '?');
                 $log[] = end($hatalar);
