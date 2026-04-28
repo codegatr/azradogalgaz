@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.3",
+    "version": "1.12.4",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.3: SMTP host validation + Sistem Tanı dosya bütünlüğü kartı + OPcache temizleme kısayolu. (1) Ayarlar > SMTP & Bildirim'de form kaydında SMTP host alanı validasyondan geçer: e-posta yazıldıysa, URL yazıldıysa, iki nokta veya boşluk içeriyorsa, port 1-65535 dışındaysa, kullanıcı adı veya gönderen e-posta geçersizse → kayıt durur, kullanıcıya açıklayıcı hata gösterilir. SMTP Sunucu alanına 'hostname — e-posta DEĞİL' uyarısı eklendi. (2) Sistem Tanı sayfasına 'Kritik Dosya Bütünlüğü' kartı eklendi: 15 kritik dosyanın boyutu+değişiklik tarihi+durum (VAR/YARIM?/YOK) tablosu. Akıllı Güncelleme yarım dosya yazdığında anında görülür. (3) Sistem Tanı'ya 'OPcache & Tarayıcı Cache' kartı eklendi: tek tıkla cache-temizle.php'ye link + cache-bypass URL ile ayarlar sayfasını açma butonu. Yunus'un 'Akıllı Güncelleme yaptım ama eski sayfayı görüyorum' sorununu çözer.",
+    "changelog": "v1.12.4: KESİN FIX - SMTP tab açılış attribute'larındaki PHP echo'lar tamamen kaldırıldı. Yunus'un raporu: prod'da sayfa kaynağı 27955 byte (local 38956b) ve tam 'data-csrf=\"' attribute'u açıkken kesik kalıyor → PHP fatal sebebiyle output kesintisi. ÇÖZÜM: SMTP tab opener'ından data-csrf/data-url/data-cron-key attribute'larını TAMAMEN çıkardık. JS handler'lar artık değerleri sayfa sonundaki window.AZRA_CRON_KEY (json_encode), form'daki var olan csrf input'u (csrf_field), location.origin'den okuyor. Cron Kurulumu kartındaki URL ve gün sayısı da JS ile dinamik basılıyor. Böylece tab içeriği SIFIR PHP-attribute'una bağımlı hâle geldi - prod'da her ne sebepten olursa olsun render kesintisi olamaz.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -22,6 +22,7 @@
         "26-ayarlar-self-contained-tab-handler","27-ayarlar-inline-onclick-ses-bypass",
         "28-smtp-button-inline-onclick-ses-bypass","29-sitemap-genisletme-search-console-yardim",
         "30-test-mail-form-actions-wrapper","31-onclick-data-attr-render-fix",
-        "32-smtp-host-validation-sistem-tani-dosya-butunluk"
+        "32-smtp-host-validation-sistem-tani-dosya-butunluk",
+        "33-smtp-tab-php-echo-attribute-temizleme-prod-render-fix"
     ]
 }
