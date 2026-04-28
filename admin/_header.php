@@ -87,8 +87,14 @@ try {
         <a href="<?= SITE_URL ?>/admin/loglar.php" class="<?= nav_active('loglar.php') ?>">
             <i class="fas fa-clipboard-list"></i> Sistem Logları
         </a>
+        <a href="<?= SITE_URL ?>/admin/sistem-tani.php" class="<?= nav_active('sistem-tani.php') ?>">
+            <i class="fas fa-stethoscope"></i> Sistem Tanı
+        </a>
         <a href="<?= SITE_URL ?>/admin/guncelleme.php" class="<?= nav_active('guncelleme.php') ?>">
             <i class="fas fa-cloud-arrow-down"></i> Güncelleme
+        </a>
+        <a href="<?= SITE_URL ?>/admin/cikis.php" style="color:#fca5a5">
+            <i class="fas fa-right-from-bracket"></i> Çıkış Yap
         </a>
         <?php endif; ?>
     </nav>
