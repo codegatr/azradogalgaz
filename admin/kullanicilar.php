@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id     = (int)($_POST['id'] ?? 0);
         $ad     = trim((string)($_POST['ad'] ?? ''));
         $eposta = trim((string)($_POST['eposta'] ?? ''));
+        $kullanici_adi = trim((string)($_POST['kullanici_adi'] ?? ''));
         $rol    = ($_POST['rol'] ?? 'editor') === 'admin' ? 'admin' : 'editor';
         $aktif  = !empty($_POST['aktif']) ? 1 : 0;
         $sifre  = (string)($_POST['sifre'] ?? '');
@@ -46,17 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash_set('err', 'Geçerli bir e-posta girin.');
             redirect($_SERVER['REQUEST_URI']);
         }
+        if ($kullanici_adi !== '' && !preg_match('/^[a-zA-Z0-9_.\-]{3,60}$/', $kullanici_adi)) {
+            flash_set('err', 'Kullanıcı adı 3-60 karakter; harf, rakam, "_", ".", "-" kullanılabilir.');
+            redirect($_SERVER['REQUEST_URI']);
+        }
 
         try {
             if ($id > 0) {
                 // Güncelleme
                 if (strlen($sifre) >= 6) {
                     $hash = password_hash($sifre, PASSWORD_DEFAULT);
-                    db_run("UPDATE kullanicilar SET ad=?, eposta=?, sifre=?, rol=?, aktif=? WHERE id=?",
-                        [$ad, $eposta, $hash, $rol, $aktif, $id]);
+                    db_run("UPDATE kullanicilar SET ad=?, eposta=?, kullanici_adi=?, sifre=?, rol=?, aktif=? WHERE id=?",
+                        [$ad, $eposta, $kullanici_adi ?: null, $hash, $rol, $aktif, $id]);
                 } else {
-                    db_run("UPDATE kullanicilar SET ad=?, eposta=?, rol=?, aktif=? WHERE id=?",
-                        [$ad, $eposta, $rol, $aktif, $id]);
+                    db_run("UPDATE kullanicilar SET ad=?, eposta=?, kullanici_adi=?, rol=?, aktif=? WHERE id=?",
+                        [$ad, $eposta, $kullanici_adi ?: null, $rol, $aktif, $id]);
                 }
                 log_yaz('kullanici_guncelle', "Kullanıcı güncellendi: $eposta", (int)$_kul['id']);
                 flash_set('ok', 'Kullanıcı güncellendi.');
@@ -66,14 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect($_SERVER['REQUEST_URI']);
                 }
                 $hash = password_hash($sifre, PASSWORD_DEFAULT);
-                db_run("INSERT INTO kullanicilar (ad, eposta, sifre, rol, aktif) VALUES (?, ?, ?, ?, ?)",
-                    [$ad, $eposta, $hash, $rol, $aktif]);
+                db_run("INSERT INTO kullanicilar (ad, eposta, kullanici_adi, sifre, rol, aktif) VALUES (?, ?, ?, ?, ?, ?)",
+                    [$ad, $eposta, $kullanici_adi ?: null, $hash, $rol, $aktif]);
                 log_yaz('kullanici_ekle', "Yeni kullanıcı: $eposta", (int)$_kul['id']);
                 flash_set('ok', 'Kullanıcı eklendi.');
             }
             redirect(SITE_URL . '/admin/kullanicilar.php');
         } catch (PDOException $e) {
-            $msg = (str_contains($e->getMessage(), 'Duplicate') ? 'Bu e-posta zaten kullanılıyor.' : 'Hata: ' . $e->getMessage());
+            $msg = (str_contains($e->getMessage(), 'Duplicate') ? 'Bu e-posta veya kullanıcı adı zaten kullanılıyor.' : 'Hata: ' . $e->getMessage());
             flash_set('err', $msg);
             redirect($_SERVER['REQUEST_URI']);
         }
@@ -86,7 +91,12 @@ if ($mod === 'duzenle' && $kayit_id) {
     if (!$kayit) { flash_set('err', 'Kullanıcı bulunamadı.'); redirect(SITE_URL . '/admin/kullanicilar.php'); }
 }
 
-$kullanicilar = db_all("SELECT id, ad, eposta, rol, aktif, son_giris, olusturma_tarihi FROM kullanicilar ORDER BY id ASC");
+try {
+    $kullanicilar = db_all("SELECT id, ad, eposta, kullanici_adi, rol, aktif, son_giris, olusturma_tarihi FROM kullanicilar ORDER BY id ASC");
+} catch (Throwable $e) {
+    // kullanici_adi kolonu yoksa eski şema
+    $kullanicilar = db_all("SELECT id, ad, eposta, rol, aktif, son_giris, olusturma_tarihi FROM kullanicilar ORDER BY id ASC");
+}
 
 require_once __DIR__ . '/_header.php';
 ?>
@@ -127,7 +137,12 @@ require_once __DIR__ . '/_header.php';
                     <?php if ($k['id'] === $_kul['id']): ?><span class="badge badge-info" style="font-size:.65rem">Siz</span><?php endif; ?>
                 </div>
             </td>
-            <td><?= e($k['eposta']) ?></td>
+            <td>
+                <?= e($k['eposta']) ?>
+                <?php if (!empty($k['kullanici_adi'])): ?>
+                    <br><small style="color:var(--c-muted);font-family:monospace">@<?= e($k['kullanici_adi']) ?></small>
+                <?php endif; ?>
+            </td>
             <td>
                 <?php if ($k['rol'] === 'admin'): ?>
                 <span class="badge badge-warn"><i class="fas fa-crown"></i> Admin</span>
@@ -187,6 +202,10 @@ require_once __DIR__ . '/_header.php';
         <div class="field">
             <label>E-posta <span class="req">*</span></label>
             <input type="email" class="input" name="eposta" value="<?= e($kayit['eposta'] ?? '') ?>" required maxlength="160">
+        </div>
+        <div class="field">
+            <label>Kullanıcı Adı <span style="color:var(--c-muted);font-weight:400;font-size:.78rem">(opsiyonel — e-posta yerine girişte kullanabilirsin)</span></label>
+            <input class="input" name="kullanici_adi" value="<?= e($kayit['kullanici_adi'] ?? '') ?>" maxlength="60" pattern="[a-zA-Z0-9_.\-]{3,60}" placeholder="ornek_kullanici" autocomplete="username">
         </div>
         <div class="field">
             <label>
