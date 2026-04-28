@@ -76,10 +76,7 @@ if (isset($_GET['ajax']) || isset($_POST['ajax'])) {
 
     if ($ajax === 'zorla_sync') {
         // Tüm GitHub dosyalarını yeniden indir (durum farketmeksizin)
-        $tree = $U->github_tree($repo, $token, $branch);
-        if (!$tree['ok']) { echo json_encode($tree); exit; }
-        $tum_dosyalar = array_keys($tree['files']);
-        $r = $U->akilli_senkronize($repo, $token, $branch, $tum_dosyalar);
+        $r = $U->akilli_senkronize($repo, $token, $branch, [], true);
         if ($r['ok']) log_yaz('guncelleme_zorla', "Zorla sync: {$r['basarili']} dosya", (int)$_kul['id']);
         echo json_encode($r);
         exit;
