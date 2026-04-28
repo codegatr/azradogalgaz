@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.6.1",
+    "version": "1.6.2",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.6.1: CSS sınıfları mevcut admin.css ile tam uyumlu hale getirildi (form-row.cols-N, field, input, toolbar.filters, tbl-wrap, pager, form-actions). Yeni Görsel Onarım admin aracı (admin/gorsel-onarim.php): bozuk source.unsplash.com URL'lerini (Unsplash 2024'te kapattı) tek tıkla placehold.co placeholder'larıyla değiştirir; ürünler/hizmetler/blog/projeler/kampanyalar tablolarını kapsar; manuel URL girme ve galeri temizleme seçenekleri. v1.6.0 modülleri: Cariler, Faturalar, Fişler, Bakım Hatırlatıcıları.",
+    "changelog": "v1.6.2: Cari Hesap Ekstresi modülü eklendi (admin/cari-ekstre.php). Tarih aralıklı ekstre, devir bakiyesi, yürüyen bakiye, dönem borç/alacak özeti, yazdırılabilir görünüm (browser print, A4 uyumlu CSS, firma başlıklı şirket bilgileri, B/A bakiye işaretleri). Sidebar Cari & Muhasebe grubuna Cari Ekstre linki, cari detay sayfasına 'Ekstre Al' butonu eklendi. v1.6.1 fixleri: CSS uyumu, Görsel Onarım aracı. v1.6.0 modülleri: Cariler, Faturalar, Fişler, Bakım Hatırlatıcıları.",
     "stages_completed": [
         "1-temel-altyapi",
         "2-frontend-sayfalari",
@@ -21,6 +21,7 @@
         "8-sss-fix-admin-crud",
         "9-cari-muhasebe-modulleri",
         "10-bakim-hatirlatici-sistemi",
-        "11-css-uyum-gorsel-onarim"
+        "11-css-uyum-gorsel-onarim",
+        "12-cari-hesap-ekstresi"
     ]
 }
