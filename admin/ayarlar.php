@@ -20,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'google_analytics','google_search_console_meta','harita_iframe',
         'aktif_kampanya_id',
         'github_repo','github_token',
+        'smtp_host','smtp_port','smtp_user','smtp_sifre','smtp_secure','smtp_gonderen_eposta','smtp_gonderen_ad',
+        'bakim_bildirim_aktif','bakim_bildirim_gun',
     ];
     $stmt = db()->prepare("INSERT INTO ayarlar (anahtar, deger) VALUES (?, ?)
         ON DUPLICATE KEY UPDATE deger = VALUES(deger)");
@@ -61,6 +63,7 @@ require_once __DIR__ . '/_header.php';
         <div class="t <?= $aktif_tab==='sosyal'?'active':'' ?>" data-tab="sosyal" onclick="document.getElementById('_tab').value='sosyal'">Sosyal & İletişim</div>
         <div class="t <?= $aktif_tab==='seo'?'active':'' ?>" data-tab="seo" onclick="document.getElementById('_tab').value='seo'">SEO & Analytics</div>
         <div class="t <?= $aktif_tab==='harita'?'active':'' ?>" data-tab="harita" onclick="document.getElementById('_tab').value='harita'">Harita & Anasayfa</div>
+        <div class="t <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp" onclick="document.getElementById('_tab').value='smtp'">SMTP & Bildirim</div>
         <div class="t <?= $aktif_tab==='github'?'active':'' ?>" data-tab="github" onclick="document.getElementById('_tab').value='github'">GitHub Güncelleme</div>
     </div>
 
@@ -203,6 +206,102 @@ require_once __DIR__ . '/_header.php';
                     <p class="help">Google Maps'te konumu aç → Paylaş → Haritayı yerleştir → HTML'i kopyala buraya yapıştır. Boş bırakılırsa İzmir genel haritası gösterilir.</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- SMTP & BİLDİRİM -->
+    <div class="tab-body <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp">
+        <div class="card">
+            <h3>SMTP Sunucusu</h3>
+            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+                Bakım hatırlatma maili göndermek için SMTP sunucusu yapılandırması. DirectAdmin/cPanel'de oluşturduğun bir e-posta hesabını kullanabilirsin (örn. <code>info@azradogalgaz.com</code>).
+            </p>
+            <div class="form-row cols-2">
+                <div class="field"><label>SMTP Sunucu</label><input class="input" name="smtp_host" value="<?= e($a['smtp_host'] ?? '') ?>" placeholder="mail.azradogalgaz.com"></div>
+                <div class="field"><label>Port</label><input class="input" type="number" name="smtp_port" value="<?= e($a['smtp_port'] ?? '587') ?>" placeholder="587"></div>
+            </div>
+            <div class="form-row cols-2">
+                <div class="field"><label>Kullanıcı Adı (e-posta)</label><input class="input" name="smtp_user" value="<?= e($a['smtp_user'] ?? '') ?>" placeholder="info@azradogalgaz.com" autocomplete="off"></div>
+                <div class="field"><label>Şifre</label><input class="input" type="password" name="smtp_sifre" value="<?= e($a['smtp_sifre'] ?? '') ?>" autocomplete="new-password"></div>
+            </div>
+            <div class="form-row cols-2">
+                <div class="field">
+                    <label>Şifreleme</label>
+                    <select class="input" name="smtp_secure">
+                        <option value="tls" <?= ($a['smtp_secure'] ?? 'tls')==='tls'?'selected':'' ?>>TLS / STARTTLS (Port 587 — önerilen)</option>
+                        <option value="ssl" <?= ($a['smtp_secure'] ?? '')==='ssl'?'selected':'' ?>>SSL / SMTPS (Port 465)</option>
+                        <option value=""    <?= ($a['smtp_secure'] ?? '')===''?'selected':'' ?>>Şifreleme Yok (Port 25 — önerilmez)</option>
+                    </select>
+                </div>
+                <div class="field"><label>Gönderen Adı</label><input class="input" name="smtp_gonderen_ad" value="<?= e($a['smtp_gonderen_ad'] ?? '') ?>" placeholder="Azra Doğalgaz"></div>
+            </div>
+            <div class="form-row">
+                <div class="field"><label>Gönderen E-posta <span class="opt">(boşsa SMTP kullanıcı adı)</span></label><input class="input" type="email" name="smtp_gonderen_eposta" value="<?= e($a['smtp_gonderen_eposta'] ?? '') ?>" placeholder="info@azradogalgaz.com"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Test Maili</h3>
+            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">SMTP ayarlarını kaydettikten sonra aşağıdan test maili gönderebilirsin.</p>
+            <div class="form-row cols-2">
+                <div class="field"><label>Test Alıcı E-posta</label><input class="input" type="email" id="testMailAdres" placeholder="ornek@gmail.com" value="<?= e($_kul['eposta'] ?? '') ?>"></div>
+                <div class="field" style="display:flex;align-items:flex-end"><button type="button" class="btn btn-pri" onclick="smtpTest()" style="width:100%"><i class="fas fa-paper-plane"></i> Test Maili Gönder</button></div>
+            </div>
+            <div id="testMailSonuc" style="margin-top:12px"></div>
+            <script>
+            async function smtpTest() {
+                const email = document.getElementById('testMailAdres').value.trim();
+                if (!email) { alert('E-posta gir.'); return; }
+                document.getElementById('testMailSonuc').innerHTML = '<span style="color:var(--c-muted)">Gönderiliyor...</span>';
+                const fd = new FormData();
+                fd.append('eposta', email);
+                fd.append('csrf', '<?= csrf_token() ?>');
+                const r = await fetch('<?= SITE_URL ?>/admin/smtp-test.php', {method:'POST', body:fd});
+                const d = await r.json();
+                document.getElementById('testMailSonuc').innerHTML = d.ok
+                    ? '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail başarıyla gönderildi: ' + email + '</div>'
+                    : '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '<br><small style="font-family:monospace;color:var(--c-muted)">' + (d.log || []).join('<br>') + '</small></div>';
+            }
+            </script>
+        </div>
+
+        <div class="card">
+            <h3>Bakım Hatırlatma Bildirimi</h3>
+            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">Bakım tarihi yaklaşan müşterilere otomatik mail gönderir. Cron çalıştırıldığında devreye girer.</p>
+            <div class="form-row cols-2">
+                <div class="field">
+                    <label>Otomatik Bildirim</label>
+                    <select class="input" name="bakim_bildirim_aktif">
+                        <option value="1" <?= ((string)($a['bakim_bildirim_aktif'] ?? '1'))==='1'?'selected':'' ?>>Aktif</option>
+                        <option value="0" <?= ((string)($a['bakim_bildirim_aktif'] ?? ''))==='0'?'selected':'' ?>>Kapalı</option>
+                    </select>
+                </div>
+                <div class="field"><label>Kaç Gün Önceden</label><input class="input" type="number" name="bakim_bildirim_gun" value="<?= e($a['bakim_bildirim_gun'] ?? '15') ?>" min="1" max="60" placeholder="15"></div>
+            </div>
+        </div>
+
+        <div class="card" style="background:rgba(34,197,94,.05);border-left:3px solid #22c55e">
+            <h3><i class="fas fa-clock-rotate-left"></i> Cron Kurulumu</h3>
+            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">Bildirimlerin otomatik gönderilebilmesi için DirectAdmin/cPanel'de bir cron job tanımla:</p>
+            <pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;overflow-x:auto;margin:0">0 9 * * * curl -s "<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', 'KEY-EKSIK')) ?>" > /dev/null</pre>
+            <p style="color:var(--c-muted);font-size:.85rem;margin-top:10px">
+                <strong>Açıklama:</strong> Her gün 09:00'da çalışır, <?= e($a['bakim_bildirim_gun'] ?? '15') ?> gün içinde bakım tarihi olan müşterilere mail gönderir. Aynı bakım için iki kez mail göndermez (bildirim_gonderildi flag'i).<br>
+                <strong>Test:</strong> Aşağıdaki butonla şimdi manuel çalıştırabilirsin.
+            </p>
+            <div style="margin-top:12px">
+                <button type="button" class="btn btn-blue btn-sm" onclick="bakimBildirimSimdi()"><i class="fas fa-play"></i> Bildirimleri Şimdi Gönder</button>
+                <a href="<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>" target="_blank" class="btn btn-out btn-sm"><i class="fas fa-external-link"></i> Cron URL'ini Aç</a>
+            </div>
+            <div id="bakimSimdiSonuc" style="margin-top:12px"></div>
+            <script>
+            async function bakimBildirimSimdi() {
+                if (!confirm('Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?')) return;
+                document.getElementById('bakimSimdiSonuc').innerHTML = '<span style="color:var(--c-muted)">Çalıştırılıyor...</span>';
+                const r = await fetch('<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>');
+                const t = await r.text();
+                document.getElementById('bakimSimdiSonuc').innerHTML = '<pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap">' + t.replace(/</g,'&lt;') + '</pre>';
+            }
+            </script>
         </div>
     </div>
 
