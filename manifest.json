@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.6.0 Cari & Muhasebe + Servis Modülleri: Cariler (CR0001 otomatik kod, hareket geçmişi, manuel borç\/alacak\/tahsilat\/ödeme, otomatik bakiye), Faturalar (kalem satırları, KDV\/iskonto otomatik hesap, cari hareket entegrasyonu, tahsilat al butonu fiş üretir), Fişler (5 tip: peşin satış\/tahsilat\/ödeme\/gider\/gelir, kalem veya tek tutar). Bakım Hatırlatıcıları sistemi: kombi\/klima\/kazan\/şofben\/termosifon takibi, periyodik bakım planı, dashboard widget, gecikmiş\/30 gün uyarı kartları, cari bağlantısı, Bakım Yapıldı butonu sonraki bakımı periyot kadar ileri alır. Sidebar'a Cari & Muhasebe + Servis grupları eklendi. v1.5.1: SSS sayfası 500 hatası giderildi (apostrof escape) ve 7 admin modülü tam CRUD ile yeniden yazıldı.",
+    "changelog": "v1.6.1: CSS sınıfları mevcut admin.css ile tam uyumlu hale getirildi (form-row.cols-N, field, input, toolbar.filters, tbl-wrap, pager, form-actions). Yeni Görsel Onarım admin aracı (admin/gorsel-onarim.php): bozuk source.unsplash.com URL'lerini (Unsplash 2024'te kapattı) tek tıkla placehold.co placeholder'larıyla değiştirir; ürünler/hizmetler/blog/projeler/kampanyalar tablolarını kapsar; manuel URL girme ve galeri temizleme seçenekleri. v1.6.0 modülleri: Cariler, Faturalar, Fişler, Bakım Hatırlatıcıları.",
     "stages_completed": [
         "1-temel-altyapi",
         "2-frontend-sayfalari",
@@ -20,6 +20,7 @@
         "7-admin-modulleri-tamamlama",
         "8-sss-fix-admin-crud",
         "9-cari-muhasebe-modulleri",
-        "10-bakim-hatirlatici-sistemi"
+        "10-bakim-hatirlatici-sistemi",
+        "11-css-uyum-gorsel-onarim"
     ]
 }
