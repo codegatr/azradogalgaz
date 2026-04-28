@@ -12,13 +12,20 @@ $urls = [];
 
 // Sabit sayfalar
 $sabit = [
-    ['',             '1.0', 'daily',   date('Y-m-d')],
-    ['hizmetler',    '0.9', 'weekly',  date('Y-m-d')],
-    ['urunler',      '0.9', 'weekly',  date('Y-m-d')],
-    ['kampanyalar',  '0.9', 'daily',   date('Y-m-d')],
-    ['hakkimizda',   '0.7', 'monthly', date('Y-m-d')],
-    ['iletisim',     '0.8', 'monthly', date('Y-m-d')],
-    ['blog',         '0.7', 'weekly',  date('Y-m-d')],
+    ['',                  '1.0', 'daily',   date('Y-m-d')],
+    ['hizmetler',         '0.9', 'weekly',  date('Y-m-d')],
+    ['urunler',           '0.9', 'weekly',  date('Y-m-d')],
+    ['kampanyalar',       '0.9', 'daily',   date('Y-m-d')],
+    ['hakkimizda',        '0.7', 'monthly', date('Y-m-d')],
+    ['iletisim',          '0.8', 'monthly', date('Y-m-d')],
+    ['blog',              '0.7', 'weekly',  date('Y-m-d')],
+    ['projeler',          '0.7', 'monthly', date('Y-m-d')],
+    ['sss',               '0.6', 'monthly', date('Y-m-d')],
+    ['bilgi-bankasi',     '0.6', 'monthly', date('Y-m-d')],
+    ['kombi-hesaplama',   '0.7', 'monthly', date('Y-m-d')],
+    ['klima-hesaplama',   '0.7', 'monthly', date('Y-m-d')],
+    ['kvkk',              '0.3', 'yearly',  date('Y-m-d')],
+    ['gizlilik',          '0.3', 'yearly',  date('Y-m-d')],
 ];
 foreach ($sabit as $s) {
     $urls[] = [
@@ -70,6 +77,28 @@ try {
             'lastmod' => date('Y-m-d'),
         ];
     }
+    // Projeler / Referanslar (tablo varsa)
+    try {
+        foreach (db_all("SELECT slug, COALESCE(guncelleme_tarihi, olusturma_tarihi) g FROM projeler WHERE aktif=1") as $r) {
+            $urls[] = [
+                'loc' => SITE_URL . '/proje/' . $r['slug'],
+                'priority' => '0.6', 'changefreq' => 'monthly',
+                'lastmod' => date('Y-m-d', strtotime($r['g'] ?? 'now')),
+            ];
+        }
+    } catch (Throwable $e) { /* projeler tablosu yok veya farklı isimde */ }
+    // Marka sayfaları (tablo varsa)
+    try {
+        foreach (db_all("SELECT slug FROM markalar WHERE aktif=1") as $r) {
+            if (!empty($r['slug'])) {
+                $urls[] = [
+                    'loc' => SITE_URL . '/marka/' . $r['slug'],
+                    'priority' => '0.5', 'changefreq' => 'monthly',
+                    'lastmod' => date('Y-m-d'),
+                ];
+            }
+        }
+    } catch (Throwable $e) { /* yok */ }
 } catch (Throwable $e) {
     // veritabanı henüz hazır değilse sadece sabit sayfaları döndür
 }
