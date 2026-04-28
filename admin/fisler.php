@@ -342,8 +342,8 @@ try {
     $toplam_sayfa = max(1, (int)ceil($toplam / $limit));
     $rows = db_all("SELECT f.*, c.unvan, c.cari_kodu FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where ORDER BY f.tarih DESC, f.id DESC LIMIT $limit OFFSET $ofset", $params);
     $ozet = db_get("SELECT
-        COALESCE(SUM(CASE WHEN tip IN ('satis','gelir','tahsilat') THEN genel_toplam ELSE 0 END),0) gelir,
-        COALESCE(SUM(CASE WHEN tip IN ('odeme','gider') THEN genel_toplam ELSE 0 END),0) gider
+        COALESCE(SUM(CASE WHEN f.tip IN ('satis','gelir','tahsilat') THEN f.genel_toplam ELSE 0 END),0) gelir,
+        COALESCE(SUM(CASE WHEN f.tip IN ('odeme','gider') THEN f.genel_toplam ELSE 0 END),0) gider
     FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params);
 } catch (Throwable $e) {
     $tablo_hatasi = $e->getMessage();
