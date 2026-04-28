@@ -288,10 +288,7 @@ foreach ($_tabs as $_k => $_l):
     </div>
 
     <!-- SMTP & BİLDİRİM -->
-    <div class="tab-body <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp"
-         data-csrf="<?= e(csrf_token()) ?>"
-         data-url="<?= e(SITE_URL) ?>"
-         data-cron-key="<?= e((string)ayar('cron_anahtar', '')) ?>">
+    <div class="tab-body <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp">
         <div class="card">
             <h3>SMTP Sunucusu</h3>
             <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
@@ -354,14 +351,14 @@ foreach ($_tabs as $_k => $_l):
         <div class="card" style="background:rgba(34,197,94,.05);border-left:3px solid #22c55e">
             <h3><i class="fas fa-clock-rotate-left"></i> Cron Kurulumu</h3>
             <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">Bildirimlerin otomatik gönderilebilmesi için DirectAdmin/cPanel'de bir cron job tanımla:</p>
-            <pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;overflow-x:auto;margin:0">0 9 * * * curl -s "<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', 'KEY-EKSIK')) ?>" > /dev/null</pre>
+            <pre id="azraCronCmd" style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;overflow-x:auto;margin:0">(yükleniyor)</pre>
             <p style="color:var(--c-muted);font-size:.85rem;margin-top:10px">
-                <strong>Açıklama:</strong> Her gün 09:00'da çalışır, <?= e($a['bakim_bildirim_gun'] ?? '15') ?> gün içinde bakım tarihi olan müşterilere mail gönderir. Aynı bakım için iki kez mail göndermez (bildirim_gonderildi flag'i).<br>
+                <strong>Açıklama:</strong> Her gün 09:00'da çalışır, <span id="azraBildirimGun">15</span> gün içinde bakım tarihi olan müşterilere mail gönderir. Aynı bakım için iki kez mail göndermez.<br>
                 <strong>Test:</strong> Aşağıdaki butonla şimdi manuel çalıştırabilirsin.
             </p>
             <div style="margin-top:12px">
                 <button type="button" class="btn btn-blue btn-sm" onclick="azraBakimBildirim(this)"><i class="fas fa-play"></i> Bildirimleri Şimdi Gönder</button>
-                <a href="<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>" target="_blank" class="btn btn-out btn-sm"><i class="fas fa-external-link"></i> Cron URL'ini Aç</a>
+                <a id="azraCronUrlLink" href="#" target="_blank" class="btn btn-out btn-sm"><i class="fas fa-external-link"></i> Cron URL'ini Aç</a>
             </div>
             <div id="bakimSimdiSonuc" style="margin-top:12px"></div>
         </div>
@@ -391,13 +388,30 @@ foreach ($_tabs as $_k => $_l):
 </form>
 
 <script>
+// Sayfa tab içeriğinden BAĞIMSIZ — cron_anahtar burada JS değişkeni olarak basılıyor
+// Eğer bu PHP echo bir nedenle fail ederse tab içeriği yine etkilenmez
+window.AZRA_CRON_KEY = <?= json_encode((string)ayar('cron_anahtar', '')) ?>;
+window.AZRA_BILDIRIM_GUN = <?= json_encode((string)($a['bakim_bildirim_gun'] ?? '15')) ?>;
+
+// SMTP tab Cron Kurulumu kart içeriğini doldur
+(function(){
+    var cmd = document.getElementById('azraCronCmd');
+    var lnk = document.getElementById('azraCronUrlLink');
+    var gun = document.getElementById('azraBildirimGun');
+    var url = location.origin + '/cron/bakim-bildirim.php?key=' + encodeURIComponent(window.AZRA_CRON_KEY || 'KEY-EKSIK');
+    if (cmd) cmd.textContent = '0 9 * * * curl -s "' + url + '" > /dev/null';
+    if (lnk) lnk.href = url;
+    if (gun) gun.textContent = window.AZRA_BILDIRIM_GUN || '15';
+})();
+
 function azraSmtpTest(btn) {
-    var pane = btn.closest('.tab-body[data-tab="smtp"]');
-    var csrf = pane.dataset.csrf;
-    var url  = pane.dataset.url;
+    var csrfInp = document.querySelector('input[name="csrf"]');
+    var csrf = csrfInp ? csrfInp.value : '';
+    var url  = location.origin;
     var em = document.getElementById('testMailAdres').value.trim();
     var out = document.getElementById('testMailSonuc');
     if (!em) { alert('E-posta gir.'); return; }
+    if (!csrf) { out.innerHTML = '<div class="alert alert-err">CSRF bulunamadı, sayfayı yenile.</div>'; return; }
     out.innerHTML = '<span style="color:var(--c-muted)">Gönderiliyor...</span>';
     var fd = new FormData();
     fd.append('eposta', em);
@@ -416,10 +430,10 @@ function azraSmtpTest(btn) {
 
 function azraBakimBildirim(btn) {
     if (!confirm('Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?')) return;
-    var pane = btn.closest('.tab-body[data-tab="smtp"]');
-    var url  = pane.dataset.url;
-    var key  = pane.dataset.cronKey;
+    var url  = location.origin;
+    var key  = window.AZRA_CRON_KEY || '';
     var out = document.getElementById('bakimSimdiSonuc');
+    if (!key) { out.innerHTML = '<div class="alert alert-err">Cron anahtarı bulunamadı (migration 004 uygulandı mı?).</div>'; return; }
     out.innerHTML = '<span style="color:var(--c-muted)">Çalıştırılıyor...</span>';
     fetch(url + '/cron/bakim-bildirim.php?key=' + encodeURIComponent(key))
         .then(function(r){ return r.text(); })
