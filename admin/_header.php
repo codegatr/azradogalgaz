@@ -95,6 +95,9 @@ try {
         <a href="<?= SITE_URL ?>/admin/ayarlar.php" class="<?= nav_active('ayarlar.php') ?>">
             <i class="fas fa-gear"></i> Ayarlar
         </a>
+        <a href="<?= SITE_URL ?>/admin/gorsel-onarim.php" class="<?= nav_active('gorsel-onarim.php') ?>">
+            <i class="fas fa-image"></i> Görsel Onarım
+        </a>
         <a href="<?= SITE_URL ?>/admin/kullanicilar.php" class="<?= nav_active('kullanicilar.php') ?>">
             <i class="fas fa-users-gear"></i> Kullanıcılar
         </a>
