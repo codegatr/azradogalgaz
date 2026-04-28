@@ -11,23 +11,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id    = (int)($_POST['id'] ?? 0);
 
     if ($islem === 'kaydet') {
-        $ad   = clean($_POST['ad'] ?? '');
-        $slug = clean($_POST['slug'] ?? '');
-        $aktif= !empty($_POST['aktif']) ? 1 : 0;
-        $logo_mevcut = clean($_POST['logo_mevcut'] ?? '');
+        $ad    = clean($_POST['ad'] ?? '');
+        $slug  = clean($_POST['slug'] ?? '');
+        $aktif = !empty($_POST['aktif']) ? 1 : 0;
 
         if ($ad === '') {
             flash_set('err', 'Marka adı zorunlu.');
         } else {
             if (!$slug) $slug = slugify($ad);
             $cak = db_get("SELECT id FROM markalar WHERE slug=? AND id<>?", [$slug, $id]);
-            if ($cak) $slug = $slug . '-' . random_int(100,999);
+            if ($cak) $slug = $slug . '-' . random_int(100, 999);
 
-            $logo = $logo_mevcut;
+            // Logo yükleme
+            $logo = null;
             if (!empty($_FILES['logo']['name'])) {
-                $yeni = resim_yukle($_FILES['logo'], 'markalar');
-                if ($yeni) $logo = $yeni;
+                $logo = resim_yukle($_FILES['logo'], 'markalar');
+                if (!$logo) flash_set('err', 'Logo yüklenemedi (sadece JPG/PNG/WEBP, en fazla 8MB).');
             }
+            // Eski logoyu koru, kullanıcı kaldırmadıysa
+            $logo_url_input = clean($_POST['logo_url'] ?? '');
+            if (!$logo && $logo_url_input) $logo = $logo_url_input;
+            if (!$logo && $id) {
+                $eski = db_get("SELECT logo FROM markalar WHERE id=?", [$id]);
+                $logo = $eski['logo'] ?? null;
+            }
+            if (!empty($_POST['logo_sil']) && $id) $logo = null;
 
             if ($id) {
                 db_run("UPDATE markalar SET ad=?, slug=?, logo=?, aktif=? WHERE id=?",
@@ -36,13 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 db_run("INSERT INTO markalar (ad, slug, logo, aktif) VALUES (?,?,?,?)",
                     [$ad, $slug, $logo, $aktif]);
+                $id = (int)db()->lastInsertId();
                 flash_set('ok', 'Marka eklendi.');
             }
             log_yaz('marka_kaydet', "ID: $id, ad: $ad", (int)$_kul['id']);
         }
         redirect(SITE_URL . '/admin/markalar.php');
     } elseif ($islem === 'sil' && $id) {
-        $iliski = (int)(db_get("SELECT COUNT(*) c FROM urunler WHERE marka_id=?", [$id])['c'] ?? 0);
+        $iliski = (int)db_get("SELECT COUNT(*) c FROM urunler WHERE marka_id=?", [$id])['c'];
         if ($iliski > 0) {
             flash_set('err', "Bu markaya bağlı $iliski ürün var. Önce ürünleri taşıyın.");
         } else {
@@ -75,16 +84,12 @@ require_once __DIR__ . '/_header.php';
 <div class="page-head">
     <div>
         <h1 class="page-h1">Markalar</h1>
-        <p class="page-sub">Demirdöküm, Bosch, Daikin gibi ürün üreticilerini buradan yönet.</p>
+        <p class="page-sub">Demirdöküm, Bosch, Vaillant gibi markaları buradan yönet.</p>
     </div>
     <?php if (!$form_acik): ?>
         <a href="?ekle=1" class="btn btn-pri"><i class="fas fa-plus"></i> Yeni Marka</a>
     <?php endif; ?>
 </div>
-
-<?php foreach (flash_pop() as $f): ?>
-    <div class="alert alert-<?= $f['tip']==='ok'?'ok':'err' ?>"><?= e($f['msg']) ?></div>
-<?php endforeach; ?>
 
 <?php if ($form_acik): ?>
     <div class="card">
@@ -93,7 +98,6 @@ require_once __DIR__ . '/_header.php';
             <?= csrf_field() ?>
             <input type="hidden" name="islem" value="kaydet">
             <input type="hidden" name="id" value="<?= (int)($kayit['id'] ?? 0) ?>">
-            <input type="hidden" name="logo_mevcut" value="<?= e($kayit['logo'] ?? '') ?>">
 
             <div class="form-row cols-2">
                 <div class="field">
@@ -106,68 +110,102 @@ require_once __DIR__ . '/_header.php';
                 </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row cols-2">
                 <div class="field">
-                    <label>Logo (PNG/JPG, max 8MB)</label>
-                    <input type="file" name="logo" accept="image/*">
-                    <?php if (!empty($kayit['logo'])): ?>
-                        <div style="margin-top:10px">
-                            <img src="<?= UPLOAD_URL . '/' . e($kayit['logo']) ?>" style="max-width:120px;max-height:60px;background:#fff;padding:6px;border:1px solid var(--c-line);border-radius:6px">
-                            <p class="help">Mevcut logo. Yeni dosya yüklerseniz değiştirilir.</p>
-                        </div>
-                    <?php endif; ?>
+                    <label>Logo (Dosya Yükle)</label>
+                    <input class="input" type="file" name="logo" accept="image/*">
+                    <small style="color:var(--c-muted)">JPG/PNG/WEBP, max 8 MB. Şeffaf PNG önerilir.</small>
+                </div>
+                <div class="field">
+                    <label>veya Logo URL</label>
+                    <input class="input" name="logo_url" value="<?= e($kayit['logo'] ?? '') ?>" placeholder="https://...">
                 </div>
             </div>
 
+            <?php if (!empty($kayit['logo'])): ?>
+            <div class="form-row">
+                <div class="field">
+                    <label>Mevcut Logo</label>
+                    <div style="display:flex;gap:14px;align-items:center;background:var(--c-bg);padding:12px;border-radius:8px">
+                        <img src="<?= e(gorsel_url($kayit['logo'])) ?>" style="max-height:60px;max-width:200px;object-fit:contain">
+                        <label class="check"><input type="checkbox" name="logo_sil" value="1"> <span>Logoyu kaldır</span></label>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <div class="form-row">
                 <label class="check">
-                    <input type="checkbox" name="aktif" value="1" <?= ($kayit['aktif'] ?? 1) ? 'checked' : '' ?>>
-                    <span>Aktif (sitede görünsün)</span>
+                    <input type="checkbox" name="aktif" <?= !isset($kayit) || (int)($kayit['aktif'] ?? 1) ? 'checked' : '' ?>>
+                    <span>Aktif</span>
                 </label>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-pri"><i class="fas fa-save"></i> <?= $duzenle_id?'Güncelle':'Kaydet' ?></button>
+                <button class="btn btn-pri"><i class="fas fa-floppy-disk"></i> Kaydet</button>
                 <a href="<?= SITE_URL ?>/admin/markalar.php" class="btn btn-out">İptal</a>
             </div>
         </form>
     </div>
-<?php else: ?>
-    <div class="card" style="padding:0">
-        <table class="adm-table">
-            <thead><tr><th width="60">Logo</th><th>Marka</th><th>Slug</th><th width="80">Ürün</th><th width="80">Durum</th><th width="160">İşlem</th></tr></thead>
-            <tbody>
-            <?php if (!$markalar): ?>
-                <tr><td colspan="6" class="empty">Henüz marka eklenmemiş. <a href="?ekle=1">İlk markayı ekleyin</a> veya <a href="<?= SITE_URL ?>/seed.php"><strong>/seed.php</strong></a> aracını çalıştırın.</td></tr>
-            <?php endif; ?>
-            <?php foreach ($markalar as $m): ?>
-                <tr>
-                    <td><?php if ($m['logo']): ?><img src="<?= UPLOAD_URL.'/'.e($m['logo']) ?>" style="max-width:48px;max-height:32px;background:#fff;padding:3px;border-radius:4px"><?php else: ?><span style="color:var(--c-muted)">—</span><?php endif; ?></td>
-                    <td><strong><?= e($m['ad']) ?></strong></td>
-                    <td><code><?= e($m['slug']) ?></code></td>
-                    <td><?= (int)$m['urun_sayisi'] ?></td>
-                    <td>
-                        <form method="post" style="display:inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="islem" value="aktif_degistir">
-                            <input type="hidden" name="id" value="<?= (int)$m['id'] ?>">
-                            <button class="badge badge-<?= $m['aktif']?'ok':'pas' ?>" type="submit"><?= $m['aktif']?'Aktif':'Pasif' ?></button>
-                        </form>
-                    </td>
-                    <td>
-                        <a href="?duzenle=<?= (int)$m['id'] ?>" class="btn btn-sm btn-out"><i class="fas fa-pen"></i></a>
-                        <form method="post" style="display:inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="islem" value="sil">
-                            <input type="hidden" name="id" value="<?= (int)$m['id'] ?>">
-                            <button class="btn btn-sm btn-red" type="submit" data-onay="<?= e($m['ad']) ?> markasini silmek istediginize emin misiniz?"><i class="fas fa-trash"></i></button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
 <?php endif; ?>
+
+<div class="tbl-wrap">
+<table class="tbl">
+<thead>
+<tr>
+    <th style="width:60px">#</th>
+    <th style="width:90px">Logo</th>
+    <th>Marka</th>
+    <th>Slug</th>
+    <th style="width:100px">Ürün</th>
+    <th style="width:100px">Durum</th>
+    <th style="width:160px;text-align:right">İşlem</th>
+</tr>
+</thead>
+<tbody>
+<?php if (!$markalar): ?>
+    <tr><td colspan="7" class="empty">Henüz marka yok. Yukarıdan ekle.</td></tr>
+<?php else: foreach ($markalar as $m): ?>
+<tr>
+    <td><?= (int)$m['id'] ?></td>
+    <td>
+        <?php if ($m['logo']): ?>
+            <img src="<?= e(gorsel_url($m['logo'])) ?>" style="max-height:36px;max-width:80px;object-fit:contain">
+        <?php else: ?>
+            <span style="color:var(--c-muted);font-size:.78rem">—</span>
+        <?php endif; ?>
+    </td>
+    <td><strong><?= e($m['ad']) ?></strong></td>
+    <td><code><?= e($m['slug']) ?></code></td>
+    <td class="num"><?= (int)$m['urun_sayisi'] ?></td>
+    <td>
+        <?php if ((int)$m['aktif']): ?>
+            <span class="badge badge-ok">Aktif</span>
+        <?php else: ?>
+            <span class="badge badge-no">Pasif</span>
+        <?php endif; ?>
+    </td>
+    <td>
+        <div class="actions">
+            <form method="post" style="display:inline">
+                <?= csrf_field() ?>
+                <input type="hidden" name="islem" value="aktif_degistir">
+                <input type="hidden" name="id" value="<?= (int)$m['id'] ?>">
+                <button class="btn btn-out btn-sm" title="Aktif/Pasif"><i class="fas fa-toggle-on"></i></button>
+            </form>
+            <a href="?duzenle=<?= (int)$m['id'] ?>" class="btn btn-blue btn-sm" title="Düzenle"><i class="fas fa-pen"></i></a>
+            <form method="post" style="display:inline">
+                <?= csrf_field() ?>
+                <input type="hidden" name="islem" value="sil">
+                <input type="hidden" name="id" value="<?= (int)$m['id'] ?>">
+                <button class="btn btn-danger btn-sm" data-onay="Marka silinsin mi?" title="Sil"><i class="fas fa-trash"></i></button>
+            </form>
+        </div>
+    </td>
+</tr>
+<?php endforeach; endif; ?>
+</tbody>
+</table>
+</div>
 
 <?php require_once __DIR__ . '/_footer.php'; ?>
