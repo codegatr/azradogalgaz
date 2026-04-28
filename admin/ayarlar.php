@@ -248,21 +248,6 @@ require_once __DIR__ . '/_header.php';
                 <div class="field" style="display:flex;align-items:flex-end"><button type="button" class="btn btn-pri" onclick="smtpTest()" style="width:100%"><i class="fas fa-paper-plane"></i> Test Maili Gönder</button></div>
             </div>
             <div id="testMailSonuc" style="margin-top:12px"></div>
-            <script>
-            async function smtpTest() {
-                const email = document.getElementById('testMailAdres').value.trim();
-                if (!email) { alert('E-posta gir.'); return; }
-                document.getElementById('testMailSonuc').innerHTML = '<span style="color:var(--c-muted)">Gönderiliyor...</span>';
-                const fd = new FormData();
-                fd.append('eposta', email);
-                fd.append('csrf', '<?= csrf_token() ?>');
-                const r = await fetch('<?= SITE_URL ?>/admin/smtp-test.php', {method:'POST', body:fd});
-                const d = await r.json();
-                document.getElementById('testMailSonuc').innerHTML = d.ok
-                    ? '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail başarıyla gönderildi: ' + email + '</div>'
-                    : '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '<br><small style="font-family:monospace;color:var(--c-muted)">' + (d.log || []).join('<br>') + '</small></div>';
-            }
-            </script>
         </div>
 
         <div class="card">
@@ -293,15 +278,6 @@ require_once __DIR__ . '/_header.php';
                 <a href="<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>" target="_blank" class="btn btn-out btn-sm"><i class="fas fa-external-link"></i> Cron URL'ini Aç</a>
             </div>
             <div id="bakimSimdiSonuc" style="margin-top:12px"></div>
-            <script>
-            async function bakimBildirimSimdi() {
-                if (!confirm('Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?')) return;
-                document.getElementById('bakimSimdiSonuc').innerHTML = '<span style="color:var(--c-muted)">Çalıştırılıyor...</span>';
-                const r = await fetch('<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>');
-                const t = await r.text();
-                document.getElementById('bakimSimdiSonuc').innerHTML = '<pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap">' + t.replace(/</g,'&lt;') + '</pre>';
-            }
-            </script>
         </div>
     </div>
 
@@ -327,5 +303,46 @@ require_once __DIR__ . '/_header.php';
         <a href="<?= SITE_URL ?>/admin/panel.php" class="btn btn-out">İptal</a>
     </div>
 </form>
+
+<script>
+(function(){
+    var SMTP_CSRF = <?= json_encode(csrf_token()) ?>;
+    var SMTP_URL  = <?= json_encode(SITE_URL) ?>;
+    var CRON_KEY  = <?= json_encode((string)ayar('cron_anahtar', '')) ?>;
+
+    window.smtpTest = async function(){
+        var emailEl = document.getElementById('testMailAdres');
+        var out     = document.getElementById('testMailSonuc');
+        var email   = (emailEl && emailEl.value || '').trim();
+        if (!email) { alert('E-posta gir.'); return; }
+        out.innerHTML = '<span style="color:var(--c-muted)">Gönderiliyor...</span>';
+        try {
+            var fd = new FormData();
+            fd.append('eposta', email);
+            fd.append('csrf', SMTP_CSRF);
+            var r = await fetch(SMTP_URL + '/admin/smtp-test.php', {method:'POST', body:fd});
+            var d = await r.json();
+            out.innerHTML = d.ok
+                ? '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail başarıyla gönderildi: ' + email + '</div>'
+                : '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '</div>';
+        } catch(e) {
+            out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
+        }
+    };
+
+    window.bakimBildirimSimdi = async function(){
+        if (!confirm('Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?')) return;
+        var out = document.getElementById('bakimSimdiSonuc');
+        out.innerHTML = '<span style="color:var(--c-muted)">Çalıştırılıyor...</span>';
+        try {
+            var r = await fetch(SMTP_URL + '/cron/bakim-bildirim.php?key=' + encodeURIComponent(CRON_KEY));
+            var t = await r.text();
+            out.innerHTML = '<pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap">' + t.replace(/</g,'&lt;') + '</pre>';
+        } catch(e) {
+            out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
+        }
+    };
+})();
+</script>
 
 <?php require_once __DIR__ . '/_footer.php'; ?>
