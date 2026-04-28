@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.8.2",
+    "version": "1.9.0",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.8.2: Sistem Tanı sayfası eklendi (admin/sistem-tani.php) — DB tablo varlığı, sürüm, OPcache, CREATE TABLE yetkisi kontrolü, eksik tabloları manuel SQL ile oluşturma. Çıkış Yap sidebar'a geri eklendi (yedek olarak — dropdown çalışmazsa kilitli kalmaman için). Profil & Şifre sadece kullanıcı dropdown'unda kalıyor (orijinal istek). v1.8.1: Bakım ayrı yeşil buton, Muhasebe dropdown eski hâli. v1.8.0: kritik DB schema fix.",
+    "changelog": "v1.9.0: GERÇEK Migration Sistemi. migrations/*.sql klasörü + migrasyonlar takip tablosu + Migrator class + Güncelleme Merkezi'nde Migrasyonlar sekmesi. Akıllı Güncelleme dosya sync sonrası bekleyen migration'ları OTOMATIK uygular. Sistem Tanı sayfası migration durumu gösterir + tek tıkla uygula. Faturalar/Fişler/Cariler artık BULLETPROOF — tablolar yoksa fatal hata yerine 'Sistem Tanı'ya git, migration uygula' alert'i gösterir, sayfa yine de yüklenir (Yeni Fatura/Fiş/Cari butonları erişilebilir kalır). Migration'lar idempotent: aynı dosya iki kez uygulanmaz, mtime sentinel cache ile her sayfa yüklemede gereksiz kontrol yapılmaz. SQL dosyaları sha1 ile fingerprint'lenir, hata olursa tekrar denenir. v1.8.x: Bakım ayrı buton, kullanıcı dropdown, çıkış sidebar yedek, sistem tanı.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -15,6 +15,7 @@
         "11-css-uyum-gorsel-onarim","12-cari-hesap-ekstresi",
         "13-akilli-guncelleme-merkezi","13a-guncelleme-bugfix",
         "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme",
-        "16-db-sema-fix","17-bakim-ayri-buton","18-sistem-tani-cikis-yedek"
+        "16-db-sema-fix","17-bakim-ayri-buton","18-sistem-tani-cikis-yedek",
+        "19-migration-sistemi-bulletproof-moduller"
     ]
 }
