@@ -252,7 +252,10 @@ foreach ($_tabs as $_k => $_l):
     </div>
 
     <!-- SMTP & BİLDİRİM -->
-    <div class="tab-body <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp">
+    <div class="tab-body <?= $aktif_tab==='smtp'?'active':'' ?>" data-tab="smtp"
+         data-csrf="<?= e(csrf_token()) ?>"
+         data-url="<?= e(SITE_URL) ?>"
+         data-cron-key="<?= e((string)ayar('cron_anahtar', '')) ?>">
         <div class="card">
             <h3>SMTP Sunucusu</h3>
             <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
@@ -292,7 +295,7 @@ foreach ($_tabs as $_k => $_l):
                 </div>
             </div>
             <div class="form-actions" style="margin-top:14px">
-                <button type="button" class="btn btn-pri" onclick='(async()=>{var em=document.getElementById("testMailAdres").value.trim();if(!em){alert("E-posta gir.");return}var out=document.getElementById("testMailSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Gönderiliyor...</span>";try{var fd=new FormData();fd.append("eposta",em);fd.append("csrf",<?= json_encode(csrf_token()) ?>);var r=await fetch(<?= json_encode(SITE_URL) ?>+"/admin/smtp-test.php",{method:"POST",body:fd});var d=await r.json();out.innerHTML=d.ok?"<div class=\"alert alert-ok\"><i class=\"fas fa-check\"></i> Mail gönderildi: "+em+"</div>":"<div class=\"alert alert-err\"><i class=\"fas fa-xmark\"></i> Hata: "+(d.hata||"bilinmiyor")+"</div>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-paper-plane"></i> Test Maili Gönder</button>
+                <button type="button" class="btn btn-pri" onclick="azraSmtpTest(this)"><i class="fas fa-paper-plane"></i> Test Maili Gönder</button>
             </div>
             <div id="testMailSonuc" style="margin-top:12px"></div>
         </div>
@@ -321,7 +324,7 @@ foreach ($_tabs as $_k => $_l):
                 <strong>Test:</strong> Aşağıdaki butonla şimdi manuel çalıştırabilirsin.
             </p>
             <div style="margin-top:12px">
-                <button type="button" class="btn btn-blue btn-sm" onclick='(async()=>{if(!confirm("Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?"))return;var out=document.getElementById("bakimSimdiSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Çalıştırılıyor...</span>";try{var r=await fetch(<?= json_encode(SITE_URL) ?>+"/cron/bakim-bildirim.php?key="+encodeURIComponent(<?= json_encode((string)ayar('cron_anahtar', '')) ?>));var t=await r.text();out.innerHTML="<pre style=\"background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap\">"+t.replace(/</g,"&lt;")+"</pre>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-play"></i> Bildirimleri Şimdi Gönder</button>
+                <button type="button" class="btn btn-blue btn-sm" onclick="azraBakimBildirim(this)"><i class="fas fa-play"></i> Bildirimleri Şimdi Gönder</button>
                 <a href="<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>" target="_blank" class="btn btn-out btn-sm"><i class="fas fa-external-link"></i> Cron URL'ini Aç</a>
             </div>
             <div id="bakimSimdiSonuc" style="margin-top:12px"></div>
@@ -350,5 +353,47 @@ foreach ($_tabs as $_k => $_l):
         <a href="<?= SITE_URL ?>/admin/panel.php" class="btn btn-out">İptal</a>
     </div>
 </form>
+
+<script>
+function azraSmtpTest(btn) {
+    var pane = btn.closest('.tab-body[data-tab="smtp"]');
+    var csrf = pane.dataset.csrf;
+    var url  = pane.dataset.url;
+    var em = document.getElementById('testMailAdres').value.trim();
+    var out = document.getElementById('testMailSonuc');
+    if (!em) { alert('E-posta gir.'); return; }
+    out.innerHTML = '<span style="color:var(--c-muted)">Gönderiliyor...</span>';
+    var fd = new FormData();
+    fd.append('eposta', em);
+    fd.append('csrf', csrf);
+    fetch(url + '/admin/smtp-test.php', {method:'POST', body: fd})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            out.innerHTML = d.ok
+                ? '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail gönderildi: ' + em + '</div>'
+                : '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '</div>';
+        })
+        .catch(function(e){
+            out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
+        });
+}
+
+function azraBakimBildirim(btn) {
+    if (!confirm('Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?')) return;
+    var pane = btn.closest('.tab-body[data-tab="smtp"]');
+    var url  = pane.dataset.url;
+    var key  = pane.dataset.cronKey;
+    var out = document.getElementById('bakimSimdiSonuc');
+    out.innerHTML = '<span style="color:var(--c-muted)">Çalıştırılıyor...</span>';
+    fetch(url + '/cron/bakim-bildirim.php?key=' + encodeURIComponent(key))
+        .then(function(r){ return r.text(); })
+        .then(function(t){
+            out.innerHTML = '<pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap">' + t.replace(/</g,'&lt;') + '</pre>';
+        })
+        .catch(function(e){
+            out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
+        });
+}
+</script>
 
 <?php require_once __DIR__ . '/_footer.php'; ?>
