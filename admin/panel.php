@@ -30,8 +30,6 @@ try {
 
 $son_mesajlar = db_all("SELECT id, ad_soyad, telefon, konu, durum, olusturma_tarihi
     FROM iletisim_mesajlari ORDER BY id DESC LIMIT 6");
-$son_loglar = db_all("SELECT tip, mesaj, ip, olusturma_tarihi
-    FROM log_kayitlari ORDER BY id DESC LIMIT 8");
 
 require_once __DIR__ . '/_header.php';
 ?>
@@ -94,7 +92,7 @@ $_son_guncelleme_log = db_get("SELECT olusturma_tarihi, yeni_surum, durum FROM g
     </div>
 </div>
 
-<div class="form-row cols-2" style="margin-bottom:0">
+<div class="form-row" style="margin-bottom:0">
 
     <!-- Son mesajlar -->
     <div class="card">
@@ -118,36 +116,6 @@ $_son_guncelleme_log = db_get("SELECT olusturma_tarihi, yeni_surum, durum FROM g
             <?php endforeach; ?>
         <?php else: ?>
             <div class="tbl"><div class="empty"><i class="fas fa-inbox" style="font-size:1.6rem;display:block;margin-bottom:8px"></i>Henüz mesaj yok.</div></div>
-        <?php endif; ?>
-    </div>
-
-    <!-- Son sistem logları -->
-    <div class="card">
-        <div class="page-head" style="margin-bottom:14px">
-            <h3>Son Sistem Aktiviteleri</h3>
-        </div>
-        <?php if ($son_loglar): ?>
-            <?php foreach ($son_loglar as $l):
-                $cls = match($l['tip']){
-                    'login_ok'   => 'badge-ok',
-                    'login_fail' => 'badge-danger',
-                    'logout'     => 'badge-no',
-                    default      => 'badge-info',
-                };
-            ?>
-                <div class="list-item">
-                    <div class="li-head">
-                        <span><?= e(mb_substr((string)$l['mesaj'], 0, 80)) ?></span>
-                        <span class="badge <?= $cls ?>"><?= e($l['tip']) ?></span>
-                    </div>
-                    <div class="li-meta">
-                        <span><i class="fas fa-network-wired"></i><?= e($l['ip']) ?></span>
-                        <span><i class="fas fa-clock"></i><?= tarih_tr($l['olusturma_tarihi'], true) ?></span>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="tbl"><div class="empty">Henüz log kaydı yok.</div></div>
         <?php endif; ?>
     </div>
 </div>
