@@ -15,6 +15,19 @@ $st = [
 ];
 $bekleyen_alacak = (float)(db_get("SELECT COALESCE(SUM(genel_toplam - odenen),0) t FROM faturalar WHERE odeme_durumu IN ('odenmedi','kismi') AND tip='satis'")['t'] ?? 0);
 
+// Bakım hatırlatıcıları (tablo varsa)
+$bakim_yaklasan = [];
+$bakim_gecmis_say = 0;
+$bakim_ay_say = 0;
+try {
+    $bakim_yaklasan = db_all("SELECT id, musteri_ad, telefon, urun_tipi, marka, sonraki_bakim_tarihi
+        FROM bakim_hatirlaticilari
+        WHERE durum='aktif' AND sonraki_bakim_tarihi <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+        ORDER BY sonraki_bakim_tarihi ASC LIMIT 8");
+    $bakim_gecmis_say = (int)(db_get("SELECT COUNT(*) c FROM bakim_hatirlaticilari WHERE durum='aktif' AND sonraki_bakim_tarihi < CURDATE()")['c'] ?? 0);
+    $bakim_ay_say     = (int)(db_get("SELECT COUNT(*) c FROM bakim_hatirlaticilari WHERE durum='aktif' AND sonraki_bakim_tarihi BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)")['c'] ?? 0);
+} catch (Throwable $e) { /* tablo henüz yok */ }
+
 $son_mesajlar = db_all("SELECT id, ad_soyad, telefon, konu, durum, olusturma_tarihi
     FROM iletisim_mesajlari ORDER BY id DESC LIMIT 6");
 $son_loglar = db_all("SELECT tip, mesaj, ip, olusturma_tarihi
@@ -139,13 +152,49 @@ $_son_guncelleme_log = db_get("SELECT olusturma_tarihi, yeni_surum, durum FROM g
     </div>
 </div>
 
+<!-- Yaklaşan Bakımlar -->
+<?php if ($bakim_yaklasan): ?>
+<div class="card" style="border-left:3px solid <?= $bakim_gecmis_say > 0 ? 'var(--c-red)' : 'var(--c-orange)' ?>">
+    <div class="page-head" style="margin-bottom:14px">
+        <h3>
+            <i class="fas fa-bell" style="color:<?= $bakim_gecmis_say > 0 ? 'var(--c-red)' : 'var(--c-orange)' ?>"></i>
+            Yaklaşan / Gecikmiş Bakımlar
+            <small style="font-weight:400;color:var(--c-muted)">(<?= $bakim_gecmis_say ?> gecikmiş, <?= $bakim_ay_say ?> 30 gün içinde)</small>
+        </h3>
+        <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" class="btn btn-out btn-sm">Tümünü Gör</a>
+    </div>
+    <div class="tbl-wrap">
+    <table class="tbl">
+        <thead><tr><th>Müşteri</th><th>Tip / Marka</th><th>Telefon</th><th>Bakım Tarihi</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($bakim_yaklasan as $bk):
+            $kalan = (int)floor((strtotime($bk['sonraki_bakim_tarihi']) - strtotime(date('Y-m-d'))) / 86400);
+            $renk = $kalan < 0 ? 'var(--c-red)' : ($kalan < 7 ? 'var(--c-orange)' : 'var(--c-blue)');
+        ?>
+            <tr>
+                <td><strong><?= e($bk['musteri_ad']) ?></strong></td>
+                <td><span class="badge badge-info"><?= ucfirst($bk['urun_tipi']) ?></span> <?= e((string)$bk['marka']) ?></td>
+                <td><?= e((string)$bk['telefon']) ?: '-' ?></td>
+                <td>
+                    <strong style="color:<?= $renk ?>" class="num"><?= tarih_tr($bk['sonraki_bakim_tarihi']) ?></strong>
+                    <small style="color:<?= $renk ?>;display:block"><?= $kalan < 0 ? abs($kalan).' gün gecikmiş' : ($kalan === 0 ? 'BUGÜN' : $kalan.' gün kaldı') ?></small>
+                </td>
+                <td><a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php?duzenle=<?= $bk['id'] ?>" class="btn btn-out btn-sm">Aç</a></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Hızlı bağlantılar -->
 <div class="card">
     <h3>Hızlı Bağlantılar</h3>
     <div class="form-row cols-3">
-        <a href="<?= SITE_URL ?>/admin/urunler.php?ekle=1" class="btn btn-out" style="padding:18px;flex-direction:column"><i class="fas fa-plus" style="font-size:1.3rem;margin-bottom:6px"></i>Yeni Ürün</a>
-        <a href="<?= SITE_URL ?>/admin/kampanyalar.php?ekle=1" class="btn btn-out" style="padding:18px;flex-direction:column"><i class="fas fa-plus" style="font-size:1.3rem;margin-bottom:6px"></i>Yeni Kampanya</a>
-        <a href="<?= SITE_URL ?>/admin/blog.php?ekle=1" class="btn btn-out" style="padding:18px;flex-direction:column"><i class="fas fa-plus" style="font-size:1.3rem;margin-bottom:6px"></i>Yeni Blog Yazısı</a>
+        <a href="<?= SITE_URL ?>/admin/cariler.php?ekle=1" class="btn btn-out" style="padding:18px;flex-direction:column"><i class="fas fa-user-plus" style="font-size:1.3rem;margin-bottom:6px"></i>Yeni Cari</a>
+        <a href="<?= SITE_URL ?>/admin/faturalar.php?ekle=1" class="btn btn-out" style="padding:18px;flex-direction:column"><i class="fas fa-file-invoice" style="font-size:1.3rem;margin-bottom:6px"></i>Yeni Fatura</a>
+        <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php?ekle=1" class="btn btn-out" style="padding:18px;flex-direction:column"><i class="fas fa-bell" style="font-size:1.3rem;margin-bottom:6px"></i>Bakım Hatırlatıcı</a>
     </div>
 </div>
 
