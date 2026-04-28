@@ -77,6 +77,9 @@ try {
         <a href="<?= SITE_URL ?>/admin/cariler.php" class="<?= nav_active('cariler.php') ?>">
             <i class="fas fa-users"></i> Cariler
         </a>
+        <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" class="<?= nav_active('cari-ekstre.php') ?>">
+            <i class="fas fa-file-lines"></i> Cari Ekstre
+        </a>
         <a href="<?= SITE_URL ?>/admin/faturalar.php" class="<?= nav_active('faturalar.php') ?>">
             <i class="fas fa-file-invoice-dollar"></i> Faturalar
         </a>
