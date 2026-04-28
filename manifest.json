@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.8.1",
+    "version": "1.8.2",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.8.1: Topbar düzenlemesi geri alındı. Muhasebe dropdown eski haline döndü (sadece Cariler/Cari Ekstre/Faturalar/Fişler), Bakım Hatırlatıcıları AYRI yeşil buton olarak topbar'a eklendi (badge'li, tek tıkla erişim). v1.8.0: kritik DB şema fix (cariler/faturalar/fisler tabloları otomatik oluşur). Kullanıcı dropdown korundu (sağ üst avatar tıklanınca Profil/Çıkış).",
+    "changelog": "v1.8.2: Sistem Tanı sayfası eklendi (admin/sistem-tani.php) — DB tablo varlığı, sürüm, OPcache, CREATE TABLE yetkisi kontrolü, eksik tabloları manuel SQL ile oluşturma. Çıkış Yap sidebar'a geri eklendi (yedek olarak — dropdown çalışmazsa kilitli kalmaman için). Profil & Şifre sadece kullanıcı dropdown'unda kalıyor (orijinal istek). v1.8.1: Bakım ayrı yeşil buton, Muhasebe dropdown eski hâli. v1.8.0: kritik DB schema fix.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -15,6 +15,6 @@
         "11-css-uyum-gorsel-onarim","12-cari-hesap-ekstresi",
         "13-akilli-guncelleme-merkezi","13a-guncelleme-bugfix",
         "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme",
-        "16-db-sema-fix","17-bakim-ayri-buton"
+        "16-db-sema-fix","17-bakim-ayri-buton","18-sistem-tani-cikis-yedek"
     ]
 }
