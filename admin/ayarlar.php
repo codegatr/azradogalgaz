@@ -306,6 +306,21 @@ require_once __DIR__ . '/_header.php';
 
 <script>
 (function(){
+    // Self-contained tab handler — _footer.php'deki global handler'dan bağımsız
+    var form = document.querySelector('form[data-tabs]');
+    if (form) {
+        form.querySelectorAll('.tabs-h .t').forEach(function(t){
+            t.addEventListener('click', function(e){
+                e.preventDefault();
+                var k = t.dataset.tab;
+                form.querySelectorAll('.tabs-h .t').forEach(function(x){ x.classList.toggle('active', x === t); });
+                form.querySelectorAll('.tab-body').forEach(function(x){ x.classList.toggle('active', x.dataset.tab === k); });
+                var hid = document.getElementById('_tab');
+                if (hid) hid.value = k;
+            });
+        });
+    }
+
     var SMTP_CSRF = <?= json_encode(csrf_token()) ?>;
     var SMTP_URL  = <?= json_encode(SITE_URL) ?>;
     var CRON_KEY  = <?= json_encode((string)ayar('cron_anahtar', '')) ?>;
