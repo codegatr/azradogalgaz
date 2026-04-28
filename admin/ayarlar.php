@@ -419,9 +419,22 @@ function azraSmtpTest(btn) {
     fetch(url + '/admin/smtp-test.php', {method:'POST', body: fd})
         .then(function(r){ return r.json(); })
         .then(function(d){
-            out.innerHTML = d.ok
-                ? '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail gönderildi: ' + em + '</div>'
-                : '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '</div>';
+            if (d.ok) {
+                out.innerHTML = '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail gönderildi: ' + em + '</div>';
+                return;
+            }
+            // Hata — log'u da göster
+            var h = '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '</div>';
+            if (d.log && d.log.length) {
+                var logHtml = d.log.map(function(line){
+                    var renk = line.startsWith('>') ? '#7dd3fc' : (line.startsWith('<') ? '#aaffcc' : '#ffd166');
+                    var safe = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    return '<div style="color:' + renk + '">' + safe + '</div>';
+                }).join('');
+                h += '<details style="margin-top:10px"><summary style="cursor:pointer;color:var(--c-muted);font-size:.85rem">SMTP Konuşma Günlüğü (' + d.log.length + ' satır) — tıkla</summary>'
+                  + '<pre style="background:#0a0f1f;padding:12px;border-radius:6px;font-size:.78rem;font-family:monospace;white-space:pre-wrap;margin-top:8px;max-height:400px;overflow-y:auto">' + logHtml + '</pre></details>';
+            }
+            out.innerHTML = h;
         })
         .catch(function(e){
             out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
