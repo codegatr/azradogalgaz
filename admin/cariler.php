@@ -330,11 +330,16 @@ if ($durum === 'pasif')    $where .= " AND aktif=0";
 if ($durum === 'borclu')   $where .= " AND bakiye>0";
 if ($durum === 'alacakli') $where .= " AND bakiye<0";
 
-$toplam = (int)db_get("SELECT COUNT(*) c FROM cariler WHERE $where", $params)['c'];
-$toplam_sayfa = max(1, (int)ceil($toplam / $limit));
-$cariler = db_all("SELECT * FROM cariler WHERE $where ORDER BY id DESC LIMIT $limit OFFSET $ofset", $params);
-$genel_borc   = (float)(db_get("SELECT COALESCE(SUM(bakiye),0) t FROM cariler WHERE bakiye>0")['t'] ?? 0);
-$genel_alacak = (float)(db_get("SELECT COALESCE(ABS(SUM(bakiye)),0) t FROM cariler WHERE bakiye<0")['t'] ?? 0);
+$tablo_hatasi = null; $toplam = 0; $toplam_sayfa = 1; $cariler = []; $genel_borc = 0; $genel_alacak = 0;
+try {
+    $toplam = (int)db_get("SELECT COUNT(*) c FROM cariler WHERE $where", $params)['c'];
+    $toplam_sayfa = max(1, (int)ceil($toplam / $limit));
+    $cariler = db_all("SELECT * FROM cariler WHERE $where ORDER BY id DESC LIMIT $limit OFFSET $ofset", $params);
+    $genel_borc   = (float)(db_get("SELECT COALESCE(SUM(bakiye),0) t FROM cariler WHERE bakiye>0")['t'] ?? 0);
+    $genel_alacak = (float)(db_get("SELECT COALESCE(ABS(SUM(bakiye)),0) t FROM cariler WHERE bakiye<0")['t'] ?? 0);
+} catch (Throwable $e) {
+    $tablo_hatasi = $e->getMessage();
+}
 ?>
 
 <div class="page-head">
@@ -344,6 +349,14 @@ $genel_alacak = (float)(db_get("SELECT COALESCE(ABS(SUM(bakiye)),0) t FROM caril
     </div>
     <a href="?ekle=1" class="btn btn-pri"><i class="fas fa-plus"></i> Yeni Cari</a>
 </div>
+
+<?php if ($tablo_hatasi): ?>
+<div class="alert alert-err">
+    <strong><i class="fas fa-database"></i> Tablo bulunamadı:</strong>
+    Cariler tablosu veritabanında yok ya da erişilemiyor. <a href="sistem-tani.php" class="btn btn-pri btn-sm" style="margin-left:8px"><i class="fas fa-stethoscope"></i> Sistem Tanı</a> sayfasına git, "Migrasyonları Uygula" butonuna bas.
+    <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--c-muted);font-size:.85rem">Teknik detay</summary><pre style="font-size:.78rem;color:#fca5a5;margin-top:6px;font-family:monospace"><?= e($tablo_hatasi) ?></pre></details>
+</div>
+<?php endif; ?>
 
 <form method="get" class="toolbar">
     <div class="filters">
