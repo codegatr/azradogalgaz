@@ -1,7 +1,26 @@
 <?php
 require_once __DIR__ . '/_baslat.php';
 require_once __DIR__ . '/../inc/sema-muhasebe.php';
+require_once __DIR__ . '/../inc/migrator.php';
 page_title('Faturalar');
+
+// Hızlı migration uygula aksiyonu (alert butonundan)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['islem'] ?? '') === 'migrasyon_uygula_hizli') {
+    if (csrf_check($_POST['csrf'] ?? null)) {
+        $M = new Migrator(__DIR__ . '/..');
+        $r = $M->bekleyenleri_uygula();
+        if ($r['ok']) {
+            $sayi = count($r['uygulananlar']);
+            flash_set('ok', $sayi ? "$sayi migration uygulandı, tablolar oluşturuldu." : "Bekleyen migration yok.");
+            log_yaz('migrasyon_hizli', "$sayi migration", (int)$_kul['id']);
+            $M->sentinel_kaydet();
+        } else {
+            flash_set('err', 'Hata: ' . ($r['hatalar'][0]['hata'] ?? '?'));
+        }
+        if (function_exists('opcache_reset')) @opcache_reset();
+    }
+    redirect('faturalar.php');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_check($_POST['csrf'] ?? null)) {
@@ -399,8 +418,17 @@ try {
 
 <?php if ($tablo_hatasi): ?>
 <div class="alert alert-err">
-    <strong><i class="fas fa-database"></i> Tablo bulunamadı:</strong>
-    Faturalar tablosu veritabanında yok ya da erişilemiyor. <a href="sistem-tani.php" class="btn btn-pri btn-sm" style="margin-left:8px"><i class="fas fa-stethoscope"></i> Sistem Tanı</a> sayfasına git, "Migrasyonları Uygula" butonuna bas.
+    <strong><i class="fas fa-database"></i> Tablolar henüz oluşturulmamış.</strong>
+    DB migrasyonları uygulanmamış. Aşağıdaki butona tıkla — tablolar tek tıkta oluşur, sayfa yenilenir.
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <form method="post" style="display:inline">
+            <?= csrf_field() ?>
+            <input type="hidden" name="islem" value="migrasyon_uygula_hizli">
+            <button class="btn btn-pri"><i class="fas fa-database"></i> Migrasyonları Şimdi Uygula</button>
+        </form>
+        <a href="sistem-tani.php" class="btn btn-out"><i class="fas fa-stethoscope"></i> Sistem Tanı</a>
+        <a href="guncelleme.php" class="btn btn-out"><i class="fas fa-cloud-arrow-down"></i> Güncelleme</a>
+    </div>
     <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--c-muted);font-size:.85rem">Teknik detay</summary><pre style="font-size:.78rem;color:#fca5a5;margin-top:6px;font-family:monospace"><?= e($tablo_hatasi) ?></pre></details>
 </div>
 <?php endif; ?>
