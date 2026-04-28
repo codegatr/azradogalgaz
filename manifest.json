@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.11.4",
+    "version": "1.12.0",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.11.4: SES Lockdown smtpTest ve bakimBildirimSimdi window fonksiyonlarını da bloklayınca, butonların onclick'leri tamamen inline (async IIFE) yapıldı. Tab handler v1.11.3'te zaten inline'a çevrilmişti, şimdi SMTP test ve bakım bildirim butonları da aynı pattern'de — HTML attribute içinde direkt fetch çağrısı, PHP echo'ları json_encode() ile güvenli string olarak yerleştiriliyor. Kullanıcının önceki IIFE-tabanlı window.smtpTest tanımları SES tarafından sandboxlandığı için 'smtpTest is not defined' hatası alıyordu. Artık tüm interaktif elemanlar inline onclick — SES bypass garanti.",
+    "changelog": "v1.12.0: Site Haritası genişletildi + Search Console kurulum yardımı + Test Mail butonu görünürlük fix. sitemap.php'ye 8 yeni statik sayfa eklendi (projeler, sss, bilgi-bankasi, kombi-hesaplama, klima-hesaplama, kvkk, gizlilik) + projeler ve markalar tablolarından dinamik URL üretimi (try/catch korumalı). Ayarlar > SEO sekmesine 'Site Haritası' ve 'Search Console Kurulum Adımları' yardım kartları eklendi: sitemap URL kopyalama + adım adım kurulum rehberi. SMTP & Bildirim sekmesindeki Test Mail butonu artık input altında tek başına geniş, dar ekranlarda da net görünür.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -20,6 +20,6 @@
         "21-sql-ambiguous-fix","22-kullanici-adi-giris","23-dashboard-temizlik",
         "24-smtp-bakim-bildirim-sistemi","25-ayarlar-tab-script-fix",
         "26-ayarlar-self-contained-tab-handler","27-ayarlar-inline-onclick-ses-bypass",
-        "28-smtp-button-inline-onclick-ses-bypass"
+        "28-smtp-button-inline-onclick-ses-bypass","29-sitemap-genisletme-search-console-yardim"
     ]
 }
