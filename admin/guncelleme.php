@@ -72,6 +72,48 @@ if (isset($_GET['ajax']) || isset($_POST['ajax'])) {
         exit;
     }
 
+    // ===== MIGRATIONS =====
+    if ($ajax === 'migrasyon_durum') {
+        require_once __DIR__ . '/../inc/migrator.php';
+        $M = new Migrator(__DIR__ . '/..');
+        $tum = $M->tum_dosyalar();
+        $ugl = $M->uygulanmislar();
+        $bek = $M->bekleyenler();
+        $liste = [];
+        foreach ($tum as $d) {
+            $u = $ugl[$d] ?? null;
+            $liste[] = [
+                'dosya'   => $d,
+                'durum'   => $u ? ($u['sonuc'] === 'ok' ? 'uygulandi' : 'hata') : 'beklemede',
+                'tarih'   => $u['uygulama_tarihi'] ?? null,
+            ];
+        }
+        echo json_encode(['ok'=>true, 'migrasyonlar'=>$liste, 'bekleyen_sayi'=>count($bek), 'uygulanmis_sayi'=>count($ugl), 'toplam'=>count($tum)]);
+        exit;
+    }
+
+    if ($ajax === 'migrasyon_uygula') {
+        require_once __DIR__ . '/../inc/migrator.php';
+        $M = new Migrator(__DIR__ . '/..');
+        $r = $M->bekleyenleri_uygula();
+        if ($r['ok'] && !empty($r['uygulananlar'])) {
+            log_yaz('migrasyon_toplu', count($r['uygulananlar']) . " migration uygulandı", (int)$_kul['id']);
+            $M->sentinel_kaydet();
+        }
+        echo json_encode($r);
+        exit;
+    }
+
+    if ($ajax === 'migrasyon_tekil') {
+        require_once __DIR__ . '/../inc/migrator.php';
+        $M = new Migrator(__DIR__ . '/..');
+        $dosya = basename((string)($_POST['dosya'] ?? ''));
+        $r = $M->uygula($dosya);
+        if ($r['ok']) log_yaz('migrasyon', "Tekil: $dosya", (int)$_kul['id']);
+        echo json_encode($r);
+        exit;
+    }
+
     if ($ajax === 'sync_dosya') {
         $rel = (string)($_POST['rel'] ?? '');
         $r = $U->tek_dosya_sync($repo, $token, $branch, $rel);
@@ -223,6 +265,7 @@ $csrf = csrf_field();
 <div class="upd-tabs">
     <button class="tab active" data-pane="durum"><i class="fas fa-radar"></i> Genel Durum</button>
     <button class="tab" data-pane="dosyalar"><i class="fas fa-folder-tree"></i> Dosyalar</button>
+    <button class="tab" data-pane="migrasyonlar"><i class="fas fa-database"></i> Migrasyonlar</button>
     <button class="tab" data-pane="commits"><i class="fas fa-code-commit"></i> Commits</button>
     <button class="tab" data-pane="yedekler"><i class="fas fa-clock-rotate-left"></i> Yedekler</button>
     <button class="tab" data-pane="ayarlar"><i class="fas fa-gear"></i> Ayarlar</button>
@@ -277,6 +320,31 @@ $csrf = csrf_field();
                     <tr><th style="width:60px">Durum</th><th>Yol</th><th style="width:90px">Boyut</th><th style="width:120px">İşlem</th></tr>
                 </thead>
                 <tbody><tr><td colspan="4" class="empty">Önce "Genel Durum" sekmesinde durum kontrol et.</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MIGRASYONLAR ==================== -->
+<div class="upd-pane" id="pane-migrasyonlar">
+    <div class="card">
+        <h3>Veritabanı Migrasyonları</h3>
+        <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+            <code>migrations/</code> klasöründeki SQL dosyaları sırayla uygulanır. Tablolar yoksa CREATE eder, varsa hiçbir şey yapmaz (IF NOT EXISTS). Akıllı Güncelleme her seferinde yeni migration dosyalarını otomatik tarar.
+        </p>
+        <div id="migOzet" style="padding:20px 0;text-align:center;color:var(--c-muted)"><span class="upd-spin"></span> Yükleniyor...</div>
+        <div class="form-actions">
+            <button class="btn btn-pri" onclick="migrasyonUygula()"><i class="fas fa-play"></i> Bekleyenleri Uygula</button>
+            <button class="btn btn-out btn-sm" onclick="migrasyonYukle()"><i class="fas fa-sync"></i> Yenile</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Migration Listesi</h3>
+        <div class="tbl-wrap">
+            <table class="tbl" id="migTbl">
+                <thead><tr><th style="width:40px">#</th><th>Dosya</th><th style="width:120px">Durum</th><th style="width:170px">Uygulama Tarihi</th><th style="width:100px">İşlem</th></tr></thead>
+                <tbody><tr><td colspan="5" class="empty">Yükleniyor...</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -379,6 +447,7 @@ $$('.upd-tabs .tab').forEach(t => {
         // Lazy load
         if (t.dataset.pane === 'commits' && !commitsLoaded) commitsYukle();
         if (t.dataset.pane === 'yedekler' && !yedeklerLoaded) yedeklerYukle();
+        if (t.dataset.pane === 'migrasyonlar' && !migrasyonLoaded) migrasyonYukle();
     });
 });
 
@@ -581,6 +650,63 @@ async function ayarTest() {
     $('#ayarMesaj').innerHTML = r.ok
         ? '<div class="alert alert-ok">✓ Bağlantı OK. GitHub son release: v' + r.version + '</div>'
         : '<div class="alert alert-err">✗ ' + r.hata + '</div>';
+}
+
+// ===== MIGRATIONS =====
+let migrasyonLoaded = false;
+async function migrasyonYukle() {
+    migrasyonLoaded = true;
+    $('#migOzet').innerHTML = '<span class="upd-spin"></span> Yükleniyor...';
+    const tbody = $('#migTbl tbody');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Yükleniyor...</td></tr>';
+    const r = await api('migrasyon_durum');
+    if (!r.ok) { $('#migOzet').innerHTML = '<div class="alert alert-err">' + r.hata + '</div>'; return; }
+    $('#migOzet').innerHTML = `
+        <div class="upd-stat">
+            <div class="st ok"><div class="v">${r.uygulanmis_sayi}</div><div class="l">Uygulanmış</div></div>
+            <div class="st ${r.bekleyen_sayi ? 'warn' : 'ok'}"><div class="v">${r.bekleyen_sayi}</div><div class="l">Bekliyor</div></div>
+            <div class="st info"><div class="v">${r.toplam}</div><div class="l">Toplam</div></div>
+        </div>`;
+    if (!r.migrasyonlar.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">migrations/ klasörü boş.</td></tr>'; return; }
+    tbody.innerHTML = '';
+    r.migrasyonlar.forEach((m, i) => {
+        const badge = m.durum === 'uygulandi' ? '<span class="badge badge-ok">UYGULANDI</span>'
+                    : m.durum === 'hata'      ? '<span class="badge badge-no">HATA</span>'
+                    :                            '<span class="badge badge-warn">BEKLİYOR</span>';
+        const tarih = m.tarih ? new Date(m.tarih.replace(' ','T')).toLocaleString('tr-TR') : '—';
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td>${i+1}</td>
+                <td><code>${m.dosya}</code></td>
+                <td>${badge}</td>
+                <td class="num">${tarih}</td>
+                <td><button class="btn btn-out btn-sm" onclick="migrasyonTekil('${m.dosya}', this)">Çalıştır</button></td>
+            </tr>`);
+    });
+}
+async function migrasyonUygula() {
+    if (!confirm('Tüm bekleyen migration dosyaları sırayla uygulanacak. Devam?')) return;
+    logYaz('▶ Migration\'lar uygulanıyor...');
+    const r = await api('migrasyon_uygula');
+    if (!r.ok) { logYaz('✗ ' + (r.hata || (r.hatalar||[])[0]?.hata || 'Hata'), 'err'); return; }
+    if (!r.uygulananlar?.length) { logYaz('Bekleyen migration yok.'); return; }
+    r.uygulananlar.forEach(u => logYaz(`✓ ${u.dosya} (${u.stmts} statement, ${u.sure_ms}ms)`));
+    logYaz(`◆ ${r.uygulananlar.length} migration uygulandı.`);
+    await migrasyonYukle();
+    alert('Migration\'lar uygulandı! Şimdi Faturalar/Fişler/Cariler sayfalarını ziyaret et — tablolar oluşturulmuş olacak.');
+}
+async function migrasyonTekil(dosya, btn) {
+    if (!confirm(`${dosya} dosyasını çalıştır?`)) return;
+    btn.disabled = true; btn.innerHTML = '<span class="upd-spin"></span>';
+    const r = await api('migrasyon_tekil', {dosya: dosya});
+    if (r.ok) {
+        logYaz(`✓ ${dosya} (${r.stmts} statement, ${r.sure_ms}ms)`);
+        await migrasyonYukle();
+    } else {
+        logYaz(`✗ ${dosya}: ${r.hata}`, 'err');
+        btn.disabled = false; btn.textContent = 'Çalıştır';
+        alert('Hata: ' + r.hata);
+    }
 }
 
 // İlk yükleme
