@@ -73,12 +73,6 @@ try {
             <i class="fas fa-file-lines"></i> KVKK / Gizlilik
         </a>
 
-        <div class="group">Servis</div>
-        <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" class="<?= nav_active('bakim-hatirlaticilari.php') ?>">
-            <i class="fas fa-bell"></i> Bakım Hatırlatıcıları
-            <?php if ($_bakim_uyari > 0): ?><span class="badge"><?= $_bakim_uyari ?></span><?php endif; ?>
-        </a>
-
         <?php if (($_kul['rol'] ?? '') === 'admin'): ?>
         <div class="group">Sistem</div>
         <a href="<?= SITE_URL ?>/admin/ayarlar.php" class="<?= nav_active('ayarlar.php') ?>">
@@ -90,17 +84,11 @@ try {
         <a href="<?= SITE_URL ?>/admin/kullanicilar.php" class="<?= nav_active('kullanicilar.php') ?>">
             <i class="fas fa-users-gear"></i> Kullanıcılar
         </a>
-        <a href="<?= SITE_URL ?>/admin/profil.php" class="<?= nav_active('profil.php') ?>">
-            <i class="fas fa-user-shield"></i> Profil & Şifre
-        </a>
         <a href="<?= SITE_URL ?>/admin/loglar.php" class="<?= nav_active('loglar.php') ?>">
             <i class="fas fa-clipboard-list"></i> Sistem Logları
         </a>
         <a href="<?= SITE_URL ?>/admin/guncelleme.php" class="<?= nav_active('guncelleme.php') ?>">
             <i class="fas fa-cloud-arrow-down"></i> Güncelleme
-        </a>
-        <a href="<?= SITE_URL ?>/admin/cikis.php">
-            <i class="fas fa-right-from-bracket"></i> Çıkış Yap
         </a>
         <?php endif; ?>
     </nav>
@@ -116,62 +104,102 @@ try {
         <button class="menu-btn" id="admMenuBtn" aria-label="Menü"><i class="fas fa-bars"></i></button>
         <h1 class="page-title"><?= e($page_title) ?></h1>
 
-        <!-- Hızlı Erişim: Muhasebe -->
+        <!-- Hızlı Erişim: İşlemler (Muhasebe + Servis) -->
         <div class="topbar-quick" id="topQuick" style="position:relative;margin-left:auto;margin-right:14px">
             <button type="button" id="topQuickBtn" class="topbar-quick-btn" style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,140,0,.12);color:var(--c-orange);border:1px solid rgba(255,140,0,.3);border-radius:8px;font-weight:600;font-size:.88rem;cursor:pointer;transition:.15s">
                 <i class="fas fa-briefcase"></i>
-                <span class="lbl">Muhasebe</span>
+                <span class="lbl">İşlemler</span>
                 <i class="fas fa-chevron-down" style="font-size:.7rem;opacity:.7"></i>
             </button>
-            <div id="topQuickMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:#0c1430;border:1px solid var(--c-line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:1000;overflow:hidden">
-                <a href="<?= SITE_URL ?>/admin/cariler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+            <div id="topQuickMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:240px;background:#0c1430;border:1px solid var(--c-line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:1000;overflow:hidden">
+                <div style="padding:8px 16px 4px;font-size:.7rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;background:rgba(255,140,0,.04)">Muhasebe</div>
+                <a href="<?= SITE_URL ?>/admin/cariler.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-users" style="width:16px;color:var(--c-orange)"></i> Cariler
                 </a>
-                <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-file-lines" style="width:16px;color:var(--c-orange)"></i> Cari Ekstre
                 </a>
-                <a href="<?= SITE_URL ?>/admin/faturalar.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                <a href="<?= SITE_URL ?>/admin/faturalar.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-file-invoice-dollar" style="width:16px;color:var(--c-orange)"></i> Faturalar
                 </a>
-                <a href="<?= SITE_URL ?>/admin/fisler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                <a href="<?= SITE_URL ?>/admin/fisler.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-receipt" style="width:16px;color:var(--c-orange)"></i> Fişler
+                </a>
+                <div style="padding:8px 16px 4px;font-size:.7rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;background:rgba(255,140,0,.04);border-top:1px solid var(--c-line)">Servis</div>
+                <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                    <i class="fas fa-bell" style="width:16px;color:var(--c-orange)"></i> Bakım Hatırlatıcıları
+                    <?php if ($_bakim_uyari > 0): ?><span style="margin-left:auto;background:#dc2626;color:#fff;font-size:.7rem;padding:2px 7px;border-radius:10px"><?= $_bakim_uyari ?></span><?php endif; ?>
                 </a>
             </div>
         </div>
 
-        <div class="adm-user">
+        <!-- Kullanıcı Menüsü (sağ üst dropdown) -->
+        <div class="adm-user" id="userQuick" style="position:relative;cursor:pointer;user-select:none">
             <span class="av"><?= mb_strtoupper(mb_substr($_kul['ad'] ?? 'A', 0, 1, 'UTF-8'), 'UTF-8') ?></span>
             <span><?= e(mb_strimwidth($_kul['ad'] ?? 'Yönetici', 0, 26, '…', 'UTF-8')) ?></span>
+            <i class="fas fa-chevron-down" style="font-size:.7rem;opacity:.5;margin-left:4px"></i>
+            <div id="userQuickMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;min-width:200px;background:#0c1430;border:1px solid var(--c-line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:1000;overflow:hidden">
+                <div style="padding:12px 16px;border-bottom:1px solid var(--c-line);background:rgba(255,140,0,.05)">
+                    <div style="font-weight:700;font-size:.92rem;color:var(--c-text)"><?= e($_kul['ad'] ?? 'Yönetici') ?></div>
+                    <div style="font-size:.78rem;color:var(--c-muted);margin-top:2px"><?= e($_kul['eposta'] ?? '') ?></div>
+                    <div style="font-size:.7rem;color:var(--c-orange);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600"><?= e($_kul['rol'] ?? 'üye') ?></div>
+                </div>
+                <a href="<?= SITE_URL ?>/admin/profil.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                    <i class="fas fa-user-shield" style="width:16px;color:var(--c-orange)"></i> Profil & Şifre
+                </a>
+                <a href="<?= SITE_URL ?>/admin/cikis.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:#fca5a5;text-decoration:none;font-size:.88rem;transition:.12s" onmouseover="this.style.background='rgba(220,38,38,.12)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='#fca5a5'">
+                    <i class="fas fa-right-from-bracket" style="width:16px"></i> Çıkış Yap
+                </a>
+            </div>
         </div>
     </header>
 
     <script>
     (function(){
+        // ===== İşlemler dropdown =====
         const btn  = document.getElementById('topQuickBtn');
         const menu = document.getElementById('topQuickMenu');
-        if (!btn || !menu) return;
-        btn.addEventListener('click', function(e){
-            e.stopPropagation();
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        });
-        document.addEventListener('click', function(e){
-            if (!document.getElementById('topQuick').contains(e.target)) {
-                menu.style.display = 'none';
+        if (btn && menu) {
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+                // Diğer dropdown'u kapat
+                const um = document.getElementById('userQuickMenu');
+                if (um) um.style.display = 'none';
+            });
+            // Aktif sayfa vurgusu
+            const sayfa = location.pathname.split('/').pop();
+            if (['cariler.php','cari-ekstre.php','faturalar.php','fisler.php','bakim-hatirlaticilari.php'].includes(sayfa)) {
+                btn.style.background = 'rgba(255,140,0,.22)';
+                btn.style.borderColor = 'var(--c-orange)';
             }
+            // Mobile: sadece icon
+            function mobilKontrol(){
+                const lbl = btn.querySelector('.lbl');
+                if (lbl) lbl.style.display = window.innerWidth < 640 ? 'none' : 'inline';
+            }
+            mobilKontrol();
+            window.addEventListener('resize', mobilKontrol);
+        }
+
+        // ===== Kullanıcı dropdown =====
+        const uq  = document.getElementById('userQuick');
+        const uqm = document.getElementById('userQuickMenu');
+        if (uq && uqm) {
+            uq.addEventListener('click', function(e){
+                if (e.target.closest('a')) return; // link tıklamasını engelleme
+                e.stopPropagation();
+                uqm.style.display = uqm.style.display === 'none' ? 'block' : 'none';
+                // Diğer dropdown'u kapat
+                if (menu) menu.style.display = 'none';
+            });
+        }
+
+        // ===== Dış tıklama: hepsini kapat =====
+        document.addEventListener('click', function(e){
+            if (menu && !document.getElementById('topQuick').contains(e.target)) menu.style.display = 'none';
+            if (uqm  && !document.getElementById('userQuick').contains(e.target)) uqm.style.display = 'none';
         });
-        // Aktif sayfa vurgusu
-        const sayfa = location.pathname.split('/').pop();
-        if (['cariler.php','cari-ekstre.php','faturalar.php','fisler.php'].includes(sayfa)) {
-            btn.style.background = 'rgba(255,140,0,.22)';
-            btn.style.borderColor = 'var(--c-orange)';
-        }
-        // Mobile: sadece icon, label gizle
-        function mobilKontrol(){
-            const lbl = btn.querySelector('.lbl');
-            if (lbl) lbl.style.display = window.innerWidth < 640 ? 'none' : 'inline';
-        }
-        mobilKontrol();
-        window.addEventListener('resize', mobilKontrol);
     })();
     </script>
 
