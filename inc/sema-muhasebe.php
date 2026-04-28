@@ -1,133 +1,29 @@
 <?php
 /**
- * Cari & Muhasebe modülleri için tablo şeması.
- * Modüllerin başında include edilir; tablolar yoksa oluşturulur (IF NOT EXISTS).
- * Tablolar varsa hiçbir şey yapmaz (DDL no-op).
+ * Cari & Muhasebe modülleri için şema garanti edici.
+ * Artık inline CREATE TABLE değil — migration sistemi üzerinden çalışıyor.
+ * Modüllerin başında include edilir; bekleyen migration varsa otomatik uygular.
  */
 
 if (!function_exists('db')) return; // _baslat.php yüklü değilse atla
 
+require_once __DIR__ . '/migrator.php';
+
 try {
-    // Cariler
-    db()->exec("
-        CREATE TABLE IF NOT EXISTS cariler (
-            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            cari_kodu       VARCHAR(40) NOT NULL UNIQUE,
-            unvan           VARCHAR(200) NOT NULL,
-            tip             ENUM('bireysel','kurumsal') DEFAULT 'bireysel',
-            tckn_vkn        VARCHAR(20) DEFAULT NULL,
-            vergi_dairesi   VARCHAR(120) DEFAULT NULL,
-            telefon         VARCHAR(40) DEFAULT NULL,
-            telefon_2       VARCHAR(40) DEFAULT NULL,
-            eposta          VARCHAR(150) DEFAULT NULL,
-            il              VARCHAR(80) DEFAULT NULL,
-            ilce            VARCHAR(80) DEFAULT NULL,
-            adres           TEXT DEFAULT NULL,
-            bakiye          DECIMAL(14,2) DEFAULT 0.00,
-            notlar          TEXT DEFAULT NULL,
-            aktif           TINYINT(1) DEFAULT 1,
-            olusturma       DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_cari_unvan (unvan),
-            INDEX idx_cari_aktif (aktif)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
+    $M = new Migrator(__DIR__ . '/..');
 
-    // Cari Hareketleri (borç/alacak/tahsilat/ödeme — manuel + belge kaynaklı)
-    db()->exec("
-        CREATE TABLE IF NOT EXISTS cari_hareketler (
-            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            cari_id         INT UNSIGNED NOT NULL,
-            tarih           DATE NOT NULL,
-            tip             ENUM('borc','alacak','tahsilat','odeme') NOT NULL,
-            belge_tip       ENUM('manuel','fatura','fis','tahsilat','odeme') DEFAULT 'manuel',
-            belge_id        INT UNSIGNED DEFAULT NULL,
-            belge_no        VARCHAR(60) DEFAULT NULL,
-            aciklama        VARCHAR(255) DEFAULT NULL,
-            tutar           DECIMAL(14,2) NOT NULL,
-            olusturan_id    INT UNSIGNED DEFAULT NULL,
-            olusturma       DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_ch_cari (cari_id),
-            INDEX idx_ch_tarih (tarih),
-            INDEX idx_ch_belge (belge_tip, belge_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
-
-    // Faturalar
-    db()->exec("
-        CREATE TABLE IF NOT EXISTS faturalar (
-            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            cari_id         INT UNSIGNED NOT NULL,
-            fatura_no       VARCHAR(60) NOT NULL,
-            tip             ENUM('satis','alis','iade_satis','iade_alis') DEFAULT 'satis',
-            tarih           DATE NOT NULL,
-            vade_tarihi     DATE DEFAULT NULL,
-            ara_toplam      DECIMAL(14,2) DEFAULT 0.00,
-            iskonto         DECIMAL(14,2) DEFAULT 0.00,
-            kdv_toplam      DECIMAL(14,2) DEFAULT 0.00,
-            genel_toplam    DECIMAL(14,2) DEFAULT 0.00,
-            odeme_durumu    ENUM('odenmedi','kismi','odendi') DEFAULT 'odenmedi',
-            odenen          DECIMAL(14,2) DEFAULT 0.00,
-            notlar          TEXT DEFAULT NULL,
-            olusturma       DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_fat_cari (cari_id),
-            INDEX idx_fat_tarih (tarih),
-            INDEX idx_fat_no (fatura_no)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
-
-    // Fatura Kalemleri
-    db()->exec("
-        CREATE TABLE IF NOT EXISTS fatura_kalemleri (
-            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            fatura_id       INT UNSIGNED NOT NULL,
-            urun_id         INT UNSIGNED DEFAULT NULL,
-            ad              VARCHAR(200) NOT NULL,
-            miktar          DECIMAL(10,3) DEFAULT 1.000,
-            birim           VARCHAR(20) DEFAULT 'adet',
-            birim_fiyat     DECIMAL(14,2) DEFAULT 0.00,
-            iskonto_yuzde   DECIMAL(5,2) DEFAULT 0.00,
-            kdv_orani       DECIMAL(5,2) DEFAULT 20.00,
-            toplam          DECIMAL(14,2) DEFAULT 0.00,
-            INDEX idx_fk_fatura (fatura_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
-
-    // Fişler
-    db()->exec("
-        CREATE TABLE IF NOT EXISTS fisler (
-            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            cari_id         INT UNSIGNED DEFAULT NULL,
-            fis_no          VARCHAR(60) NOT NULL,
-            tip             ENUM('satis','tahsilat','odeme','gider','gelir') DEFAULT 'satis',
-            tarih           DATE NOT NULL,
-            aciklama        VARCHAR(255) DEFAULT NULL,
-            ara_toplam      DECIMAL(14,2) DEFAULT 0.00,
-            kdv_toplam      DECIMAL(14,2) DEFAULT 0.00,
-            genel_toplam    DECIMAL(14,2) DEFAULT 0.00,
-            odeme_yontemi   ENUM('nakit','kart','havale','cek','senet') DEFAULT 'nakit',
-            olusturma       DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_fis_cari (cari_id),
-            INDEX idx_fis_tarih (tarih),
-            INDEX idx_fis_no (fis_no)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
-
-    // Fiş Kalemleri
-    db()->exec("
-        CREATE TABLE IF NOT EXISTS fis_kalemleri (
-            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            fis_id          INT UNSIGNED NOT NULL,
-            urun_id         INT UNSIGNED DEFAULT NULL,
-            ad              VARCHAR(200) NOT NULL,
-            miktar          DECIMAL(10,3) DEFAULT 1.000,
-            birim           VARCHAR(20) DEFAULT 'adet',
-            birim_fiyat     DECIMAL(14,2) DEFAULT 0.00,
-            kdv_orani       DECIMAL(5,2) DEFAULT 20.00,
-            toplam          DECIMAL(14,2) DEFAULT 0.00,
-            INDEX idx_fisk_fis (fis_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
+    // Cache: migrations/ klasörü mtime değişmemişse skip
+    if ($M->otomatik_uygula_lazim_mi()) {
+        $sonuc = $M->bekleyenleri_uygula();
+        if ($sonuc['ok']) {
+            $M->sentinel_kaydet();
+            if (!empty($sonuc['uygulananlar'])) {
+                error_log('[sema-muhasebe] ' . count($sonuc['uygulananlar']) . ' migration uygulandı.');
+            }
+        } else {
+            error_log('[sema-muhasebe] Migration hatası: ' . json_encode($sonuc['hatalar']));
+        }
+    }
 } catch (Throwable $e) {
-    // Tablolar oluşturulamazsa sessizce devam (kullanıcı zaten DB hatası alacak)
     error_log('[sema-muhasebe] ' . $e->getMessage());
 }
