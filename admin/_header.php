@@ -73,20 +73,6 @@ try {
             <i class="fas fa-file-lines"></i> KVKK / Gizlilik
         </a>
 
-        <div class="group">Cari & Muhasebe</div>
-        <a href="<?= SITE_URL ?>/admin/cariler.php" class="<?= nav_active('cariler.php') ?>">
-            <i class="fas fa-users"></i> Cariler
-        </a>
-        <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" class="<?= nav_active('cari-ekstre.php') ?>">
-            <i class="fas fa-file-lines"></i> Cari Ekstre
-        </a>
-        <a href="<?= SITE_URL ?>/admin/faturalar.php" class="<?= nav_active('faturalar.php') ?>">
-            <i class="fas fa-file-invoice-dollar"></i> Faturalar
-        </a>
-        <a href="<?= SITE_URL ?>/admin/fisler.php" class="<?= nav_active('fisler.php') ?>">
-            <i class="fas fa-receipt"></i> Fişler
-        </a>
-
         <div class="group">Servis</div>
         <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" class="<?= nav_active('bakim-hatirlaticilari.php') ?>">
             <i class="fas fa-bell"></i> Bakım Hatırlatıcıları
@@ -129,11 +115,65 @@ try {
     <header class="adm-topbar">
         <button class="menu-btn" id="admMenuBtn" aria-label="Menü"><i class="fas fa-bars"></i></button>
         <h1 class="page-title"><?= e($page_title) ?></h1>
+
+        <!-- Hızlı Erişim: Muhasebe -->
+        <div class="topbar-quick" id="topQuick" style="position:relative;margin-left:auto;margin-right:14px">
+            <button type="button" id="topQuickBtn" class="topbar-quick-btn" style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,140,0,.12);color:var(--c-orange);border:1px solid rgba(255,140,0,.3);border-radius:8px;font-weight:600;font-size:.88rem;cursor:pointer;transition:.15s">
+                <i class="fas fa-briefcase"></i>
+                <span class="lbl">Muhasebe</span>
+                <i class="fas fa-chevron-down" style="font-size:.7rem;opacity:.7"></i>
+            </button>
+            <div id="topQuickMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:#0c1430;border:1px solid var(--c-line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:1000;overflow:hidden">
+                <a href="<?= SITE_URL ?>/admin/cariler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                    <i class="fas fa-users" style="width:16px;color:var(--c-orange)"></i> Cariler
+                </a>
+                <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                    <i class="fas fa-file-lines" style="width:16px;color:var(--c-orange)"></i> Cari Ekstre
+                </a>
+                <a href="<?= SITE_URL ?>/admin/faturalar.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                    <i class="fas fa-file-invoice-dollar" style="width:16px;color:var(--c-orange)"></i> Faturalar
+                </a>
+                <a href="<?= SITE_URL ?>/admin/fisler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                    <i class="fas fa-receipt" style="width:16px;color:var(--c-orange)"></i> Fişler
+                </a>
+            </div>
+        </div>
+
         <div class="adm-user">
             <span class="av"><?= mb_strtoupper(mb_substr($_kul['ad'] ?? 'A', 0, 1, 'UTF-8'), 'UTF-8') ?></span>
             <span><?= e(mb_strimwidth($_kul['ad'] ?? 'Yönetici', 0, 26, '…', 'UTF-8')) ?></span>
         </div>
     </header>
+
+    <script>
+    (function(){
+        const btn  = document.getElementById('topQuickBtn');
+        const menu = document.getElementById('topQuickMenu');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', function(e){
+            e.stopPropagation();
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        });
+        document.addEventListener('click', function(e){
+            if (!document.getElementById('topQuick').contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+        // Aktif sayfa vurgusu
+        const sayfa = location.pathname.split('/').pop();
+        if (['cariler.php','cari-ekstre.php','faturalar.php','fisler.php'].includes(sayfa)) {
+            btn.style.background = 'rgba(255,140,0,.22)';
+            btn.style.borderColor = 'var(--c-orange)';
+        }
+        // Mobile: sadece icon, label gizle
+        function mobilKontrol(){
+            const lbl = btn.querySelector('.lbl');
+            if (lbl) lbl.style.display = window.innerWidth < 640 ? 'none' : 'inline';
+        }
+        mobilKontrol();
+        window.addEventListener('resize', mobilKontrol);
+    })();
+    </script>
 
     <section class="adm-content">
         <?php foreach (flash_pop() as $f): ?>
