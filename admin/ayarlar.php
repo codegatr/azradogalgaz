@@ -253,7 +253,7 @@ foreach ($_tabs as $_k => $_l):
             <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">SMTP ayarlarını kaydettikten sonra aşağıdan test maili gönderebilirsin.</p>
             <div class="form-row cols-2">
                 <div class="field"><label>Test Alıcı E-posta</label><input class="input" type="email" id="testMailAdres" placeholder="ornek@gmail.com" value="<?= e($_kul['eposta'] ?? '') ?>"></div>
-                <div class="field" style="display:flex;align-items:flex-end"><button type="button" class="btn btn-pri" onclick="smtpTest()" style="width:100%"><i class="fas fa-paper-plane"></i> Test Maili Gönder</button></div>
+                <div class="field" style="display:flex;align-items:flex-end"><button type="button" class="btn btn-pri" style="width:100%" onclick='(async()=>{var em=document.getElementById("testMailAdres").value.trim();if(!em){alert("E-posta gir.");return}var out=document.getElementById("testMailSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Gönderiliyor...</span>";try{var fd=new FormData();fd.append("eposta",em);fd.append("csrf",<?= json_encode(csrf_token()) ?>);var r=await fetch(<?= json_encode(SITE_URL) ?>+"/admin/smtp-test.php",{method:"POST",body:fd});var d=await r.json();out.innerHTML=d.ok?"<div class=\"alert alert-ok\"><i class=\"fas fa-check\"></i> Mail gönderildi: "+em+"</div>":"<div class=\"alert alert-err\"><i class=\"fas fa-xmark\"></i> Hata: "+(d.hata||"bilinmiyor")+"</div>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-paper-plane"></i> Test Maili Gönder</button></div>
             </div>
             <div id="testMailSonuc" style="margin-top:12px"></div>
         </div>
@@ -282,7 +282,7 @@ foreach ($_tabs as $_k => $_l):
                 <strong>Test:</strong> Aşağıdaki butonla şimdi manuel çalıştırabilirsin.
             </p>
             <div style="margin-top:12px">
-                <button type="button" class="btn btn-blue btn-sm" onclick="bakimBildirimSimdi()"><i class="fas fa-play"></i> Bildirimleri Şimdi Gönder</button>
+                <button type="button" class="btn btn-blue btn-sm" onclick='(async()=>{if(!confirm("Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?"))return;var out=document.getElementById("bakimSimdiSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Çalıştırılıyor...</span>";try{var r=await fetch(<?= json_encode(SITE_URL) ?>+"/cron/bakim-bildirim.php?key="+encodeURIComponent(<?= json_encode((string)ayar('cron_anahtar', '')) ?>));var t=await r.text();out.innerHTML="<pre style=\"background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap\">"+t.replace(/</g,"&lt;")+"</pre>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-play"></i> Bildirimleri Şimdi Gönder</button>
                 <a href="<?= SITE_URL ?>/cron/bakim-bildirim.php?key=<?= e(ayar('cron_anahtar', '')) ?>" target="_blank" class="btn btn-out btn-sm"><i class="fas fa-external-link"></i> Cron URL'ini Aç</a>
             </div>
             <div id="bakimSimdiSonuc" style="margin-top:12px"></div>
@@ -311,61 +311,5 @@ foreach ($_tabs as $_k => $_l):
         <a href="<?= SITE_URL ?>/admin/panel.php" class="btn btn-out">İptal</a>
     </div>
 </form>
-
-<script>
-(function(){
-    // Self-contained tab handler — _footer.php'deki global handler'dan bağımsız
-    var form = document.querySelector('form[data-tabs]');
-    if (form) {
-        form.querySelectorAll('.tabs-h .t').forEach(function(t){
-            t.addEventListener('click', function(e){
-                e.preventDefault();
-                var k = t.dataset.tab;
-                form.querySelectorAll('.tabs-h .t').forEach(function(x){ x.classList.toggle('active', x === t); });
-                form.querySelectorAll('.tab-body').forEach(function(x){ x.classList.toggle('active', x.dataset.tab === k); });
-                var hid = document.getElementById('_tab');
-                if (hid) hid.value = k;
-            });
-        });
-    }
-
-    var SMTP_CSRF = <?= json_encode(csrf_token()) ?>;
-    var SMTP_URL  = <?= json_encode(SITE_URL) ?>;
-    var CRON_KEY  = <?= json_encode((string)ayar('cron_anahtar', '')) ?>;
-
-    window.smtpTest = async function(){
-        var emailEl = document.getElementById('testMailAdres');
-        var out     = document.getElementById('testMailSonuc');
-        var email   = (emailEl && emailEl.value || '').trim();
-        if (!email) { alert('E-posta gir.'); return; }
-        out.innerHTML = '<span style="color:var(--c-muted)">Gönderiliyor...</span>';
-        try {
-            var fd = new FormData();
-            fd.append('eposta', email);
-            fd.append('csrf', SMTP_CSRF);
-            var r = await fetch(SMTP_URL + '/admin/smtp-test.php', {method:'POST', body:fd});
-            var d = await r.json();
-            out.innerHTML = d.ok
-                ? '<div class="alert alert-ok"><i class="fas fa-check"></i> Mail başarıyla gönderildi: ' + email + '</div>'
-                : '<div class="alert alert-err"><i class="fas fa-xmark"></i> Hata: ' + (d.hata || 'bilinmiyor') + '</div>';
-        } catch(e) {
-            out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
-        }
-    };
-
-    window.bakimBildirimSimdi = async function(){
-        if (!confirm('Bakım tarihi yaklaşan müşterilere mail gönderilsin mi?')) return;
-        var out = document.getElementById('bakimSimdiSonuc');
-        out.innerHTML = '<span style="color:var(--c-muted)">Çalıştırılıyor...</span>';
-        try {
-            var r = await fetch(SMTP_URL + '/cron/bakim-bildirim.php?key=' + encodeURIComponent(CRON_KEY));
-            var t = await r.text();
-            out.innerHTML = '<pre style="background:#0a0f1f;color:#aaffcc;padding:12px;border-radius:6px;font-size:.8rem;font-family:monospace;white-space:pre-wrap">' + t.replace(/</g,'&lt;') + '</pre>';
-        } catch(e) {
-            out.innerHTML = '<div class="alert alert-err">Hata: ' + e.message + '</div>';
-        }
-    };
-})();
-</script>
 
 <?php require_once __DIR__ . '/_footer.php'; ?>
