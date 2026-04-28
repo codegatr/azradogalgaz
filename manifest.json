@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.7.0: ERP tarzı Akıllı Güncelleme Merkezi. GitHub Tree API tabanlı dosya bazlı kontrol — her dosyanın Git blob SHA1'i lokal ile karşılaştırılır, ✅ Güncel / 🔴 Değişmiş / 🔴 Eksik durumu görsel olarak işaretlenir. 5 sekme: Genel Durum (4 stat kartı + 3 buton: Kontrol/Akıllı Güncelleme/Zorla Sync), Dosyalar (filtrelenebilir liste + tek tıkla sync), Commits (son 20 GitHub commit'i), Yedekler (otomatik yedek listesi + geri al/sil), Ayarlar (repo/branch/token + Test Et). AJAX-driven, tüm işlemler async. Korumalı yollar (config.php, assets/uploads/) hiçbir koşulda yazılmaz. Önceki ZIP-based release sistemi de fallback olarak korunuyor.",
+    "changelog": "v1.7.1: Akıllı Güncelleme bugfix'leri. (1) .gitignore/.gitattributes/.editorconfig dotfile'ları artık sync edilebiliyor (PHP pathinfo dotfile'ları extension olarak parse ediyor — izinli listeye eklendi). (2) 'Zorla Senkronize' butonu artık gerçekten zorla yeniden indiriyor (önceki sürümde yine durum filtresi uyguluyordu, sadece değişmiş/eksik dosyaları indiriyordu). akilli_senkronize() fonksiyonuna zorla=bool parametresi eklendi. (3) Log mesajındaki yedek dosya adı düzeltildi (artık basename(yol) gösteriyor, eskiden boş geliyordu). v1.7.0 değişmedi: ERP tarzı 5 sekmeli güncelleme merkezi, GitHub Tree API + Git blob SHA1 karşılaştırması, dosya bazlı sync.",
     "stages_completed": [
         "1-temel-altyapi",
         "2-frontend-sayfalari",
@@ -23,6 +23,7 @@
         "10-bakim-hatirlatici-sistemi",
         "11-css-uyum-gorsel-onarim",
         "12-cari-hesap-ekstresi",
-        "13-akilli-guncelleme-merkezi"
+        "13-akilli-guncelleme-merkezi",
+        "13a-guncelleme-bugfix"
     ]
 }
