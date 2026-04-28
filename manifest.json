@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.11.2",
+    "version": "1.11.3",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.11.2: Site Ayarları sekmeleri çalışmıyor — kalıcı çözüm. _footer.php'deki global tab handler'a bağımlı kalmamak için ayarlar.php'ye self-contained tab handler eklendi (form bulunduktan sonra her .t için click listener attach eder, .active class'ını hem header hem body için toggle eder, _tab hidden field'ı senkron tutar). Önceki onclick attribute'ları yedek olarak kaldı.",
+    "changelog": "v1.11.3: Site Ayarları sekmeleri Brave/SES Lockdown sandbox'ı yüzünden çalışmıyordu. Tab handler addEventListener yerine HTML onclick attribute'una taşındı (browser native, sandboxlanmaz). PHP foreach ile tab'lar render ediliyor, her birine inline onclick JS ekleniyor — closest() ile form bulunup .active class'ı toggle ediliyor + _tab hidden field güncelleniyor. SES/MetaMask/Brave gibi extension'lar inline IIFE'i bile sandboxa kapatabilir, ama HTML attribute event handler'ları engelleyemezler.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -19,6 +19,6 @@
         "19-migration-sistemi-bulletproof-moduller","20-tek-tik-migration-uygula",
         "21-sql-ambiguous-fix","22-kullanici-adi-giris","23-dashboard-temizlik",
         "24-smtp-bakim-bildirim-sistemi","25-ayarlar-tab-script-fix",
-        "26-ayarlar-self-contained-tab-handler"
+        "26-ayarlar-self-contained-tab-handler","27-ayarlar-inline-onclick-ses-bypass"
     ]
 }
