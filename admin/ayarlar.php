@@ -285,11 +285,15 @@ foreach ($_tabs as $_k => $_l):
         <div class="card">
             <h3>Test Maili</h3>
             <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">SMTP ayarlarını <strong>önce</strong> "Tüm Ayarları Kaydet" ile kaydet. Sonra bu kartta test maili gönderebilirsin.</p>
-            <div class="field" style="margin-bottom:12px">
-                <label>Test Alıcı E-posta</label>
-                <input class="input" type="email" id="testMailAdres" placeholder="ornek@gmail.com" value="<?= e($_kul['eposta'] ?? '') ?>">
+            <div class="form-row">
+                <div class="field">
+                    <label>Test Alıcı E-posta</label>
+                    <input class="input" type="email" id="testMailAdres" placeholder="ornek@gmail.com" value="<?= e($_kul['eposta'] ?? '') ?>">
+                </div>
             </div>
-            <button type="button" class="btn btn-pri" onclick='(async()=>{var em=document.getElementById("testMailAdres").value.trim();if(!em){alert("E-posta gir.");return}var out=document.getElementById("testMailSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Gönderiliyor...</span>";try{var fd=new FormData();fd.append("eposta",em);fd.append("csrf",<?= json_encode(csrf_token()) ?>);var r=await fetch(<?= json_encode(SITE_URL) ?>+"/admin/smtp-test.php",{method:"POST",body:fd});var d=await r.json();out.innerHTML=d.ok?"<div class=\"alert alert-ok\"><i class=\"fas fa-check\"></i> Mail gönderildi: "+em+"</div>":"<div class=\"alert alert-err\"><i class=\"fas fa-xmark\"></i> Hata: "+(d.hata||"bilinmiyor")+"</div>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-paper-plane"></i> Test Maili Gönder</button>
+            <div class="form-actions" style="margin-top:14px">
+                <button type="button" class="btn btn-pri" onclick='(async()=>{var em=document.getElementById("testMailAdres").value.trim();if(!em){alert("E-posta gir.");return}var out=document.getElementById("testMailSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Gönderiliyor...</span>";try{var fd=new FormData();fd.append("eposta",em);fd.append("csrf",<?= json_encode(csrf_token()) ?>);var r=await fetch(<?= json_encode(SITE_URL) ?>+"/admin/smtp-test.php",{method:"POST",body:fd});var d=await r.json();out.innerHTML=d.ok?"<div class=\"alert alert-ok\"><i class=\"fas fa-check\"></i> Mail gönderildi: "+em+"</div>":"<div class=\"alert alert-err\"><i class=\"fas fa-xmark\"></i> Hata: "+(d.hata||"bilinmiyor")+"</div>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-paper-plane"></i> Test Maili Gönder</button>
+            </div>
             <div id="testMailSonuc" style="margin-top:12px"></div>
         </div>
 
