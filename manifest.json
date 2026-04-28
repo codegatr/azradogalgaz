@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.7.2: Cari & Muhasebe sidebar grubu kaldırıldı, üst topbar'a 'Muhasebe ▾' kompakt dropdown eklendi. Cariler / Cari Ekstre / Faturalar / Fişler artık tek tıkla erişilebilir, sayfa fark etmez. Aktif sayfa highlight, mobilde sadece ikon, dış tıklamada otomatik kapanır. v1.7.1: .gitignore izinli, zorla sync gerçekten zorlasın, yedek log adı düzeltmesi. v1.7.0: ERP tarzı Akıllı Güncelleme Merkezi.",
+    "changelog": "v1.7.3: Güncelleme Merkezi gösterim düzeltmeleri. (1) GitHub Sürüm artık doğrudan repo'daki manifest.json'dan okunuyor (ZIP asset gerektirmez) — v1.7.1+ release'lerine ZIP eklenmediği için 'GitHub Sürüm: —' boş gözüküyordu. Artık manifest.json source-of-truth olarak kullanılıyor. (2) Sayfa üstündeki 'Yüklü sürüm: vX.X.X' etiketine id eklendi, durum kontrolü sonrası dinamik güncelleniyor (sync sonrası tarayıcı yenilemeden doğru sürüm görünür). (3) yeni_surum_var flag'i artık manifest karşılaştırmasıyla doğru çalışıyor — yenisi varsa 'Yeni Sürüm Var' uyarısı, yoksa 'Güncel'.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -14,6 +14,6 @@
         "9-cari-muhasebe-modulleri","10-bakim-hatirlatici-sistemi",
         "11-css-uyum-gorsel-onarim","12-cari-hesap-ekstresi",
         "13-akilli-guncelleme-merkezi","13a-guncelleme-bugfix",
-        "14-topbar-muhasebe-dropdown"
+        "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme"
     ]
 }
