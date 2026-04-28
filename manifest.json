@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.7.3",
+    "version": "1.8.0",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.7.3: Güncelleme Merkezi gösterim düzeltmeleri. (1) GitHub Sürüm artık doğrudan repo'daki manifest.json'dan okunuyor (ZIP asset gerektirmez) — v1.7.1+ release'lerine ZIP eklenmediği için 'GitHub Sürüm: —' boş gözüküyordu. Artık manifest.json source-of-truth olarak kullanılıyor. (2) Sayfa üstündeki 'Yüklü sürüm: vX.X.X' etiketine id eklendi, durum kontrolü sonrası dinamik güncelleniyor (sync sonrası tarayıcı yenilemeden doğru sürüm görünür). (3) yeni_surum_var flag'i artık manifest karşılaştırmasıyla doğru çalışıyor — yenisi varsa 'Yeni Sürüm Var' uyarısı, yoksa 'Güncel'.",
+    "changelog": "v1.8.0: ÖNEMLİ — Veritabanı şeması fix (cariler/faturalar/fisler tabloları yoksa otomatik oluşturulur). Yeni inc/sema-muhasebe.php dosyası 6 tabloyu CREATE TABLE IF NOT EXISTS ile garanti eder: cariler, cari_hareketler, faturalar, fatura_kalemleri, fisler, fis_kalemleri. Modül başlarına include eklendi. Faturalar/Fişler içerik gelmeme sorunu (boş tablo bile görünmüyor) bu fix ile çözülüyor. Header/sidebar reorganizasyonu: Bakım Hatırlatıcıları sidebar'dan kaldırıldı, topbar 'İşlemler' dropdown'a Servis bölümü olarak eklendi (Muhasebe + Servis iki bölümlü dropdown). Sağ üstteki kullanıcı avatarı tıklanabilir oldu, dropdown'dan Profil & Şifre + Çıkış Yap erişilebiliyor (sidebar'dan kaldırıldılar). Sidebar artık 3 grup: Genel/İçerik/Sistem.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -14,6 +14,7 @@
         "9-cari-muhasebe-modulleri","10-bakim-hatirlatici-sistemi",
         "11-css-uyum-gorsel-onarim","12-cari-hesap-ekstresi",
         "13-akilli-guncelleme-merkezi","13a-guncelleme-bugfix",
-        "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme"
+        "14-topbar-muhasebe-dropdown","15-guncelleme-gosterim-duzeltme",
+        "16-db-sema-fix-header-reorganizasyon"
     ]
 }
