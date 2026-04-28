@@ -1,11 +1,25 @@
 {
-  "name": "Azra Doğalgaz Web Sistemi",
-  "version": "1.5.0",
-  "release_date": "2026-04-28",
-  "min_php": "8.1",
-  "repo": "codegatr/azradogalgaz",
-  "branch": "main",
-  "channel": "stable",
-  "changelog": "Asama 3-B Tamamlama: 3 yeni admin modulu (projeler, kullanicilar, sistem loglari) + tum gorseller real Unsplash URL + projeler tablosu auto-create. seed.php migrate.php gerektirmiyor artik. Mevcut urun/hizmet/kampanya/blog'larda gorsel bossa otomatik gercek URL ekler. inc/functions.php'ye gorsel_url() helper eklendi (URL veya upload yolu fark etmez). Tum frontend sayfalar gorsel_url() kullanir.",
-  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "3b-icerik-modulleri", "5-guncelleme-sistemi", "6a-acik-tema", "6b-yeni-sayfalar", "6c-ic-sayfalar-tema-fix", "6d-sektorel-icerik-seed", "7-admin-modulleri-tamamlama"]
+    "name": "Azra Doğalgaz Web Sistemi",
+    "version": "1.6.0",
+    "release_date": "2026-04-28",
+    "min_php": "8.1",
+    "repo": "codegatr\/azradogalgaz",
+    "branch": "main",
+    "channel": "stable",
+    "changelog": "v1.6.0 Cari & Muhasebe + Servis Modülleri: Cariler (CR0001 otomatik kod, hareket geçmişi, manuel borç\/alacak\/tahsilat\/ödeme, otomatik bakiye), Faturalar (kalem satırları, KDV\/iskonto otomatik hesap, cari hareket entegrasyonu, tahsilat al butonu fiş üretir), Fişler (5 tip: peşin satış\/tahsilat\/ödeme\/gider\/gelir, kalem veya tek tutar). Bakım Hatırlatıcıları sistemi: kombi\/klima\/kazan\/şofben\/termosifon takibi, periyodik bakım planı, dashboard widget, gecikmiş\/30 gün uyarı kartları, cari bağlantısı, Bakım Yapıldı butonu sonraki bakımı periyot kadar ileri alır. Sidebar'a Cari & Muhasebe + Servis grupları eklendi. v1.5.1: SSS sayfası 500 hatası giderildi (apostrof escape) ve 7 admin modülü tam CRUD ile yeniden yazıldı.",
+    "stages_completed": [
+        "1-temel-altyapi",
+        "2-frontend-sayfalari",
+        "3a-admin-temeli",
+        "3b-icerik-modulleri",
+        "5-guncelleme-sistemi",
+        "6a-acik-tema",
+        "6b-yeni-sayfalar",
+        "6c-ic-sayfalar-tema-fix",
+        "6d-sektorel-icerik-seed",
+        "7-admin-modulleri-tamamlama",
+        "8-sss-fix-admin-crud",
+        "9-cari-muhasebe-modulleri",
+        "10-bakim-hatirlatici-sistemi"
+    ]
 }
