@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.4",
+    "version": "1.12.5",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.4: KESİN FIX - SMTP tab açılış attribute'larındaki PHP echo'lar tamamen kaldırıldı. Yunus'un raporu: prod'da sayfa kaynağı 27955 byte (local 38956b) ve tam 'data-csrf=\"' attribute'u açıkken kesik kalıyor → PHP fatal sebebiyle output kesintisi. ÇÖZÜM: SMTP tab opener'ından data-csrf/data-url/data-cron-key attribute'larını TAMAMEN çıkardık. JS handler'lar artık değerleri sayfa sonundaki window.AZRA_CRON_KEY (json_encode), form'daki var olan csrf input'u (csrf_field), location.origin'den okuyor. Cron Kurulumu kartındaki URL ve gün sayısı da JS ile dinamik basılıyor. Böylece tab içeriği SIFIR PHP-attribute'una bağımlı hâle geldi - prod'da her ne sebepten olursa olsun render kesintisi olamaz.",
+    "changelog": "v1.12.5: SMTP hata raporlaması büyük iyileştirme. (1) Frontend Test Mail butonu artık hata durumunda SMTP konuşma günlüğünü 'details/summary' içinde gösteriyor — hangi komut sonrası fail ettiği net görünür. (2) inc/mail.php boş yanıt durumunu (timeout/connection drop) ayırt edip açıklayıcı mesaj veriyor: 'SMTP sunucu yanıt vermedi: TIMEOUT/BAĞLANTI KAPATILDI. Olası sebepler: yanlış host/port, TLS uyumsuzluğu, IP bloklu, firewall.' (3) STARTTLS handshake'i artık TLS 1.0/1.1/1.2/1.3 hepsini desteklediği şekilde fallback yapıyor (DirectAdmin sunucularda TLS 1.3 zorla fail oluyordu). TLS handshake fail olursa error_get_last() ile spesifik mesaj.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -23,6 +23,7 @@
         "28-smtp-button-inline-onclick-ses-bypass","29-sitemap-genisletme-search-console-yardim",
         "30-test-mail-form-actions-wrapper","31-onclick-data-attr-render-fix",
         "32-smtp-host-validation-sistem-tani-dosya-butunluk",
-        "33-smtp-tab-php-echo-attribute-temizleme-prod-render-fix"
+        "33-smtp-tab-php-echo-attribute-temizleme-prod-render-fix",
+        "34-smtp-hata-log-frontend-tls-fallback-mail-class"
     ]
 }
