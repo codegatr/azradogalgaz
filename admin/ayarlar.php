@@ -184,10 +184,44 @@ foreach ($_tabs as $_k => $_l):
             <div class="form-row">
                 <div class="field">
                     <label>Google Search Console doğrulama meta içeriği</label>
-                    <input class="input" name="google_search_console_meta" value="<?= e($a['google_search_console_meta'] ?? '') ?>">
-                    <p class="help">Sadece <code>content="..."</code> kısmını yapıştır. Tüm meta etiketini değil.</p>
+                    <input class="input" name="google_search_console_meta" value="<?= e($a['google_search_console_meta'] ?? '') ?>" placeholder="örn. abc123XYZ...">
+                    <p class="help">
+                        Search Console'da <strong>Mülkiyet doğrula → HTML etiketi</strong> seçeneğini kullan.
+                        Verilen <code>&lt;meta name="google-site-verification" content="<u>BURASI</u>"&gt;</code>
+                        etiketinden <strong>sadece <code>content</code> içindeki değeri</strong> buraya yapıştır.
+                        Kaydedince site &lt;head&gt; bölümüne otomatik eklenir.
+                    </p>
                 </div>
             </div>
+        </div>
+
+        <div class="card" style="background:rgba(34,197,94,.05);border-left:3px solid #22c55e">
+            <h3><i class="fas fa-sitemap"></i> Site Haritası (Sitemap)</h3>
+            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:14px">
+                Site haritası dinamik olarak üretilir. Tüm hizmetler, ürünler, kampanyalar, blog yazıları, kategoriler ve projeler otomatik dahil edilir.
+            </p>
+            <div class="form-row" style="margin-bottom:10px">
+                <div class="field">
+                    <label>Sitemap URL'i</label>
+                    <div style="display:flex;gap:8px">
+                        <input class="input" type="text" id="sitemapUrl" value="<?= SITE_URL ?>/sitemap.xml" readonly onclick="this.select()">
+                        <a href="<?= SITE_URL ?>/sitemap.xml" target="_blank" class="btn btn-out"><i class="fas fa-external-link"></i> Aç</a>
+                        <button type="button" class="btn btn-out" onclick='navigator.clipboard.writeText("<?= SITE_URL ?>/sitemap.xml").then(()=>this.innerHTML="<i class=\"fas fa-check\"></i> Kopyalandı");'><i class="fas fa-copy"></i> Kopyala</button>
+                    </div>
+                    <p class="help">Bu URL'i Google Search Console → <strong>Site Haritaları</strong> bölümünde "Yeni site haritası ekle" alanına yapıştır → Gönder.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="background:rgba(59,130,246,.05);border-left:3px solid #3b82f6">
+            <h3><i class="fab fa-google"></i> Search Console Kurulum Adımları</h3>
+            <ol style="color:var(--c-text);font-size:.92rem;line-height:1.8;margin:0;padding-left:22px">
+                <li><a href="https://search.google.com/search-console" target="_blank" style="color:#3b82f6">Search Console</a>'a gir → <strong>Mülk ekle</strong> → "URL ön eki" seç → <code><?= SITE_URL ?></code> yapıştır.</li>
+                <li>Doğrulama yöntemi olarak <strong>HTML etiketi</strong> seç. Verilen <code>content="..."</code> değerini yukarıdaki "Google Search Console doğrulama meta içeriği" alanına yapıştır → <strong>Tüm Ayarları Kaydet</strong>.</li>
+                <li>Search Console'a dön → <strong>Doğrula</strong> tıkla.</li>
+                <li>Doğrulandıktan sonra sol menüden <strong>Site Haritaları</strong> → "Yeni site haritası ekle" → <code>sitemap.xml</code> yaz → Gönder.</li>
+                <li>24-72 saat içinde Google sayfaları indekslemeye başlar.</li>
+            </ol>
         </div>
     </div>
 
@@ -250,11 +284,12 @@ foreach ($_tabs as $_k => $_l):
 
         <div class="card">
             <h3>Test Maili</h3>
-            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">SMTP ayarlarını kaydettikten sonra aşağıdan test maili gönderebilirsin.</p>
-            <div class="form-row cols-2">
-                <div class="field"><label>Test Alıcı E-posta</label><input class="input" type="email" id="testMailAdres" placeholder="ornek@gmail.com" value="<?= e($_kul['eposta'] ?? '') ?>"></div>
-                <div class="field" style="display:flex;align-items:flex-end"><button type="button" class="btn btn-pri" style="width:100%" onclick='(async()=>{var em=document.getElementById("testMailAdres").value.trim();if(!em){alert("E-posta gir.");return}var out=document.getElementById("testMailSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Gönderiliyor...</span>";try{var fd=new FormData();fd.append("eposta",em);fd.append("csrf",<?= json_encode(csrf_token()) ?>);var r=await fetch(<?= json_encode(SITE_URL) ?>+"/admin/smtp-test.php",{method:"POST",body:fd});var d=await r.json();out.innerHTML=d.ok?"<div class=\"alert alert-ok\"><i class=\"fas fa-check\"></i> Mail gönderildi: "+em+"</div>":"<div class=\"alert alert-err\"><i class=\"fas fa-xmark\"></i> Hata: "+(d.hata||"bilinmiyor")+"</div>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-paper-plane"></i> Test Maili Gönder</button></div>
+            <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:10px">SMTP ayarlarını <strong>önce</strong> "Tüm Ayarları Kaydet" ile kaydet. Sonra bu kartta test maili gönderebilirsin.</p>
+            <div class="field" style="margin-bottom:12px">
+                <label>Test Alıcı E-posta</label>
+                <input class="input" type="email" id="testMailAdres" placeholder="ornek@gmail.com" value="<?= e($_kul['eposta'] ?? '') ?>">
             </div>
+            <button type="button" class="btn btn-pri" onclick='(async()=>{var em=document.getElementById("testMailAdres").value.trim();if(!em){alert("E-posta gir.");return}var out=document.getElementById("testMailSonuc");out.innerHTML="<span style=\"color:var(--c-muted)\">Gönderiliyor...</span>";try{var fd=new FormData();fd.append("eposta",em);fd.append("csrf",<?= json_encode(csrf_token()) ?>);var r=await fetch(<?= json_encode(SITE_URL) ?>+"/admin/smtp-test.php",{method:"POST",body:fd});var d=await r.json();out.innerHTML=d.ok?"<div class=\"alert alert-ok\"><i class=\"fas fa-check\"></i> Mail gönderildi: "+em+"</div>":"<div class=\"alert alert-err\"><i class=\"fas fa-xmark\"></i> Hata: "+(d.hata||"bilinmiyor")+"</div>"}catch(e){out.innerHTML="<div class=\"alert alert-err\">Hata: "+e.message+"</div>"}})()'><i class="fas fa-paper-plane"></i> Test Maili Gönder</button>
             <div id="testMailSonuc" style="margin-top:12px"></div>
         </div>
 
