@@ -117,6 +117,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash_set('ok', 'Bildirim işaretlendi.');
         redirect(SITE_URL . '/admin/bakim-hatirlaticilari.php');
     }
+    if ($islem === 'simdi_bildir' && $id) {
+        require_once __DIR__ . '/../inc/mail.php';
+        $b = db_get("SELECT b.*, c.unvan, c.eposta AS cari_eposta
+                     FROM bakim_hatirlaticilari b LEFT JOIN cariler c ON c.id=b.cari_id
+                     WHERE b.id=?", [$id]);
+        if (!$b) { flash_set('err', 'Hatırlatıcı bulunamadı.'); redirect($_SERVER['REQUEST_URI']); }
+        $alici_eposta = (string)($b['eposta'] ?: $b['cari_eposta']);
+        $alici_ad     = (string)($b['musteri_ad'] ?: $b['unvan'] ?: 'Müşterimiz');
+        if (!filter_var($alici_eposta, FILTER_VALIDATE_EMAIL)) {
+            flash_set('err', 'Bu hatırlatıcının geçerli bir e-postası yok. Önce e-posta gir.');
+            redirect(SITE_URL . '/admin/bakim-hatirlaticilari.php');
+        }
+        $M = Mail::ayardan_yukle();
+        if (!$M->konfigure_mi()) {
+            flash_set('err', 'SMTP ayarları eksik. Admin → Ayarlar → SMTP sekmesinden yapılandır.');
+            redirect(SITE_URL . '/admin/bakim-hatirlaticilari.php');
+        }
+        $kalan_gun = (int)((strtotime($b['sonraki_bakim_tarihi']) - time()) / 86400);
+        $tarih_tr  = date('d.m.Y', strtotime($b['sonraki_bakim_tarihi']));
+        $cihaz     = ucfirst((string)$b['urun_tipi']);
+        if ($b['marka']) $cihaz .= ' / ' . $b['marka'];
+        if ($b['model']) $cihaz .= ' ' . $b['model'];
+        $firma_ad   = (string)ayar('firma_unvan', 'Azra Doğalgaz');
+        $firma_tel  = (string)ayar('firma_telefon_1', '');
+        $firma_eposta = (string)ayar('firma_eposta', '');
+
+        // Mail HTML üret (cron endpoint'teki bakim_mail_html ile uyumlu)
+        $alici_e   = htmlspecialchars($alici_ad, ENT_QUOTES, 'UTF-8');
+        $cihaz_e   = htmlspecialchars($cihaz, ENT_QUOTES, 'UTF-8');
+        $firma_e   = htmlspecialchars($firma_ad, ENT_QUOTES, 'UTF-8');
+        $tel_e     = htmlspecialchars($firma_tel, ENT_QUOTES, 'UTF-8');
+        $mail_e    = htmlspecialchars($firma_eposta, ENT_QUOTES, 'UTF-8');
+        $tel_kanal = $firma_tel ? "<p style='margin:6px 0;font-size:14px'>📞 <a href='tel:" . htmlspecialchars(preg_replace('/\s+/', '', $firma_tel)) . "' style='color:#ff7a00;text-decoration:none'>$tel_e</a></p>" : '';
+        $mail_kanal = $firma_eposta ? "<p style='margin:6px 0;font-size:14px'>✉️ <a href='mailto:$firma_eposta' style='color:#ff7a00;text-decoration:none'>$mail_e</a></p>" : '';
+        $html = "<!DOCTYPE html><html lang='tr'><head><meta charset='UTF-8'></head>
+<body style='margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#1f2937'>
+<table width='100%' cellpadding='0' cellspacing='0' style='padding:30px 0'><tr><td align='center'>
+<table width='600' cellpadding='0' cellspacing='0' style='background:#fff;max-width:600px;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)'>
+<tr><td style='background:#ff7a00;padding:24px 30px'>
+<h1 style='color:#fff;margin:0;font-size:22px;font-weight:700'>$firma_e</h1>
+<p style='color:#fff;opacity:.9;margin:4px 0 0;font-size:13px'>Bakım Hatırlatma Servisi</p>
+</td></tr>
+<tr><td style='padding:30px'>
+<p style='font-size:16px;margin:0 0 12px'><strong>Sayın $alici_e,</strong></p>
+<p style='font-size:14px;line-height:1.6;color:#374151;margin:0 0 18px'>$cihaz_e cihazınızın <strong style='color:#ff7a00'>$kalan_gun gün sonra ($tarih_tr)</strong> periyodik bakım zamanı geliyor. Cihazınızın güvenli ve verimli çalışması için bakımınızı zamanında yaptırmanızı öneriyoruz.</p>
+<table cellpadding='0' cellspacing='0' style='width:100%;background:#fff7ed;border-left:4px solid #ff7a00;padding:14px 18px;margin:18px 0;border-radius:4px'><tr><td>
+<p style='margin:0 0 6px;font-size:13px;color:#9a3412'><strong>Cihaz:</strong> $cihaz_e</p>
+<p style='margin:0 0 6px;font-size:13px;color:#9a3412'><strong>Bakım Tarihi:</strong> $tarih_tr</p>
+<p style='margin:0;font-size:13px;color:#9a3412'><strong>Kalan Süre:</strong> $kalan_gun gün</p>
+</td></tr></table>
+<p style='font-size:14px;line-height:1.6;color:#374151;margin:18px 0'>Randevu almak için bize ulaşın:</p>
+$tel_kanal$mail_kanal
+<p style='font-size:13px;color:#6b7280;margin:24px 0 0;border-top:1px solid #e5e7eb;padding-top:16px'>Bu bildirim $firma_e bakım takip sistemi tarafından otomatik gönderilmiştir.</p>
+</td></tr>
+<tr><td style='background:#1f2937;padding:14px 30px;text-align:center'>
+<p style='color:#9ca3af;font-size:11px;margin:0'>© $firma_e</p>
+</td></tr></table></td></tr></table></body></html>";
+        $konu = "$cihaz Bakım Hatırlatması — $tarih_tr";
+        $r = $M->gonder($alici_eposta, $alici_ad, $konu, $html);
+        if ($r['ok']) {
+            db_run("UPDATE bakim_hatirlaticilari SET bildirim_gonderildi=1, son_bildirim_tarihi=NOW() WHERE id=?", [$id]);
+            try {
+                db_run("INSERT INTO bakim_bildirim_log (bakim_id, eposta, konu, sonuc) VALUES (?,?,?,'basarili')",
+                    [$id, $alici_eposta, mb_substr($konu, 0, 250, 'UTF-8')]);
+            } catch (Throwable $e) {}
+            log_yaz('bakim_mail_manuel', "Manuel bildirim: #$id → $alici_eposta", (int)$_kul['id']);
+            flash_set('ok', "Mail gönderildi: $alici_eposta");
+        } else {
+            try {
+                db_run("INSERT INTO bakim_bildirim_log (bakim_id, eposta, konu, sonuc, hata_mesaji) VALUES (?,?,?,'hata',?)",
+                    [$id, $alici_eposta, mb_substr($konu, 0, 250, 'UTF-8'), mb_substr((string)$r['hata'], 0, 500, 'UTF-8')]);
+            } catch (Throwable $e) {}
+            flash_set('err', 'Mail gönderilemedi: ' . $r['hata']);
+        }
+        redirect(SITE_URL . '/admin/bakim-hatirlaticilari.php');
+    }
     redirect($_SERVER['REQUEST_URI']);
 }
 
@@ -278,16 +354,16 @@ $sayfa = max(1, (int)($_GET['sayfa'] ?? 1));
 $limit = 25; $ofset = ($sayfa-1)*$limit;
 
 $where = "1=1"; $params = [];
-if ($arama) { $where .= " AND (musteri_ad LIKE ? OR telefon LIKE ? OR marka LIKE ? OR model LIKE ? OR seri_no LIKE ?)"; $w="%$arama%"; array_push($params,$w,$w,$w,$w,$w); }
-if ($tipf && in_array($tipf, ['kombi','klima','kazan','sofben','termosifon','diger'], true)) { $where .= " AND urun_tipi=?"; $params[] = $tipf; }
-if ($durum && in_array($durum, ['aktif','pasif','tamamlandi'], true)) { $where .= " AND durum=?"; $params[] = $durum; }
-if ($zaman === 'gecmis')   $where .= " AND sonraki_bakim_tarihi < CURDATE() AND durum='aktif'";
-if ($zaman === 'bu_hafta') $where .= " AND sonraki_bakim_tarihi BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) AND durum='aktif'";
-if ($zaman === 'bu_ay')    $where .= " AND sonraki_bakim_tarihi BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND durum='aktif'";
+if ($arama) { $where .= " AND (b.musteri_ad LIKE ? OR b.telefon LIKE ? OR b.marka LIKE ? OR b.model LIKE ? OR b.seri_no LIKE ?)"; $w="%$arama%"; array_push($params,$w,$w,$w,$w,$w); }
+if ($tipf && in_array($tipf, ['kombi','klima','kazan','sofben','termosifon','diger'], true)) { $where .= " AND b.urun_tipi=?"; $params[] = $tipf; }
+if ($durum && in_array($durum, ['aktif','pasif','tamamlandi'], true)) { $where .= " AND b.durum=?"; $params[] = $durum; }
+if ($zaman === 'gecmis')   $where .= " AND b.sonraki_bakim_tarihi < CURDATE() AND b.durum='aktif'";
+if ($zaman === 'bu_hafta') $where .= " AND b.sonraki_bakim_tarihi BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) AND b.durum='aktif'";
+if ($zaman === 'bu_ay')    $where .= " AND b.sonraki_bakim_tarihi BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND b.durum='aktif'";
 
-$toplam = (int)db_get("SELECT COUNT(*) c FROM bakim_hatirlaticilari WHERE $where", $params)['c'];
+$toplam = (int)db_get("SELECT COUNT(*) c FROM bakim_hatirlaticilari b LEFT JOIN cariler c ON c.id=b.cari_id WHERE $where", $params)['c'];
 $toplam_sayfa = max(1, (int)ceil($toplam / $limit));
-$rows = db_all("SELECT * FROM bakim_hatirlaticilari WHERE $where ORDER BY sonraki_bakim_tarihi ASC LIMIT $limit OFFSET $ofset", $params);
+$rows = db_all("SELECT b.*, c.eposta AS cari_eposta FROM bakim_hatirlaticilari b LEFT JOIN cariler c ON c.id=b.cari_id WHERE $where ORDER BY b.sonraki_bakim_tarihi ASC LIMIT $limit OFFSET $ofset", $params);
 
 $ozet = db_get("SELECT
     SUM(CASE WHEN sonraki_bakim_tarihi < CURDATE() AND durum='aktif' THEN 1 ELSE 0 END) gecmis,
@@ -391,6 +467,14 @@ FROM bakim_hatirlaticilari");
             <td>
                 <div class="actions">
                     <a href="?duzenle=<?= $r['id'] ?>" class="btn btn-out btn-sm" title="Düzenle"><i class="fas fa-pen"></i></a>
+                    <?php if ($r['durum'] === 'aktif' && ($r['eposta'] || !empty($r['cari_eposta']))): ?>
+                    <form method="post" style="display:inline">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="islem" value="simdi_bildir">
+                        <input type="hidden" name="id" value="<?= $r['id'] ?>">
+                        <button class="btn btn-blue btn-sm" data-onay="Bu müşteriye bakım hatırlatma maili gönderilsin mi?" title="Şimdi mail gönder"><i class="fas fa-envelope"></i></button>
+                    </form>
+                    <?php endif; ?>
                     <form method="post" style="display:inline">
                         <?= csrf_field() ?>
                         <input type="hidden" name="islem" value="bakim_yapildi">
