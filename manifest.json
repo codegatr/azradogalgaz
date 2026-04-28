@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.6.2",
+    "version": "1.7.0",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.6.2: Cari Hesap Ekstresi modülü eklendi (admin/cari-ekstre.php). Tarih aralıklı ekstre, devir bakiyesi, yürüyen bakiye, dönem borç/alacak özeti, yazdırılabilir görünüm (browser print, A4 uyumlu CSS, firma başlıklı şirket bilgileri, B/A bakiye işaretleri). Sidebar Cari & Muhasebe grubuna Cari Ekstre linki, cari detay sayfasına 'Ekstre Al' butonu eklendi. v1.6.1 fixleri: CSS uyumu, Görsel Onarım aracı. v1.6.0 modülleri: Cariler, Faturalar, Fişler, Bakım Hatırlatıcıları.",
+    "changelog": "v1.7.0: ERP tarzı Akıllı Güncelleme Merkezi. GitHub Tree API tabanlı dosya bazlı kontrol — her dosyanın Git blob SHA1'i lokal ile karşılaştırılır, ✅ Güncel / 🔴 Değişmiş / 🔴 Eksik durumu görsel olarak işaretlenir. 5 sekme: Genel Durum (4 stat kartı + 3 buton: Kontrol/Akıllı Güncelleme/Zorla Sync), Dosyalar (filtrelenebilir liste + tek tıkla sync), Commits (son 20 GitHub commit'i), Yedekler (otomatik yedek listesi + geri al/sil), Ayarlar (repo/branch/token + Test Et). AJAX-driven, tüm işlemler async. Korumalı yollar (config.php, assets/uploads/) hiçbir koşulda yazılmaz. Önceki ZIP-based release sistemi de fallback olarak korunuyor.",
     "stages_completed": [
         "1-temel-altyapi",
         "2-frontend-sayfalari",
@@ -22,6 +22,7 @@
         "9-cari-muhasebe-modulleri",
         "10-bakim-hatirlatici-sistemi",
         "11-css-uyum-gorsel-onarim",
-        "12-cari-hesap-ekstresi"
+        "12-cari-hesap-ekstresi",
+        "13-akilli-guncelleme-merkezi"
     ]
 }
