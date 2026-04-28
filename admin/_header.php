@@ -104,34 +104,37 @@ try {
         <button class="menu-btn" id="admMenuBtn" aria-label="Menü"><i class="fas fa-bars"></i></button>
         <h1 class="page-title"><?= e($page_title) ?></h1>
 
-        <!-- Hızlı Erişim: İşlemler (Muhasebe + Servis) -->
-        <div class="topbar-quick" id="topQuick" style="position:relative;margin-left:auto;margin-right:14px">
+        <!-- Hızlı Erişim: Muhasebe -->
+        <div class="topbar-quick" id="topQuick" style="position:relative;margin-left:auto;margin-right:8px">
             <button type="button" id="topQuickBtn" class="topbar-quick-btn" style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,140,0,.12);color:var(--c-orange);border:1px solid rgba(255,140,0,.3);border-radius:8px;font-weight:600;font-size:.88rem;cursor:pointer;transition:.15s">
                 <i class="fas fa-briefcase"></i>
-                <span class="lbl">İşlemler</span>
+                <span class="lbl">Muhasebe</span>
                 <i class="fas fa-chevron-down" style="font-size:.7rem;opacity:.7"></i>
             </button>
-            <div id="topQuickMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:240px;background:#0c1430;border:1px solid var(--c-line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:1000;overflow:hidden">
-                <div style="padding:8px 16px 4px;font-size:.7rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;background:rgba(255,140,0,.04)">Muhasebe</div>
-                <a href="<?= SITE_URL ?>/admin/cariler.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+            <div id="topQuickMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:#0c1430;border:1px solid var(--c-line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:1000;overflow:hidden">
+                <a href="<?= SITE_URL ?>/admin/cariler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-users" style="width:16px;color:var(--c-orange)"></i> Cariler
                 </a>
-                <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-file-lines" style="width:16px;color:var(--c-orange)"></i> Cari Ekstre
                 </a>
-                <a href="<?= SITE_URL ?>/admin/faturalar.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                <a href="<?= SITE_URL ?>/admin/faturalar.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-file-invoice-dollar" style="width:16px;color:var(--c-orange)"></i> Faturalar
                 </a>
-                <a href="<?= SITE_URL ?>/admin/fisler.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
+                <a href="<?= SITE_URL ?>/admin/fisler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-receipt" style="width:16px;color:var(--c-orange)"></i> Fişler
-                </a>
-                <div style="padding:8px 16px 4px;font-size:.7rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;background:rgba(255,140,0,.04);border-top:1px solid var(--c-line)">Servis</div>
-                <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" class="qmi" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
-                    <i class="fas fa-bell" style="width:16px;color:var(--c-orange)"></i> Bakım Hatırlatıcıları
-                    <?php if ($_bakim_uyari > 0): ?><span style="margin-left:auto;background:#dc2626;color:#fff;font-size:.7rem;padding:2px 7px;border-radius:10px"><?= $_bakim_uyari ?></span><?php endif; ?>
                 </a>
             </div>
         </div>
+
+        <!-- Hızlı Erişim: Bakım Hatırlatıcıları (ayrı buton) -->
+        <a href="<?= SITE_URL ?>/admin/bakim-hatirlaticilari.php" id="topBakimBtn" style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:8px;font-weight:600;font-size:.88rem;text-decoration:none;transition:.15s;margin-right:14px;position:relative">
+            <i class="fas fa-bell"></i>
+            <span class="lbl">Bakım</span>
+            <?php if ($_bakim_uyari > 0): ?>
+                <span style="background:#dc2626;color:#fff;font-size:.7rem;padding:2px 7px;border-radius:10px;font-weight:700"><?= $_bakim_uyari ?></span>
+            <?php endif; ?>
+        </a>
 
         <!-- Kullanıcı Menüsü (sağ üst dropdown) -->
         <div class="adm-user" id="userQuick" style="position:relative;cursor:pointer;user-select:none">
@@ -156,30 +159,47 @@ try {
 
     <script>
     (function(){
-        // ===== İşlemler dropdown =====
+        // ===== Muhasebe dropdown =====
         const btn  = document.getElementById('topQuickBtn');
         const menu = document.getElementById('topQuickMenu');
         if (btn && menu) {
             btn.addEventListener('click', function(e){
                 e.stopPropagation();
                 menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-                // Diğer dropdown'u kapat
                 const um = document.getElementById('userQuickMenu');
                 if (um) um.style.display = 'none';
             });
-            // Aktif sayfa vurgusu
             const sayfa = location.pathname.split('/').pop();
-            if (['cariler.php','cari-ekstre.php','faturalar.php','fisler.php','bakim-hatirlaticilari.php'].includes(sayfa)) {
+            if (['cariler.php','cari-ekstre.php','faturalar.php','fisler.php'].includes(sayfa)) {
                 btn.style.background = 'rgba(255,140,0,.22)';
                 btn.style.borderColor = 'var(--c-orange)';
             }
-            // Mobile: sadece icon
             function mobilKontrol(){
                 const lbl = btn.querySelector('.lbl');
                 if (lbl) lbl.style.display = window.innerWidth < 640 ? 'none' : 'inline';
+                const blbl = document.querySelector('#topBakimBtn .lbl');
+                if (blbl) blbl.style.display = window.innerWidth < 640 ? 'none' : 'inline';
             }
             mobilKontrol();
             window.addEventListener('resize', mobilKontrol);
+        }
+
+        // ===== Bakım butonu aktif vurgusu =====
+        const bb = document.getElementById('topBakimBtn');
+        if (bb) {
+            const sayfa = location.pathname.split('/').pop();
+            if (sayfa === 'bakim-hatirlaticilari.php') {
+                bb.style.background = 'rgba(34,197,94,.22)';
+                bb.style.borderColor = '#22c55e';
+            }
+            bb.addEventListener('mouseenter', function(){
+                bb.style.background = 'rgba(34,197,94,.22)';
+            });
+            bb.addEventListener('mouseleave', function(){
+                if (location.pathname.split('/').pop() !== 'bakim-hatirlaticilari.php') {
+                    bb.style.background = 'rgba(34,197,94,.12)';
+                }
+            });
         }
 
         // ===== Kullanıcı dropdown =====
@@ -187,15 +207,13 @@ try {
         const uqm = document.getElementById('userQuickMenu');
         if (uq && uqm) {
             uq.addEventListener('click', function(e){
-                if (e.target.closest('a')) return; // link tıklamasını engelleme
+                if (e.target.closest('a')) return;
                 e.stopPropagation();
                 uqm.style.display = uqm.style.display === 'none' ? 'block' : 'none';
-                // Diğer dropdown'u kapat
                 if (menu) menu.style.display = 'none';
             });
         }
 
-        // ===== Dış tıklama: hepsini kapat =====
         document.addEventListener('click', function(e){
             if (menu && !document.getElementById('topQuick').contains(e.target)) menu.style.display = 'none';
             if (uqm  && !document.getElementById('userQuick').contains(e.target)) uqm.style.display = 'none';
