@@ -122,6 +122,7 @@ if ($mod === 'detay') {
         <p class="page-sub"><code><?= e($cari['cari_kodu']) ?></code> · <?= $cari['tip']==='kurumsal'?'Kurumsal':'Bireysel' ?> · Bakiye: <strong style="color:<?= $bk_renk ?>"><?= tl($bk) ?></strong> <?php if ($bk!=0): ?><small style="color:var(--c-muted)"><?= $bk>0?'(borçlu)':'(alacaklı)' ?></small><?php endif; ?></p>
     </div>
     <div style="display:flex;gap:8px">
+        <a href="cari-ekstre.php?cari=<?= $cari['id'] ?>" class="btn btn-blue"><i class="fas fa-file-lines"></i> Ekstre Al</a>
         <a href="?duzenle=<?= $cari['id'] ?>" class="btn btn-out"><i class="fas fa-pen"></i> Düzenle</a>
         <a href="cariler.php" class="btn btn-out"><i class="fas fa-arrow-left"></i> Listeye</a>
     </div>
