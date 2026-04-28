@@ -318,13 +318,18 @@ if ($tip && in_array($tip, ['satis','tahsilat','odeme','gider','gelir'], true)) 
 if ($bas) { $where .= " AND f.tarih>=?"; $params[] = $bas; }
 if ($bit) { $where .= " AND f.tarih<=?"; $params[] = $bit; }
 
-$toplam = (int)db_get("SELECT COUNT(*) c FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params)['c'];
-$toplam_sayfa = max(1, (int)ceil($toplam / $limit));
-$rows = db_all("SELECT f.*, c.unvan, c.cari_kodu FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where ORDER BY f.tarih DESC, f.id DESC LIMIT $limit OFFSET $ofset", $params);
-$ozet = db_get("SELECT
-    COALESCE(SUM(CASE WHEN tip IN ('satis','gelir','tahsilat') THEN genel_toplam ELSE 0 END),0) gelir,
-    COALESCE(SUM(CASE WHEN tip IN ('odeme','gider') THEN genel_toplam ELSE 0 END),0) gider
-FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params);
+$tablo_hatasi = null; $toplam = 0; $toplam_sayfa = 1; $rows = []; $ozet = ['gelir'=>0, 'gider'=>0];
+try {
+    $toplam = (int)db_get("SELECT COUNT(*) c FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params)['c'];
+    $toplam_sayfa = max(1, (int)ceil($toplam / $limit));
+    $rows = db_all("SELECT f.*, c.unvan, c.cari_kodu FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where ORDER BY f.tarih DESC, f.id DESC LIMIT $limit OFFSET $ofset", $params);
+    $ozet = db_get("SELECT
+        COALESCE(SUM(CASE WHEN tip IN ('satis','gelir','tahsilat') THEN genel_toplam ELSE 0 END),0) gelir,
+        COALESCE(SUM(CASE WHEN tip IN ('odeme','gider') THEN genel_toplam ELSE 0 END),0) gider
+    FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params);
+} catch (Throwable $e) {
+    $tablo_hatasi = $e->getMessage();
+}
 ?>
 
 <div class="page-head">
@@ -334,6 +339,14 @@ FROM fisler f LEFT JOIN cariler c ON c.id=f.cari_id WHERE $where", $params);
     </div>
     <a href="?ekle=1" class="btn btn-pri"><i class="fas fa-plus"></i> Yeni Fiş</a>
 </div>
+
+<?php if ($tablo_hatasi): ?>
+<div class="alert alert-err">
+    <strong><i class="fas fa-database"></i> Tablo bulunamadı:</strong>
+    Fişler tablosu veritabanında yok ya da erişilemiyor. <a href="sistem-tani.php" class="btn btn-pri btn-sm" style="margin-left:8px"><i class="fas fa-stethoscope"></i> Sistem Tanı</a> sayfasına git, "Migrasyonları Uygula" butonuna bas.
+    <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--c-muted);font-size:.85rem">Teknik detay</summary><pre style="font-size:.78rem;color:#fca5a5;margin-top:6px;font-family:monospace"><?= e($tablo_hatasi) ?></pre></details>
+</div>
+<?php endif; ?>
 
 <form method="get" class="toolbar">
     <div class="filters">
