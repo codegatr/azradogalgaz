@@ -23,6 +23,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'smtp_host','smtp_port','smtp_user','smtp_sifre','smtp_secure','smtp_gonderen_eposta','smtp_gonderen_ad',
         'bakim_bildirim_aktif','bakim_bildirim_gun',
     ];
+
+    // SMTP alanları doğrulaması (yanlış girişleri yakalar)
+    $smtp_host = trim((string)($_POST['smtp_host'] ?? ''));
+    $smtp_port = trim((string)($_POST['smtp_port'] ?? ''));
+    $smtp_user = trim((string)($_POST['smtp_user'] ?? ''));
+    $smtp_gond = trim((string)($_POST['smtp_gonderen_eposta'] ?? ''));
+    $smtp_hata = '';
+
+    if ($smtp_host !== '') {
+        if (strpos($smtp_host, '@') !== false) {
+            $smtp_hata = 'SMTP Sunucu alanına e-posta adresi yazılmış. Burası hostname olmalı (örn. mail.azradogalgaz.com), e-posta DEĞİL.';
+        } elseif (preg_match('~^https?://~i', $smtp_host)) {
+            $smtp_hata = 'SMTP Sunucu alanına URL (http://...) yazılmış. Sadece hostname yaz (örn. mail.azradogalgaz.com).';
+        } elseif (strpos($smtp_host, ':') !== false) {
+            $smtp_hata = 'SMTP Sunucu alanında iki nokta (:) var. Port ayrı alana yazılmalı.';
+        } elseif (strpos($smtp_host, ' ') !== false) {
+            $smtp_hata = 'SMTP Sunucu alanında boşluk var, hatalı.';
+        }
+    }
+    if (!$smtp_hata && $smtp_port !== '') {
+        $p = (int)$smtp_port;
+        if ($p < 1 || $p > 65535) {
+            $smtp_hata = 'SMTP Port geçersiz (1-65535 arası olmalı).';
+        }
+    }
+    if (!$smtp_hata && $smtp_user !== '' && !filter_var($smtp_user, FILTER_VALIDATE_EMAIL)) {
+        $smtp_hata = 'SMTP Kullanıcı Adı geçerli bir e-posta adresi olmalı (örn. info@azradogalgaz.com).';
+    }
+    if (!$smtp_hata && $smtp_gond !== '' && !filter_var($smtp_gond, FILTER_VALIDATE_EMAIL)) {
+        $smtp_hata = 'Gönderen E-posta geçerli bir adres olmalı.';
+    }
+    if ($smtp_hata) {
+        flash_set('err', $smtp_hata);
+        redirect(SITE_URL . '/admin/ayarlar.php?tab=smtp');
+    }
+
     $stmt = db()->prepare("INSERT INTO ayarlar (anahtar, deger) VALUES (?, ?)
         ON DUPLICATE KEY UPDATE deger = VALUES(deger)");
     foreach ($izinli as $k) {
@@ -262,7 +298,7 @@ foreach ($_tabs as $_k => $_l):
                 Bakım hatırlatma maili göndermek için SMTP sunucusu yapılandırması. DirectAdmin/cPanel'de oluşturduğun bir e-posta hesabını kullanabilirsin (örn. <code>info@azradogalgaz.com</code>).
             </p>
             <div class="form-row cols-2">
-                <div class="field"><label>SMTP Sunucu</label><input class="input" name="smtp_host" value="<?= e($a['smtp_host'] ?? '') ?>" placeholder="mail.azradogalgaz.com"></div>
+                <div class="field"><label>SMTP Sunucu <span style="color:#fbbf24;font-weight:normal">(hostname — e-posta DEĞİL)</span></label><input class="input" name="smtp_host" value="<?= e($a['smtp_host'] ?? '') ?>" placeholder="mail.azradogalgaz.com"><p class="help" style="color:#fbbf24;margin-top:4px"><i class="fas fa-triangle-exclamation"></i> İçinde <code>@</code> OLMAMALI. DirectAdmin Webmail ayarlarındaki "Outgoing Mail Server" değerini yaz.</p></div>
                 <div class="field"><label>Port</label><input class="input" type="number" name="smtp_port" value="<?= e($a['smtp_port'] ?? '587') ?>" placeholder="587"></div>
             </div>
             <div class="form-row cols-2">
