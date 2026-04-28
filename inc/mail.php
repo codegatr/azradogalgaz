@@ -73,8 +73,15 @@ class Mail
             if ($this->secure === 'tls' || $this->secure === 'starttls') {
                 $this->_yaz($sock, "STARTTLS");
                 $this->_oku($sock, 220);
-                if (!@stream_socket_enable_crypto($sock, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-                    return ['ok'=>false, 'hata'=>'STARTTLS başarısız.', 'log'=>$this->log];
+                // Birden fazla TLS sürümünü destekle (DirectAdmin'lerde TLS 1.3 zorla başarısız olur)
+                $crypto = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+                if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) $crypto |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+                if (defined('STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT')) $crypto |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+                if (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT')) $crypto |= STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
+                if (!@stream_socket_enable_crypto($sock, true, $crypto)) {
+                    $err = error_get_last();
+                    $this->log[] = '! TLS handshake başarısız: ' . ($err['message'] ?? '?');
+                    return ['ok'=>false, 'hata'=>'STARTTLS TLS handshake başarısız: ' . ($err['message'] ?? 'detay yok') . '. Sertifika veya TLS sürüm uyuşmazlığı olabilir.', 'log'=>$this->log];
                 }
                 $this->_yaz($sock, "EHLO " . $this->_host_kendisi());
                 $this->_oku($sock, 250);
@@ -186,11 +193,20 @@ class Mail
             $yanit .= $line;
             if (preg_match('/^\d{3} /', $line)) break;
         }
+        $info = stream_get_meta_data($sock);
         $this->log[] = '< ' . trim($yanit);
-        $kod = (int)substr($yanit, 0, 3);
         $beklenen_arr = is_array($beklenen) ? $beklenen : [$beklenen];
+
+        if ($yanit === '') {
+            // Sunucu hiç yanıt vermedi — timeout veya connection drop
+            $sebep = !empty($info['timed_out']) ? 'TIMEOUT (' . $this->timeout . 'sn)' : 'BAĞLANTI KAPATILDI';
+            $this->log[] = '! ' . $sebep . ' — sunucu yanıt vermedi';
+            throw new RuntimeException("SMTP sunucu yanıt vermedi: $sebep. Beklenen: " . implode(',', $beklenen_arr) . ". Olası sebepler: yanlış host/port, TLS uyumsuzluğu, IP bloklu, firewall.");
+        }
+
+        $kod = (int)substr($yanit, 0, 3);
         if (!in_array($kod, $beklenen_arr, true)) {
-            throw new RuntimeException("SMTP yanıt beklenmedik: $yanit (beklenen: " . implode(',', $beklenen_arr) . ")");
+            throw new RuntimeException("SMTP yanıt beklenmedik: " . trim($yanit) . " (beklenen: " . implode(',', $beklenen_arr) . ")");
         }
         return $yanit;
     }
