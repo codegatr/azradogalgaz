@@ -143,6 +143,17 @@ function log_yaz(string $tip, string $mesaj, ?int $kullanici_id = null): void {
 // ============================================================
 // RESİM YÜKLEME
 // ============================================================
+/**
+ * Görsel URL — yüklenmiş dosya yolu OR uzak URL (https://...) destekler.
+ * gorsel kolonu http(s):// ile başlıyorsa direkt kullan, değilse UPLOAD_URL prefix ekle.
+ */
+function gorsel_url(?string $g, string $varsayilan = ''): string {
+    $g = trim((string)$g);
+    if ($g === '') return $varsayilan;
+    if (preg_match('#^https?://#i', $g)) return $g;
+    return UPLOAD_URL . '/' . ltrim($g, '/');
+}
+
 function resim_yukle(array $file, string $klasor = 'genel'): ?string {
     if (!isset($file['tmp_name']) || $file['error'] !== UPLOAD_ERR_OK) return null;
     $izinli = ['image/jpeg','image/png','image/webp','image/gif'];

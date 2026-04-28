@@ -1,11 +1,11 @@
 {
   "name": "Azra Doğalgaz Web Sistemi",
-  "version": "1.4.4",
-  "release_date": "2026-04-27",
+  "version": "1.5.0",
+  "release_date": "2026-04-28",
   "min_php": "8.1",
   "repo": "codegatr/azradogalgaz",
   "branch": "main",
   "channel": "stable",
-  "changelog": "Asama 6 Paket 4: SEKTOREL ICERIK SEED — Demirdokum Ademix/Atron/Vintomix/Nitromix kombiler, Bosch/Vaillant/ECA premium kombiler, Daikin/Mitsubishi/LG/Vestel/ECA inverter klimalar, Bosch/Daikin isi pompasi 2026 Q1 GUNCEL fiyatlariyla. 15 marka, 10 urun kategorisi, 12 detayli hizmet, 18 urun, 4 kampanya, 7 SEO blog yazisi, 6 demo proje, ayarlar default degerleri. Tek tikla yuklenir, mevcut kayitlar korunur. kampanya.php bitis_tarihi -> bitis kolon adi fix. migrate.php is_admin_logged_in -> admin_giris_var fix.",
-  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "5-guncelleme-sistemi", "6a-acik-tema", "6b-yeni-sayfalar", "6c-ic-sayfalar-tema-fix", "6d-sektorel-icerik-seed"]
+  "changelog": "Asama 3-B Tamamlama: 3 yeni admin modulu (projeler, kullanicilar, sistem loglari) + tum gorseller real Unsplash URL + projeler tablosu auto-create. seed.php migrate.php gerektirmiyor artik. Mevcut urun/hizmet/kampanya/blog'larda gorsel bossa otomatik gercek URL ekler. inc/functions.php'ye gorsel_url() helper eklendi (URL veya upload yolu fark etmez). Tum frontend sayfalar gorsel_url() kullanir.",
+  "stages_completed": ["1-temel-altyapi", "2-frontend-sayfalari", "3a-admin-temeli", "3b-icerik-modulleri", "5-guncelleme-sistemi", "6a-acik-tema", "6b-yeni-sayfalar", "6c-ic-sayfalar-tema-fix", "6d-sektorel-icerik-seed", "7-admin-modulleri-tamamlama"]
 }

@@ -19,7 +19,7 @@ if ($slug) {
     $sayfa_baslik   = e($y['meta_baslik'] ?: $y['baslik']) . ' | Blog — Azra Doğalgaz';
     $sayfa_aciklama = e($y['meta_aciklama'] ?: meta_aciklama((string)$y['ozet']));
     $kanonik_url    = SITE_URL . '/blog/' . e($slug);
-    $og_resim       = $y['gorsel'] ? UPLOAD_URL . '/' . e($y['gorsel']) : SITE_URL . '/assets/img/og-default.jpg';
+    $og_resim       = $y['gorsel'] ? e(gorsel_url($y['gorsel'])) : SITE_URL . '/assets/img/og-default.jpg';
 
     $schema_jsonld = [
         [
@@ -36,7 +36,7 @@ if ($slug) {
             '@type'=>'BlogPosting',
             'headline'=>$y['baslik'],
             'description'=>$y['ozet'],
-            'image'=>$y['gorsel'] ? UPLOAD_URL . '/' . $y['gorsel'] : null,
+            'image'=>$y['gorsel'] ? gorsel_url($y['gorsel']) : null,
             'datePublished'=>$yayin,
             'dateModified'=>$yayin,
             'author'=>['@type'=>'Person','name'=>$y['yazar'] ?: 'Azra Doğalgaz'],
@@ -73,7 +73,7 @@ if ($slug) {
             <article style="max-width:880px;margin:0 auto">
                 <?php if (!empty($y['gorsel'])): ?>
                 <div style="border-radius:var(--r-lg);overflow:hidden;margin-bottom:36px;aspect-ratio:16/9">
-                    <img src="<?= e(UPLOAD_URL . '/' . $y['gorsel']) ?>" alt="<?= e($y['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
+                    <img src="<?= e(gorsel_url($y['gorsel'])) ?>" alt="<?= e($y['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
                 </div>
                 <?php endif; ?>
 
@@ -106,7 +106,7 @@ if ($slug) {
                     <a href="<?= SITE_URL ?>/blog/<?= e($d['slug']) ?>" class="service-card" style="text-decoration:none;color:inherit">
                         <div class="service-image" style="background:var(--c-blue-l)">
                             <?php if (!empty($d['gorsel'])): ?>
-                                <img src="<?= e(UPLOAD_URL.'/'.$d['gorsel']) ?>" alt="<?= e($d['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
+                                <img src="<?= e(gorsel_url($d['gorsel'])) ?>" alt="<?= e($d['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
                             <?php else: ?>
                                 <i class="fas fa-newspaper" style="background:var(--grad-blue);-webkit-background-clip:text;background-clip:text;color:transparent"></i>
                             <?php endif; ?>
@@ -196,7 +196,7 @@ require_once __DIR__ . '/inc/header.php';
             <a href="<?= SITE_URL ?>/blog/<?= e($y['slug']) ?>" class="service-card" style="text-decoration:none;color:inherit">
                 <div class="service-image" style="background:var(--c-blue-l)">
                     <?php if (!empty($y['gorsel'])): ?>
-                        <img src="<?= e(UPLOAD_URL.'/'.$y['gorsel']) ?>" alt="<?= e($y['baslik']) ?>" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+                        <img src="<?= e(gorsel_url($y['gorsel'])) ?>" alt="<?= e($y['baslik']) ?>" style="width:100%;height:100%;object-fit:cover" loading="lazy">
                     <?php else: ?>
                         <i class="fas fa-newspaper" style="background:var(--grad-blue);-webkit-background-clip:text;background-clip:text;color:transparent"></i>
                     <?php endif; ?>

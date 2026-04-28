@@ -61,6 +61,9 @@ $_yeni_mesaj = (int)(db_get("SELECT COUNT(*) c FROM iletisim_mesajlari WHERE dur
         <a href="<?= SITE_URL ?>/admin/blog.php" class="<?= nav_active('blog.php') ?>">
             <i class="fas fa-newspaper"></i> Blog
         </a>
+        <a href="<?= SITE_URL ?>/admin/projeler.php" class="<?= nav_active('projeler.php') ?>">
+            <i class="fas fa-building"></i> Projeler / Referanslar
+        </a>
         <a href="<?= SITE_URL ?>/admin/sayfalar.php" class="<?= nav_active('sayfalar.php') ?>">
             <i class="fas fa-file-lines"></i> KVKK / Gizlilik
         </a>
@@ -70,8 +73,14 @@ $_yeni_mesaj = (int)(db_get("SELECT COUNT(*) c FROM iletisim_mesajlari WHERE dur
         <a href="<?= SITE_URL ?>/admin/ayarlar.php" class="<?= nav_active('ayarlar.php') ?>">
             <i class="fas fa-gear"></i> Ayarlar
         </a>
+        <a href="<?= SITE_URL ?>/admin/kullanicilar.php" class="<?= nav_active('kullanicilar.php') ?>">
+            <i class="fas fa-users-gear"></i> Kullanıcılar
+        </a>
         <a href="<?= SITE_URL ?>/admin/profil.php" class="<?= nav_active('profil.php') ?>">
             <i class="fas fa-user-shield"></i> Profil & Şifre
+        </a>
+        <a href="<?= SITE_URL ?>/admin/loglar.php" class="<?= nav_active('loglar.php') ?>">
+            <i class="fas fa-clipboard-list"></i> Sistem Logları
         </a>
         <a href="<?= SITE_URL ?>/admin/guncelleme.php" class="<?= nav_active('guncelleme.php') ?>">
             <i class="fas fa-cloud-arrow-down"></i> Güncelleme

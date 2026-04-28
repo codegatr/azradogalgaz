@@ -77,7 +77,7 @@ $ikon = $ikon_map[$kat['slug']] ?? 'fa-tools';
             <a href="<?= SITE_URL ?>/hizmet/<?= e($h['slug']) ?>" class="service-card" style="text-decoration:none;color:inherit">
                 <div class="service-image">
                     <?php if (!empty($h['gorsel'])): ?>
-                        <img src="<?= e(UPLOAD_URL . '/' . $h['gorsel']) ?>" alt="<?= e($h['baslik']) ?>" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+                        <img src="<?= e(gorsel_url($h['gorsel'])) ?>" alt="<?= e($h['baslik']) ?>" loading="lazy" style="width:100%;height:100%;object-fit:cover">
                     <?php else: ?>
                         <i class="fas <?= e($ikon) ?>"></i>
                     <?php endif; ?>

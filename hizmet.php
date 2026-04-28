@@ -16,7 +16,7 @@ $benzer = db_all("SELECT id, baslik, slug, kisa_aciklama, gorsel
 $sayfa_baslik   = e($h['meta_baslik'] ?: $h['baslik']) . ' — Azra Doğalgaz';
 $sayfa_aciklama = e($h['meta_aciklama'] ?: meta_aciklama((string)$h['kisa_aciklama']));
 $kanonik_url    = SITE_URL . '/hizmet/' . e($slug);
-$og_resim       = $h['gorsel'] ? UPLOAD_URL . '/' . e($h['gorsel']) : SITE_URL . '/assets/img/og-default.jpg';
+$og_resim       = $h['gorsel'] ? e(gorsel_url($h['gorsel'])) : SITE_URL . '/assets/img/og-default.jpg';
 
 $schema_jsonld = [
     [
@@ -69,7 +69,7 @@ require_once __DIR__ . '/inc/header.php';
             <article>
                 <?php if (!empty($h['gorsel'])): ?>
                 <div style="border-radius:var(--r-lg);overflow:hidden;margin-bottom:30px;aspect-ratio:16/9">
-                    <img src="<?= e(UPLOAD_URL . '/' . $h['gorsel']) ?>" alt="<?= e($h['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
+                    <img src="<?= e(gorsel_url($h['gorsel'])) ?>" alt="<?= e($h['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
                 </div>
                 <?php endif; ?>
 

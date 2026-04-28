@@ -43,7 +43,7 @@ require_once __DIR__ . '/inc/header.php';
             <article class="service-card">
                 <div class="service-image" style="position:relative">
                     <?php if (!empty($k['gorsel'])): ?>
-                        <img src="<?= e(UPLOAD_URL.'/'.$k['gorsel']) ?>" alt="<?= e($k['baslik']) ?>" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+                        <img src="<?= e(gorsel_url($k['gorsel'])) ?>" alt="<?= e($k['baslik']) ?>" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
                     <?php else: ?>
                         <i class="fas fa-fire-flame-curved"></i>
                     <?php endif; ?>

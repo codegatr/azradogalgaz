@@ -18,7 +18,7 @@ $indirim_orani = ($kart > $nakit && $nakit > 0) ? round((($kart - $nakit) / $kar
 $sayfa_baslik   = e($k['meta_baslik'] ?: $k['baslik']) . ' | Azra Doğalgaz';
 $sayfa_aciklama = e($k['meta_aciklama'] ?: meta_aciklama((string)$k['kisa_aciklama']));
 $kanonik_url    = SITE_URL . '/kampanya/' . e($slug);
-$og_resim       = $k['gorsel'] ? UPLOAD_URL . '/' . e($k['gorsel']) : SITE_URL . '/assets/img/og-default.jpg';
+$og_resim       = $k['gorsel'] ? e(gorsel_url($k['gorsel'])) : SITE_URL . '/assets/img/og-default.jpg';
 
 $schema_jsonld = [
     [
@@ -35,7 +35,7 @@ $schema_jsonld = [
         '@type'    => 'Product',
         'name'     => $k['baslik'],
         'description' => $k['kisa_aciklama'],
-        'image'    => $k['gorsel'] ? UPLOAD_URL . '/' . $k['gorsel'] : null,
+        'image'    => $k['gorsel'] ? gorsel_url($k['gorsel']) : null,
         'brand'    => ['@type'=>'Brand','name'=>'Demirdöküm'],
         'offers'   => $nakit > 0 ? [
             '@type'=>'Offer',
@@ -73,7 +73,7 @@ require_once __DIR__ . '/inc/header.php';
             <div>
                 <div style="border-radius:var(--r-lg);overflow:hidden;margin-bottom:24px;aspect-ratio:16/9;background:var(--c-bg-alt);display:flex;align-items:center;justify-content:center">
                     <?php if (!empty($k['gorsel'])): ?>
-                        <img src="<?= e(UPLOAD_URL.'/'.$k['gorsel']) ?>" alt="<?= e($k['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
+                        <img src="<?= e(gorsel_url($k['gorsel'])) ?>" alt="<?= e($k['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
                     <?php else: ?>
                         <i class="fas fa-fire-flame-curved" style="font-size:5rem;color:var(--c-primary);opacity:.4"></i>
                     <?php endif; ?>
@@ -135,7 +135,7 @@ require_once __DIR__ . '/inc/header.php';
                 <a href="<?= SITE_URL ?>/kampanya/<?= e($d['slug']) ?>" class="service-card" style="text-decoration:none;color:inherit">
                     <div class="service-image">
                         <?php if (!empty($d['gorsel'])): ?>
-                            <img src="<?= e(UPLOAD_URL.'/'.$d['gorsel']) ?>" alt="<?= e($d['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
+                            <img src="<?= e(gorsel_url($d['gorsel'])) ?>" alt="<?= e($d['baslik']) ?>" style="width:100%;height:100%;object-fit:cover">
                         <?php else: ?>
                             <i class="fas fa-fire-flame-curved"></i>
                         <?php endif; ?>

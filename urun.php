@@ -30,7 +30,7 @@ $indirim = ($u['indirimli_fiyat'] && $eski > $fiyat);
 $sayfa_baslik   = e($u['meta_baslik'] ?: ($u['ad'] . ($u['marka_ad'] ? ' — ' . $u['marka_ad'] : ''))) . ' | Azra Doğalgaz';
 $sayfa_aciklama = e($u['meta_aciklama'] ?: meta_aciklama((string)$u['kisa_aciklama']));
 $kanonik_url    = SITE_URL . '/urun/' . e($slug);
-$og_resim       = $u['gorsel'] ? UPLOAD_URL . '/' . e($u['gorsel']) : SITE_URL . '/assets/img/og-default.jpg';
+$og_resim       = $u['gorsel'] ? e(gorsel_url($u['gorsel'])) : SITE_URL . '/assets/img/og-default.jpg';
 
 $schema_jsonld = [
     [
@@ -47,7 +47,7 @@ $schema_jsonld = [
         '@type'    => 'Product',
         'name'     => $u['ad'],
         'description' => $u['kisa_aciklama'] ?: $u['meta_aciklama'],
-        'image'    => $u['gorsel'] ? UPLOAD_URL . '/' . $u['gorsel'] : null,
+        'image'    => $u['gorsel'] ? gorsel_url($u['gorsel']) : null,
         'sku'      => $u['sku'] ?: null,
         'brand'    => $u['marka_ad'] ? ['@type'=>'Brand','name'=>$u['marka_ad']] : null,
         'offers'   => $fiyat > 0 ? [
@@ -86,7 +86,7 @@ require_once __DIR__ . '/inc/header.php';
             <div>
                 <div style="background:#fff;border:1px solid var(--c-line);border-radius:var(--r-lg);padding:30px;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;overflow:hidden">
                     <?php if ($u['gorsel']): ?>
-                        <img src="<?= e(UPLOAD_URL . '/' . $u['gorsel']) ?>" alt="<?= e($u['ad']) ?>" style="max-width:90%;max-height:90%;object-fit:contain" id="ana-gorsel">
+                        <img src="<?= e(gorsel_url($u['gorsel'])) ?>" alt="<?= e($u['ad']) ?>" style="max-width:90%;max-height:90%;object-fit:contain" id="ana-gorsel">
                     <?php else: ?>
                         <i class="fas fa-fire-flame-curved" style="font-size:6rem;color:var(--c-primary);opacity:.3"></i>
                     <?php endif; ?>
@@ -95,8 +95,8 @@ require_once __DIR__ . '/inc/header.php';
                 <?php if ($galeri): ?>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px">
                     <?php foreach ($galeri as $g): ?>
-                    <button type="button" onclick="document.getElementById('ana-gorsel').src='<?= e(UPLOAD_URL.'/'.$g) ?>'" style="aspect-ratio:1;background:#fff;border:1px solid var(--c-line);border-radius:8px;padding:6px;cursor:pointer;overflow:hidden">
-                        <img src="<?= e(UPLOAD_URL.'/'.$g) ?>" style="width:100%;height:100%;object-fit:contain">
+                    <button type="button" onclick="document.getElementById('ana-gorsel').src='<?= e(gorsel_url($g)) ?>'" style="aspect-ratio:1;background:#fff;border:1px solid var(--c-line);border-radius:8px;padding:6px;cursor:pointer;overflow:hidden">
+                        <img src="<?= e(gorsel_url($g)) ?>" style="width:100%;height:100%;object-fit:contain">
                     </button>
                     <?php endforeach; ?>
                 </div>
@@ -167,7 +167,7 @@ require_once __DIR__ . '/inc/header.php';
                 <a href="<?= SITE_URL ?>/urun/<?= e($b['slug']) ?>" class="product-card" style="text-decoration:none;color:inherit">
                     <div class="product-image">
                         <?php if ($b['gorsel']): ?>
-                            <img src="<?= e(UPLOAD_URL . '/' . $b['gorsel']) ?>" alt="<?= e($b['ad']) ?>" loading="lazy">
+                            <img src="<?= e(gorsel_url($b['gorsel'])) ?>" alt="<?= e($b['ad']) ?>" loading="lazy">
                         <?php else: ?>
                             <i class="fas fa-fire-flame-curved" style="font-size:3rem;color:var(--c-primary);opacity:.4"></i>
                         <?php endif; ?>

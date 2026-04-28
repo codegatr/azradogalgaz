@@ -110,7 +110,7 @@ require_once __DIR__ . '/inc/header.php';
             <a href="<?= SITE_URL ?>/urun/<?= e($u['slug']) ?>" class="product-card" style="text-decoration:none;color:inherit">
                 <div class="product-image">
                     <?php if ($u['gorsel']): ?>
-                        <img src="<?= e(UPLOAD_URL . '/' . $u['gorsel']) ?>" alt="<?= e($u['ad']) ?>" loading="lazy">
+                        <img src="<?= e(gorsel_url($u['gorsel'])) ?>" alt="<?= e($u['ad']) ?>" loading="lazy">
                     <?php else: ?>
                         <i class="fas fa-fire-flame-curved" style="font-size:3rem;color:var(--c-primary);opacity:.4"></i>
                     <?php endif; ?>
