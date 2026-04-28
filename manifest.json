@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "release_date": "2026-04-28",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.0: Site Haritası genişletildi + Search Console kurulum yardımı + Test Mail butonu görünürlük fix. sitemap.php'ye 8 yeni statik sayfa eklendi (projeler, sss, bilgi-bankasi, kombi-hesaplama, klima-hesaplama, kvkk, gizlilik) + projeler ve markalar tablolarından dinamik URL üretimi (try/catch korumalı). Ayarlar > SEO sekmesine 'Site Haritası' ve 'Search Console Kurulum Adımları' yardım kartları eklendi: sitemap URL kopyalama + adım adım kurulum rehberi. SMTP & Bildirim sekmesindeki Test Mail butonu artık input altında tek başına geniş, dar ekranlarda da net görünür.",
+    "changelog": "v1.12.1: Test Mail butonu form-actions wrapper içine alındı (Tüm Ayarları Kaydet butonu ile aynı pattern). Layout güvenilir hâle geldi.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -20,6 +20,7 @@
         "21-sql-ambiguous-fix","22-kullanici-adi-giris","23-dashboard-temizlik",
         "24-smtp-bakim-bildirim-sistemi","25-ayarlar-tab-script-fix",
         "26-ayarlar-self-contained-tab-handler","27-ayarlar-inline-onclick-ses-bypass",
-        "28-smtp-button-inline-onclick-ses-bypass","29-sitemap-genisletme-search-console-yardim"
+        "28-smtp-button-inline-onclick-ses-bypass","29-sitemap-genisletme-search-console-yardim",
+        "30-test-mail-form-actions-wrapper"
     ]
 }
