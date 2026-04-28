@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_baslat.php';
+require_once __DIR__ . '/../inc/sema-muhasebe.php';
 page_title('Cariler');
 
 /* ========== AKSİYONLAR ========== */
