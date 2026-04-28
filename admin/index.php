@@ -46,8 +46,8 @@ $eposta_son = $_GET['e'] ?? '';
             <?= csrf_field() ?>
             <div class="form-row" style="margin-bottom:14px">
                 <div class="field">
-                    <label>E-posta</label>
-                    <input type="email" name="eposta" value="<?= e($eposta_son) ?>" class="input" required autofocus>
+                    <label>Kullanıcı Adı veya E-posta</label>
+                    <input type="text" name="kimlik" value="<?= e($eposta_son) ?>" class="input" required autofocus autocomplete="username" placeholder="kullanici_adi veya kullanici@domain.com">
                 </div>
             </div>
             <div class="form-row" style="margin-bottom:14px">
