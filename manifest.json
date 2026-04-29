@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.13",
+    "version": "1.12.14",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.13: TEKLİF YAZDIRMA — KOMPAKT KURUMSAL TASARIM (1 A4). admin\/teklif-yazdir.php tamamen yeniden yazıldı. Önceki sürüm 4 kalem için bile 2 sayfaya taşıyordu, şimdi 8-10 kalem rahat sığar. Tipografi 13px→10.5px sıkılaştırıldı (Helvetica Neue\/Inter sans-serif), line-height 1.55→1.45, padding ve gap'ler tüm bölümlerde kompakt. Kurumsal banker tarzı: koyu lacivert + amber palet, müşteri ve teklif detayları yan yana 2 kolon (label-value pair satırları), konu kompakt highlight bar, kalemler tablosu siyah header + alternating row, toplamlar sağa hizalı 260px kutu (ara toplam + iskonto + KDV + GENEL TOPLAM 14px amber). Notlar\/şartlar tek bilgi kutusu (sadece dolu olan alan render edilir). İmzalar 30px gap'li 2 kolon. Footer kompakt one-liner. Yeni eklenenler: 'Hazırlayan' (kullanicilar tablosundan join), 'Kalem Sayısı', İZMİRGAZ Yetkili + Demirdöküm Bayisi yetki rozetleri header'da. @page A4 12mm\/14mm margin, page-break-inside:avoid kuralları (toplamlar, bilgi, imzalar). Print color exact rendering (-webkit-print-color-adjust:exact). 1 dosya değişti.",
+    "changelog": "v1.12.14: HOTFIX teklif-yazdir.php 500 hatası. v1.12.13'te 'Hazırlayan' alanı için kullanicilar tablosundan SELECT yaparken olmayan 'ad_soyad' kolonunu sorguluyordum — gerçek tabloda sadece 'ad' kolonu var (Migration 003 sonrası 'kullanici_adi' eklendi ama 'ad_soyad' hiç olmadı). SQL hatası fatal exception fırlattı → 500 Internal Server Error. ÇÖZÜM: SELECT 'ad' kullan, ek olarak try-catch ile sar — gelecekte kolon değişiklikleri olursa graceful degrade etsin (Hazırlayan satırı boş geçer, sayfa yine render eder). 1 dosya değişti: admin\/teklif-yazdir.php.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -32,6 +32,7 @@
         "39-whatsapp-sola-scrollup-kombi-alevli",
         "40-marka-logolari-yuvarlak-avatar",
         "41-migrator-string-aware-sql-splitter-fix",
-        "42-teklif-yazdir-kompakt-kurumsal-a4"
+        "42-teklif-yazdir-kompakt-kurumsal-a4",
+        "43-teklif-yazdir-ad-soyad-kolonu-fix-trycatch"
     ]
 }

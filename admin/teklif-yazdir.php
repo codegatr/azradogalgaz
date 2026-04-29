@@ -35,9 +35,16 @@ $gun = max(0, (int)round((strtotime($t['gecerlilik_tarihi']) - strtotime($t['tek
 
 // Hazırlayan
 $hazirlayan = '';
-if ($t['olusturan_id']) {
-    $kul = db_get("SELECT ad_soyad, kullanici_adi FROM kullanicilar WHERE id=?", [(int)$t['olusturan_id']]);
-    $hazirlayan = $kul['ad_soyad'] ?? $kul['kullanici_adi'] ?? '';
+if (!empty($t['olusturan_id'])) {
+    try {
+        $kul = db_get("SELECT ad, kullanici_adi FROM kullanicilar WHERE id=?", [(int)$t['olusturan_id']]);
+        if ($kul) {
+            $hazirlayan = $kul['ad'] ?? $kul['kullanici_adi'] ?? '';
+        }
+    } catch (Throwable $e) {
+        // kullanicilar tablosunda kolonlar farklıysa sessizce geç
+        $hazirlayan = '';
+    }
 }
 ?><!DOCTYPE html>
 <html lang="tr">
