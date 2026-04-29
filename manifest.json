@@ -1,12 +1,13 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.23",
+    "version": "1.12.24",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.23: İletişim\/Keşif bildirimleri artık tüm aktif yöneticilere gönderiliyor. Önceden sadece tek adrese (iletisim_bildirim_eposta veya firma_eposta) bildirim gidiyordu — Yunus + Galip gibi birden fazla admin olan firmalarda diğer admin'ler haberdar olamıyordu. Yeni davranış: api\/iletisim-gonder.php form alındığında 3 kaynaktan alıcı listesi inşa eder: (1) ayarlar.iletisim_bildirim_eposta (varsa), (2) ayarlar.firma_eposta (varsa), (3) kullanicilar tablosundan rol='admin' AND aktif=1 olan tüm hesapların eposta alanı. Liste lowercase + trim + filter_var(EMAIL) ile temizlenir, array_keys ile unique edilir (aynı adres varsa tek seferden gönderilir). Sonra her bir alıcıya ayrı SMTP gönderim yapılır (BCC değil — her birinin kendi reply-to header'ı çalışsın, SMTP class tek alıcı kabul eder). SMTP başarısızlıkları log'a yazılır + fallback PHP mail() devreye girer (her alıcı için ayrı ayrı). admin_satirlar sorgusu try-catch içinde — kullanicilar tablosu hatası olsa bile diğer alıcılara mail gider. 1 dosya değişti: api\/iletisim-gonder.php.",
+    "channel": "stable",
+    "changelog": "v1.12.24: Mobil hero h1 kesik görünme bugfix. Anasayfa hero başlığı 'İzmir'in güvenilir doğalgaz ve ısıtma çözümleri' iPhone gibi 360-390px viewport'larda son harfler kesik kalıyordu. Üç kök neden: (1) min font-size çok büyük — clamp(2rem, 4.5vw, 3.4rem) → mobilde minimum 32px font 'doğalgaz ve ısıtma çözümleri' cümlesini sığdırmıyor; (2) <br> ile zorla satır kırılması mobilde de geçerliyken doğal wrap'i engelliyor — uzun cümle tek satıra hapsoluyor; (3) overflow-wrap eksik, kelime sığmadığında container'dan taşıyor. ÇÖZÜM: assets\/css\/style.css'de hero h1 kuralı güncellendi — min font 2rem → 1.55rem (clamp(1.55rem, 5.2vw, 3.4rem)), overflow-wrap\/word-wrap\/hyphens eklendi, max-width:600px media query'sinde .hero h1 br {display:none} ile mobilde <br> kaldırıldı (masaüstünde aynen 2 satır kalır), letter-spacing ve line-height mobil için yumuşatıldı. 1 dosya değişti: assets\/css\/style.css.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -42,6 +43,7 @@
         "49-iletisim-formu-smtp-bildirim-sistemi-html-sablon-kvkk-fix",
         "50-hakkimizda-sayfasi-kurumsal-yeniden-tasarim-9-bolum",
         "51-iletisim-kesif-form-kvkk-fix-data-preservation-ek-alanlar",
-        "52-iletisim-bildirim-tum-aktif-adminlere-coklu-alici"
+        "52-iletisim-bildirim-tum-aktif-adminlere-coklu-alici",
+        "53-mobil-hero-h1-kesik-fix-overflow-wrap-br-display-none"
     ]
 }

@@ -93,7 +93,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:transparent;color:
 @media (max-width:980px){.hero-grid{grid-template-columns:1fr;gap:36px}}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:50px;background:#fff;border:1px solid var(--c-line);color:var(--c-primary-d);font-weight:600;font-size:.82rem;box-shadow:var(--sh-sm);margin-bottom:18px}
 .hero-badge i{color:var(--c-primary)}
-.hero h1{font-family:var(--font-display);font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900;line-height:1.1;color:var(--c-text);margin-bottom:18px;letter-spacing:-1px}
+.hero h1{font-family:var(--font-display);font-size:clamp(1.55rem,5.2vw,3.4rem);font-weight:900;line-height:1.1;color:var(--c-text);margin-bottom:18px;letter-spacing:-.6px;overflow-wrap:break-word;word-wrap:break-word;hyphens:auto}
+@media (max-width:600px){.hero h1 br{display:none}.hero h1{letter-spacing:-.3px;line-height:1.18}}
 .hero h1 strong{background:var(--grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p.lead{font-size:1.1rem;color:var(--c-text-2);margin-bottom:26px;max-width:580px}
 .hero-actions{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
