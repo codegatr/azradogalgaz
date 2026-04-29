@@ -48,6 +48,9 @@ $tw   = ayar('sosyal_x', '');
                     <li><a href="<?= SITE_URL ?>/kesif">Ücretsiz Keşif</a></li>
                     <li><a href="<?= SITE_URL ?>/kvkk">KVKK</a></li>
                     <li><a href="<?= SITE_URL ?>/gizlilik">Gizlilik Politikası</a></li>
+                    <li><a href="<?= SITE_URL ?>/cerez">Çerez Politikası</a></li>
+                    <li><a href="<?= SITE_URL ?>/mesafeli">Mesafeli Satış Sözleşmesi</a></li>
+                    <li><a href="<?= SITE_URL ?>/iade">İade Politikası</a></li>
                 </ul>
             </div>
 

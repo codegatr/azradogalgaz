@@ -37,6 +37,12 @@ DirectoryIndex index.php index.html
     RewriteRule ^blog/?$ blog.php [L]
     RewriteRule ^kvkk/?$ kvkk.php [L]
     RewriteRule ^gizlilik/?$ gizlilik.php [L]
+    RewriteRule ^cerez/?$ cerez.php [L]
+    RewriteRule ^mesafeli/?$ mesafeli.php [L]
+    RewriteRule ^iade/?$ iade.php [L]
+
+    # v1.12.8 — Teklif sistemi (token tabanlı public link)
+    RewriteRule ^teklif/([a-zA-Z0-9]+)/?$ teklif.php?token=$1 [L,QSA]
 
     # v1.4.0 — Yeni sayfalar
     RewriteRule ^kesif/?$ kesif.php [L]
