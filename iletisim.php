@@ -4,6 +4,19 @@ require_once __DIR__ . '/config.php';
 $basari = !empty($_GET['ok']);
 $hata   = $_GET['hata'] ?? '';
 
+// Hata sonrası dönüşte form değerlerini koru — session'dan oku ve temizle
+$onceki = $_SESSION['form_data'] ?? [];
+unset($_SESSION['form_data']);
+$v = function ($k, $def = '') use ($onceki) {
+    return htmlspecialchars((string)($onceki[$k] ?? $def), ENT_QUOTES, 'UTF-8');
+};
+$secili = function ($k, $value) use ($onceki) {
+    return (($onceki[$k] ?? '') === $value) ? ' selected' : '';
+};
+$cekili = function ($k) use ($onceki) {
+    return !empty($onceki[$k]) ? ' checked' : '';
+};
+
 $sayfa_baslik   = 'İletişim — Azra Doğalgaz İzmir';
 $sayfa_aciklama = 'Azra Doğalgaz iletişim bilgileri. Telefon, WhatsApp ve form ile bize ulaşın. Ücretsiz keşif ve fiyat teklifi.';
 $kanonik_url    = SITE_URL . '/iletisim';
@@ -93,18 +106,18 @@ require_once __DIR__ . '/inc/header.php';
                     <div class="form-row cols-2">
                         <div class="field">
                             <label>Ad Soyad <span class="req">*</span></label>
-                            <input type="text" name="ad_soyad" class="input" required maxlength="100">
+                            <input type="text" name="ad_soyad" class="input" required maxlength="100" value="<?= $v('ad_soyad') ?>">
                         </div>
                         <div class="field">
                             <label>Telefon <span class="req">*</span></label>
-                            <input type="tel" name="telefon" class="input" required maxlength="20" placeholder="0532 123 45 67">
+                            <input type="tel" name="telefon" class="input" required maxlength="20" placeholder="0532 123 45 67" value="<?= $v('telefon') ?>">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="field">
                             <label>E-posta</label>
-                            <input type="email" name="eposta" class="input" maxlength="120">
+                            <input type="email" name="eposta" class="input" maxlength="120" value="<?= $v('eposta') ?>">
                         </div>
                     </div>
 
@@ -112,15 +125,19 @@ require_once __DIR__ . '/inc/header.php';
                         <div class="field">
                             <label>Konu</label>
                             <select name="konu">
-                                <option value="Ücretsiz Keşif Talebi">⭐ Ücretsiz Keşif Talebi</option>
-                                <option value="Fiyat Teklifi">Fiyat Teklifi</option>
-                                <option value="Genel Bilgi">Genel Bilgi</option>
-                                <option value="Doğalgaz Tesisatı">Doğalgaz Tesisatı</option>
-                                <option value="Kombi Montajı / Servisi">Kombi Montajı / Servisi</option>
-                                <option value="Klima Montajı">Klima Montajı</option>
-                                <option value="Yerden Isıtma">Yerden Isıtma</option>
-                                <option value="Tesisat Hizmeti">Tesisat Hizmeti</option>
-                                <option value="Şikayet / Geri Bildirim">Şikayet / Geri Bildirim</option>
+                                <?php foreach ([
+                                    'Ücretsiz Keşif Talebi' => '⭐ Ücretsiz Keşif Talebi',
+                                    'Fiyat Teklifi'         => 'Fiyat Teklifi',
+                                    'Genel Bilgi'           => 'Genel Bilgi',
+                                    'Doğalgaz Tesisatı'     => 'Doğalgaz Tesisatı',
+                                    'Kombi Montajı / Servisi' => 'Kombi Montajı / Servisi',
+                                    'Klima Montajı'         => 'Klima Montajı',
+                                    'Yerden Isıtma'         => 'Yerden Isıtma',
+                                    'Tesisat Hizmeti'       => 'Tesisat Hizmeti',
+                                    'Şikayet / Geri Bildirim' => 'Şikayet / Geri Bildirim',
+                                ] as $val => $label): ?>
+                                    <option value="<?= htmlspecialchars($val, ENT_QUOTES) ?>"<?= $secili('konu', $val) ?>><?= htmlspecialchars($label, ENT_QUOTES) ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
@@ -128,13 +145,13 @@ require_once __DIR__ . '/inc/header.php';
                     <div class="form-row">
                         <div class="field">
                             <label>Mesajınız <span class="req">*</span></label>
-                            <textarea name="mesaj" class="textarea" rows="5" required minlength="10" maxlength="2000" placeholder="Talebinizi detaylı şekilde yazabilirsiniz..."></textarea>
+                            <textarea name="mesaj" class="textarea" rows="5" required minlength="10" maxlength="2000" placeholder="Talebinizi detaylı şekilde yazabilirsiniz..."><?= $v('mesaj') ?></textarea>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <label class="check">
-                            <input type="checkbox" name="kvkk_onay" required>
+                            <input type="checkbox" name="kvkk_onay" required<?= $cekili('kvkk_onay') ?: $cekili('kvkk') ?>>
                             <span><a href="<?= SITE_URL ?>/kvkk" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum ve <a href="<?= SITE_URL ?>/gizlilik" target="_blank">Gizlilik Politikası</a>'nı kabul ediyorum.</span>
                         </label>
                     </div>

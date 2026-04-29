@@ -31,16 +31,35 @@ $tel    = clean($_POST['telefon']   ?? '');
 $mail   = clean($_POST['eposta']    ?? '');
 $konu   = clean($_POST['konu']      ?? 'Genel Bilgi');
 $mesaj  = clean($_POST['mesaj']     ?? '');
-$kvkk   = !empty($_POST['kvkk_onay']);   // ← v1.12.20 fix: önceden 'kvkk' arıyordu
+$kvkk   = !empty($_POST['kvkk_onay']) || !empty($_POST['kvkk']);   // ← geriye dönük uyumlu
+
+// Ek alanlar — kesif formunun ekstra fieldları (varsa)
+$ek_ilce         = clean($_POST['ilce']          ?? '');
+$ek_hizmet_tip   = clean($_POST['hizmet_tip']    ?? '');
+$ek_konut_tip    = clean($_POST['konut_tip']     ?? '');
+$ek_m2           = clean($_POST['m2']            ?? '');
+$ek_aranma       = clean($_POST['aranma_saati']  ?? '');
+
+// Hata durumunda formu sıfırlamamak için POST verilerini session'a kopyala
+// (csrf ve honeypot field'ları HARİÇ — sınırlı süre yaşar)
+$form_korumak = $_POST;
+unset($form_korumak['csrf'], $form_korumak['website']);
+
+$hata_donus = function ($msj) use ($donus, $form_korumak) {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['form_data'] = $form_korumak;
+    }
+    redirect($donus . '?hata=' . urlencode($msj));
+};
 
 if (mb_strlen($ad) < 3 || mb_strlen($tel) < 7 || mb_strlen($mesaj) < 10) {
-    redirect($donus . '?hata=' . urlencode('Lütfen ad, telefon ve mesaj alanlarını eksiksiz doldurun.'));
+    $hata_donus('Lütfen ad, telefon ve mesaj alanlarını eksiksiz doldurun.');
 }
 if (!$kvkk) {
-    redirect($donus . '?hata=' . urlencode('KVKK metnini onaylamanız gerekir.'));
+    $hata_donus('KVKK metnini onaylamanız gerekir.');
 }
 if ($mail !== '' && !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-    redirect($donus . '?hata=' . urlencode('Geçerli bir e-posta adresi girin veya boş bırakın.'));
+    $hata_donus('Geçerli bir e-posta adresi girin veya boş bırakın.');
 }
 
 $ip = $_SERVER['REMOTE_ADDR'] ?? '';
@@ -52,16 +71,34 @@ try {
         [$ip]
     )['c'] ?? 0);
     if ($say >= 3) {
-        redirect($donus . '?hata=' . urlencode('Çok fazla mesaj gönderildi. Lütfen biraz sonra tekrar deneyin.'));
+        $hata_donus('Çok fazla mesaj gönderildi. Lütfen biraz sonra tekrar deneyin.');
+    }
+
+    // Ek alanları varsa mesaja eklenmiş bir şekilde kaydet
+    $ek_satirlar = [];
+    if ($ek_ilce)       $ek_satirlar[] = 'İlçe / Mahalle: ' . $ek_ilce;
+    if ($ek_hizmet_tip) $ek_satirlar[] = 'Hizmet Türü: ' . $ek_hizmet_tip;
+    if ($ek_konut_tip)  $ek_satirlar[] = 'Konut Tipi: ' . $ek_konut_tip;
+    if ($ek_m2)         $ek_satirlar[] = 'Metrekare: ' . $ek_m2;
+    if ($ek_aranma)     $ek_satirlar[] = 'Tercih edilen aranma saati: ' . $ek_aranma;
+
+    $tam_mesaj = $mesaj;
+    if (!empty($ek_satirlar)) {
+        $tam_mesaj .= "\n\n—— Ek Bilgiler ——\n" . implode("\n", $ek_satirlar);
     }
 
     // Kayıt
     db_run(
         "INSERT INTO iletisim_mesajlari (ad_soyad, eposta, telefon, konu, mesaj, ip)
          VALUES (?,?,?,?,?,?)",
-        [$ad, $mail, $tel, $konu, $mesaj, $ip]
+        [$ad, $mail, $tel, $konu, $tam_mesaj, $ip]
     );
     $mesaj_id = (int)db()->lastInsertId();
+
+    // Form data başarıyla işlendi → session'dan temizle
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        unset($_SESSION['form_data']);
+    }
 
     // ─── Yöneticiye Bildirim ───
     $alici = (string)ayar('iletisim_bildirim_eposta', '');
@@ -81,7 +118,7 @@ try {
     $h = function ($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); };
     $eposta_link = $mail ? '<a href="mailto:' . $h($mail) . '" style="color:#1e40af;text-decoration:none">' . $h($mail) . '</a>' : '<span style="color:#94a3b8">—</span>';
     $tel_link    = '<a href="tel:' . $h(preg_replace('/\s/', '', $tel)) . '" style="color:#1e40af;text-decoration:none">' . $h($tel) . '</a>';
-    $mesaj_html  = nl2br($h($mesaj));
+    $mesaj_html  = nl2br($h($tam_mesaj));
 
     $bildirim_html = '<!DOCTYPE html>
 <html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -213,5 +250,5 @@ try {
 
 } catch (Throwable $e) {
     error_log('iletisim-gonder hata: ' . $e->getMessage());
-    redirect($donus . '?hata=' . urlencode('Mesaj kaydedilemedi, lütfen daha sonra tekrar deneyin.'));
+    $hata_donus('Mesaj kaydedilemedi, lütfen daha sonra tekrar deneyin.');
 }
