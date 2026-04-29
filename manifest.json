@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.18",
+    "version": "1.12.19",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.18: Eksik 5 marka logosu eklendi. v1.12.11'de Demirdöküm\/Bosch\/Vaillant\/Baymak\/Buderus\/Mitsubishi\/Daikin için yuvarlak avatar logoları gelmişti, ancak Yunus admin'den sonradan ECA, Mitsubishi Electric, Mitsubishi Heavy, Arçelik, Beko markalarını eklediğinde logo dosyası olmadığı için harf placeholder gösteriyordu. Bu sürümde 5 yeni transparent PNG logosu (240x240, seeklogo.com kaynaklı, trim+resize+merkezleme) eklendi: eca.png (E.C.A. Kombi), mitsubishi-electric.png (mitsubishi.png ile aynı içerik — duplicate slug için), mitsubishi-heavy.png, arcelik.png, beko.png. Migration 008 (008_eksik_marka_logolari.sql) eklendi: bu 5 marka için slug bazlı UPDATE markalar SET logo path. Sadece logo NULL\/boş olanları günceller (kullanıcı tanımlı logo varsa dokunmaz), idempotent. Olası slug varyasyonları (e-c-a, eca-kombi, mitsubishi-heavy-industries, mitsubishi-agir-sanayi) da kapsanıyor. NOT: ECA logosu 'kombi' versiyonu olduğu için gri arka planlı bir kart şeklinde — yuvarlak avatar içinde gri kart biraz görünür ama logo nettir; sade ECA tercihinde Yunus söylerse alternatif indirilebilir. NOT: 'Mitsubishi Electric' ve 'Mitsubishi' (üst sıra ile alt sıra) DB'de duplicate kayıt — Yunus admin'den birini silmek isteyebilir; logo dosyası ikisinde de aynı içerik. 6 dosya değişti (5 PNG + 1 migration).",
+    "changelog": "v1.12.19: SCROLL-UP BUTONU GERİ GETİRİLDİ. v1.12.10'da eklenen kombi-alevli scroll-up butonu (turuncu-kırmızı gradient + flame badge + pop-in animasyon) v1.12.16 ve v1.12.17 release'lerinde inc\/footer.php'yi production snapshot'tan (v1.12.6 base, scroll-up yoktu) kopyalayıp İzmirgaz temizliği uygularken yanlışlıkla ezildi. Bu sürümde v1.12.10'daki scroll-up'lı footer.php base alındı, üzerine v1.12.17'deki İzmirgaz temizliği değişikliği uygulandı (Demirdöküm yetkili + mevzuata uygun cümlesi). Style.css zaten v1.12.11'de güncellenmiş ve production'da scroll-up CSS'ini içerdiği için sadece footer.php yenilendi. 1 dosya değişti.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -37,6 +37,7 @@
         "44-izmirgaz-yetkili-tesisat-firmasi-rozeti-kaldirildi",
         "45-izmirgaz-yetkili-demirdokum-bayisi-kombine-rozetler-kaldirildi",
         "46-izmirgaz-tum-referanslarin-tamamen-temizligi",
-        "47-eksik-marka-logolari-eca-arcelik-beko-mitsubishi-elec-heavy"
+        "47-eksik-marka-logolari-eca-arcelik-beko-mitsubishi-elec-heavy",
+        "48-scroll-up-buton-geri-getirildi-footer-regression-fix"
     ]
 }
