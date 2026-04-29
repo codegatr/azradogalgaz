@@ -101,8 +101,32 @@ try {
     }
 
     // ─── Yöneticiye Bildirim ───
-    $alici = (string)ayar('iletisim_bildirim_eposta', '');
-    if ($alici === '') $alici = (string)ayar('firma_eposta', defined('FIRMA_EMAIL') ? FIRMA_EMAIL : '');
+    // Alıcı listesi: ayardaki bildirim e-postası + firma e-postası + tüm aktif admin kullanıcılar
+    $alicilar = [];
+    $bildirim_e = trim((string)ayar('iletisim_bildirim_eposta', ''));
+    if ($bildirim_e !== '') $alicilar[] = $bildirim_e;
+    $firma_e = trim((string)ayar('firma_eposta', defined('FIRMA_EMAIL') ? FIRMA_EMAIL : ''));
+    if ($firma_e !== '') $alicilar[] = $firma_e;
+
+    // kullanicilar tablosundan rol='admin' AND aktif=1 olan tüm hesaplar
+    try {
+        $admin_satirlar = db_all("SELECT ad, eposta FROM kullanicilar WHERE rol='admin' AND aktif=1");
+        foreach ($admin_satirlar as $a) {
+            if (!empty($a['eposta'])) $alicilar[] = $a['eposta'];
+        }
+    } catch (Throwable $e) {
+        // tablo yoksa veya sorgu başarısızsa sessizce geç
+        error_log('iletisim admin listesi hata: ' . $e->getMessage());
+    }
+
+    // Normalize (lowercase) + unique + valid email süzgeci
+    $alici_temiz = [];
+    foreach ($alicilar as $a) {
+        $a = strtolower(trim($a));
+        if ($a === '' || !filter_var($a, FILTER_VALIDATE_EMAIL)) continue;
+        $alici_temiz[$a] = true;
+    }
+    $alici_listesi = array_keys($alici_temiz);
 
     $kesif_mi = stripos($konu, 'keşif') !== false || stripos($konu, 'kesif') !== false;
     $tag      = $kesif_mi ? '⭐ KEŞİF TALEBİ' : 'Yeni Mesaj';
@@ -187,25 +211,28 @@ try {
     $bildirim_konu = ($kesif_mi ? '[KEŞİF] ' : '[İLETİŞİM] ') . $konu . ' — ' . $ad;
 
     $smtp = Mail::ayardan_yukle();
-    if ($alici && $smtp->konfigure_mi()) {
-        // Reply-to istemcinin e-postası olmalı (yöneticinin "Yanıtla" tuşu doğru hedefe gitsin)
-        $sonuc = $smtp->gonder($alici, $firma, $bildirim_konu, $bildirim_html);
-        if (!$sonuc['ok']) {
-            error_log('iletisim bildirim SMTP hata: ' . ($sonuc['hata'] ?? '?'));
-            // Fallback PHP mail() — son çare
-            $headers = "From: " . $firma . " <noreply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\n"
-                     . ($mail ? "Reply-To: $mail\r\n" : "")
-                     . "Content-Type: text/html; charset=UTF-8\r\n"
-                     . "MIME-Version: 1.0\r\n";
-            @mail($alici, $bildirim_konu, $bildirim_html, $headers);
+    if (!empty($alici_listesi)) {
+        foreach ($alici_listesi as $alici) {
+            if ($smtp->konfigure_mi()) {
+                $sonuc = $smtp->gonder($alici, $firma, $bildirim_konu, $bildirim_html);
+                if (!$sonuc['ok']) {
+                    error_log('iletisim bildirim SMTP hata (' . $alici . '): ' . ($sonuc['hata'] ?? '?'));
+                    // Fallback PHP mail() — son çare
+                    $headers = "From: " . $firma . " <noreply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\n"
+                             . ($mail ? "Reply-To: $mail\r\n" : "")
+                             . "Content-Type: text/html; charset=UTF-8\r\n"
+                             . "MIME-Version: 1.0\r\n";
+                    @mail($alici, $bildirim_konu, $bildirim_html, $headers);
+                }
+            } else {
+                // SMTP yapılandırılmamış → fallback mail()
+                $headers = "From: " . $firma . " <noreply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\n"
+                         . ($mail ? "Reply-To: $mail\r\n" : "")
+                         . "Content-Type: text/html; charset=UTF-8\r\n"
+                         . "MIME-Version: 1.0\r\n";
+                @mail($alici, $bildirim_konu, $bildirim_html, $headers);
+            }
         }
-    } elseif ($alici) {
-        // SMTP yapılandırılmamış → fallback mail()
-        $headers = "From: " . $firma . " <noreply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\n"
-                 . ($mail ? "Reply-To: $mail\r\n" : "")
-                 . "Content-Type: text/html; charset=UTF-8\r\n"
-                 . "MIME-Version: 1.0\r\n";
-        @mail($alici, $bildirim_konu, $bildirim_html, $headers);
     }
 
     // ─── Müşteriye Teşekkür Maili (opsiyonel — ayar'a bağlı, e-posta verdiyse) ───

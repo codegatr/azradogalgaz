@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.22",
+    "version": "1.12.23",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.22: İLETİŞİM\/KEŞİF FORM HATALARI ÇÖZÜLDÜ. Üç ayrı kritik problem giderildi: (1) KVKK SAHTE-FAIL: kesif.php formundaki checkbox name='kvkk' iken v1.12.20'de api'de $_POST['kvkk_onay'] aramaya çevirmiştim — bu nedenle keşif formu KVKK işaretli olsa bile her zaman 'KVKK metnini onaylamanız gerekir' hatası veriyordu. ÇÖZÜM: api'de hem kvkk_onay hem kvkk kabul edilir (geriye dönük uyumlu), kesif.php form'da name='kvkk_onay' yapıldı uniformity için. (2) FORM DATA KAYBI: Hata sonrası kullanıcı geri yönlendirildiğinde tüm form alanları sıfırlanıyordu — sinir bozucu UX. ÇÖZÜM: api'de validation hata olduğunda $_POST verileri (csrf+honeypot hariç) $_SESSION['form_data']'ya kopyalanır, redirect, sayfa yüklenirken oradan okunup form input'larına value default olarak set edilir. Helpers: $v(name) input value, $secili(name,opt) select selected attr, $cekili(name) checkbox checked attr. Başarılı submit'te session temizlenir. Tüm input\/select\/textarea\/checkbox alanlarına preservation eklendi (iletisim.php + kesif.php). (3) EKSTRA ALANLAR EMAIL'E DÜŞMÜYOR: kesif.php'de ilçe, hizmet_tip, konut_tip, m2, aranma_saati alanları vardı ama API sadece 5 temel alanı işliyordu — admin email'inde de DB'de de bu bilgiler kayboluyordu. ÇÖZÜM: api'de bu 5 ek alan toplanır, mesaja '—— Ek Bilgiler ——' başlığı altında eklenir, hem DB'ye kaydedilir hem admin HTML email'inde görünür. 3 dosya değişti: api\/iletisim-gonder.php, iletisim.php, kesif.php.",
+    "changelog": "v1.12.23: İletişim\/Keşif bildirimleri artık tüm aktif yöneticilere gönderiliyor. Önceden sadece tek adrese (iletisim_bildirim_eposta veya firma_eposta) bildirim gidiyordu — Yunus + Galip gibi birden fazla admin olan firmalarda diğer admin'ler haberdar olamıyordu. Yeni davranış: api\/iletisim-gonder.php form alındığında 3 kaynaktan alıcı listesi inşa eder: (1) ayarlar.iletisim_bildirim_eposta (varsa), (2) ayarlar.firma_eposta (varsa), (3) kullanicilar tablosundan rol='admin' AND aktif=1 olan tüm hesapların eposta alanı. Liste lowercase + trim + filter_var(EMAIL) ile temizlenir, array_keys ile unique edilir (aynı adres varsa tek seferden gönderilir). Sonra her bir alıcıya ayrı SMTP gönderim yapılır (BCC değil — her birinin kendi reply-to header'ı çalışsın, SMTP class tek alıcı kabul eder). SMTP başarısızlıkları log'a yazılır + fallback PHP mail() devreye girer (her alıcı için ayrı ayrı). admin_satirlar sorgusu try-catch içinde — kullanicilar tablosu hatası olsa bile diğer alıcılara mail gider. 1 dosya değişti: api\/iletisim-gonder.php.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -41,6 +41,7 @@
         "48-scroll-up-buton-geri-getirildi-footer-regression-fix",
         "49-iletisim-formu-smtp-bildirim-sistemi-html-sablon-kvkk-fix",
         "50-hakkimizda-sayfasi-kurumsal-yeniden-tasarim-9-bolum",
-        "51-iletisim-kesif-form-kvkk-fix-data-preservation-ek-alanlar"
+        "51-iletisim-kesif-form-kvkk-fix-data-preservation-ek-alanlar",
+        "52-iletisim-bildirim-tum-aktif-adminlere-coklu-alici"
     ]
 }
