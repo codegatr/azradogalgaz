@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.20",
+    "version": "1.12.21",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.20: İLETİŞİM FORMU SMTP BİLDİRİM SİSTEMİ. (1) api\/iletisim-gonder.php tamamen yeniden yazıldı: PHP native mail() yerine inc\/mail.php SMTP class kullanır (Mail::ayardan_yukle()->gonder()). Yöneticiye HTML şablonlu kurumsal bildirim e-postası gönderir — koyu lacivert header + amber\/yeşil vurgu (Ücretsiz Keşif konusu yeşil, diğerleri amber), müşteri bilgileri tablosu (telefon\/e-posta tıklanabilir mailto\/tel link), mesaj quote-box, IP+timestamp, 'Admin Panelinde Görüntüle' CTA. Subject 'Ücretsiz Keşif' içeren konularda [KEŞİF] etiketi, diğerlerinde [İLETİŞİM]. Reply-To müşteri e-postası (yöneticinin Yanıtla tuşu doğru hedefe gider). SMTP konfigüre değil veya başarısız olursa fallback PHP mail() kullanılır. (2) BUG FIX: Önceki kod $_POST['kvkk'] arıyordu ama form name='kvkk_onay' kullanıyordu — KVKK validation her zaman fail oluyordu, mesajlar gönderilemiyor olabilirdi. (3) Müşteriye opsiyonel teşekkür e-postası: e-posta verdiyse + iletisim_musteri_onay=1 ise 'Mesajınız bize ulaştı' onay maili (yeşil ✓ ikonu, talep özeti, acil durumu için Hemen Ara CTA). (4) iletisim.php konu listesine 'Ücretsiz Keşif Talebi' (en başa, ⭐ rozeti) ve 'Fiyat Teklifi' eklendi. (5) Migration 009: ayarlar tablosuna 'iletisim_bildirim_eposta' (boş - firma_eposta'ya fallback) ve 'iletisim_musteri_onay' (default '1') key'lerini ekler INSERT IGNORE. SMTP class zaten v24'ten beri kullanılan bakım hatırlatma sistemiyle aynı, ek bağımlılık yok. 4 dosya değişti: api\/iletisim-gonder.php, iletisim.php, migrations\/009_iletisim_bildirim_ayarlari.sql, manifest.json.",
+    "changelog": "v1.12.21: HAKKIMIZDA SAYFASI KURUMSAL YENİDEN TASARIM. hakkimizda.php tamamen yeniden yazıldı, premium kurumsal görünüm. 9 bölüm: (1) HERO — koyu lacivert gradient + amber accent, '10+ yıl 2.500+ proje' badge, h1 'İzmir'in güvendiği doğalgaz...', sağda kompozit istatistik kartı (bu ay teslim: 42 doğalgaz + 28 kombi + 19 klima + 7 toplu); (2) BİZİM HİKAYEMİZ — 2 kolonlu asymmetric story, sol metin + tırnaklı alıntı, sağda dikey timeline (2014→2018→2021→2024→2026 son nokta aktif amber dolu); (3) STATS BAND — 4 büyük rakam, lacivert arkaplan + amber gradient text-fill (2.500+, 10+, 15+, 2 yıl); (4) MİSYON-VİZYON-DEĞERLER — 3 sütun büyük kart, numaralı (01-03) köşede dev rakam, ikon kart başlıklı (turuncu, amber, mavi gradient'ler), her kartta 3 madde liste; (5) ÇALIŞMA SÜRECİMİZ — 4 adım numaralı süreç (01 Keşif, 02 Teklif, 03 Uygulama, 04 Garanti), connected line, her dairede üst sağ köşe FA ikonu badge; (6) GARANTİ VAADİ — koyu lacivert blok + dev '2 Yıl' amber rozet (dashed border, gradient, shadow), 4 vaad maddesi (Yazılı Sözleşme, 2 Yıl İşçilik, Sigortalı Uygulama, 7\/24 Destek); (7) HİZMET BÖLGELERİ — 20 ilçe pill grid, Buca merkez vurgu turuncu; (8) MÜŞTERİ YORUMLARI — 3 yorum kartı, 5 yıldız + tırnaklı metin + isim baş harfi avatar (Bornova, Karşıyaka, Buca); (9) CTA — premium lacivert kart radial gradient'lerle, 'Tanışmak ister misiniz? Keşif ücretsiz' + 2 buton (amber Ücretsiz Keşif + outlined Tel). Tüm sayfa sadece sayfa içi <style> blok ile çalışır, mevcut style.css palet değişkenlerine uyumlu (var(--font-display), var(--c-primary)). Mobile responsive (920px ve 520px breakpoint'leri). Schema.org AboutPage + HVACBusiness JSON-LD eklendi. Tüm İZMİRGAZ\/yetki iddiaları temiz (v1.12.17 hassasiyeti korundu). 1 dosya değişti: hakkimizda.php (367 satır → 600+ satır, ~24KB).",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -39,6 +39,7 @@
         "46-izmirgaz-tum-referanslarin-tamamen-temizligi",
         "47-eksik-marka-logolari-eca-arcelik-beko-mitsubishi-elec-heavy",
         "48-scroll-up-buton-geri-getirildi-footer-regression-fix",
-        "49-iletisim-formu-smtp-bildirim-sistemi-html-sablon-kvkk-fix"
+        "49-iletisim-formu-smtp-bildirim-sistemi-html-sablon-kvkk-fix",
+        "50-hakkimizda-sayfasi-kurumsal-yeniden-tasarim-9-bolum"
     ]
 }
