@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.14",
+    "version": "1.12.15",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.14: HOTFIX teklif-yazdir.php 500 hatası. v1.12.13'te 'Hazırlayan' alanı için kullanicilar tablosundan SELECT yaparken olmayan 'ad_soyad' kolonunu sorguluyordum — gerçek tabloda sadece 'ad' kolonu var (Migration 003 sonrası 'kullanici_adi' eklendi ama 'ad_soyad' hiç olmadı). SQL hatası fatal exception fırlattı → 500 Internal Server Error. ÇÖZÜM: SELECT 'ad' kullan, ek olarak try-catch ile sar — gelecekte kolon değişiklikleri olursa graceful degrade etsin (Hazırlayan satırı boş geçer, sayfa yine render eder). 1 dosya değişti: admin\/teklif-yazdir.php.",
+    "changelog": "v1.12.15: 'İZMİRGAZ Yetkili Tesisat Firması' rozeti kaldırıldı. inc\/header.php top-bar'ın sağ tarafında bulunan turuncu pill etiket (background:rgba(255,107,0,.2);color:#ffaa44) silindi — sadece telefon link'i kaldı. Diğer sayfalardaki 'İZMİRGAZ Yetkili' (kısa form, hero badge ve feature kartı) ve 'Demirdöküm Bayisi' rozetleri korundu çünkü onlar farklı kontekstte ve Yunus spesifik olarak 'Tesisat Firması' uzun form ifadesini kaldırmamı istedi. 1 dosya değişti: inc\/header.php.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -33,6 +33,7 @@
         "40-marka-logolari-yuvarlak-avatar",
         "41-migrator-string-aware-sql-splitter-fix",
         "42-teklif-yazdir-kompakt-kurumsal-a4",
-        "43-teklif-yazdir-ad-soyad-kolonu-fix-trycatch"
+        "43-teklif-yazdir-ad-soyad-kolonu-fix-trycatch",
+        "44-izmirgaz-yetkili-tesisat-firmasi-rozeti-kaldirildi"
     ]
 }

@@ -101,7 +101,6 @@ gtag('config', '<?= e($ga) ?>');
             <a href="mailto:<?= e($mail) ?>"><i class="fas fa-envelope"></i><?= e($mail) ?></a>
         </div>
         <div class="right">
-            <span class="tag" style="background:rgba(255,107,0,.2);color:#ffaa44">İZMİRGAZ Yetkili Tesisat Firması</span>
             <a href="tel:<?= e(preg_replace('/\s/','',$tel1)) ?>"><i class="fas fa-phone"></i><?= e($tel1) ?></a>
         </div>
     </div>
