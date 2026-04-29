@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.17",
+    "version": "1.12.18",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.17: TÜM İZMİRGAZ REFERANSLARININ KAPSAMLI TEMİZLİĞİ. Hukuki güvenlik gerekçesiyle (firma İZMİRGAZ yetkili olmadığı için yetki iddiası içeren tüm metinler kaldırıldı) tüm PHP kaynak dosyalardaki İZMİRGAZ\/İzmirgaz\/izmirgaz referansları sistematik olarak temizlendi. Toplam 50 referans 13 dosyada işlendi. İki kategoride yaklaşım: (A) Yetki iddiası içeren cümleler tamamen kaldırıldı veya generic ifadeyle değiştirildi (\"Sertifikalı İç Tesisat Firması\", \"İzmirgaz onaylı yetkili firmadır\", \"İZMİRGAZ Yetkili\" feature kartı, vs); (B) Süreç bilgisi içeren ama İZMİRGAZ kelimesi geçen ifadeler nötr ifadeyle değiştirildi (\"İzmirgaz onayı\" → \"dağıtım şirketi onayı\", \"İzmirgaz şartnamesine\" → \"yerel dağıtım şirketi şartnamesine\", \"187 İzmirgaz Acil\" → \"187 Doğalgaz Acil\", \"İZMİRGAZ uyumlu\" → \"mevzuata uygun\"). Değişen dosyalar: index.php (hero-badge, feature kartı, structured data FAQ, meta), inc\/header.php (top-bar tag — v1.12.15'te zaten kaldırılmıştı, base güncel), inc\/footer.php (firma açıklama paragrafı), hakkimizda.php (sertifika listesi + paragraf + meta), iletisim.php (187 acil hat metni), sss.php (5 SSS sorusu+cevap), kvkk.php (veri paylaşımı paragrafı), kampanyalar.php (meta), bilgi-bankasi.php (7 paragraf+başlık), hizmetler.php (meta), kategori.php (meta), kurulum.php (paket içerikleri+meta), seed.php (urun seed datası — slug değişti). NOT: config.php gitignored, Yunus kendi sunucusunda manuel güncellemeli (SITE_DESC + SITE_KEYWORDS). NOT: DB'de seed.php'den gelen sayfalar\/sss\/urunler tablolarındaki içeriklerde de İZMİRGAZ referansı kalmış olabilir — admin\/sayfalar, admin\/sss, admin\/urunler, admin\/projeler, admin\/hizmet-kategorileri üzerinden manuel gözden geçir. 13 dosya değişti.",
+    "changelog": "v1.12.18: Eksik 5 marka logosu eklendi. v1.12.11'de Demirdöküm\/Bosch\/Vaillant\/Baymak\/Buderus\/Mitsubishi\/Daikin için yuvarlak avatar logoları gelmişti, ancak Yunus admin'den sonradan ECA, Mitsubishi Electric, Mitsubishi Heavy, Arçelik, Beko markalarını eklediğinde logo dosyası olmadığı için harf placeholder gösteriyordu. Bu sürümde 5 yeni transparent PNG logosu (240x240, seeklogo.com kaynaklı, trim+resize+merkezleme) eklendi: eca.png (E.C.A. Kombi), mitsubishi-electric.png (mitsubishi.png ile aynı içerik — duplicate slug için), mitsubishi-heavy.png, arcelik.png, beko.png. Migration 008 (008_eksik_marka_logolari.sql) eklendi: bu 5 marka için slug bazlı UPDATE markalar SET logo path. Sadece logo NULL\/boş olanları günceller (kullanıcı tanımlı logo varsa dokunmaz), idempotent. Olası slug varyasyonları (e-c-a, eca-kombi, mitsubishi-heavy-industries, mitsubishi-agir-sanayi) da kapsanıyor. NOT: ECA logosu 'kombi' versiyonu olduğu için gri arka planlı bir kart şeklinde — yuvarlak avatar içinde gri kart biraz görünür ama logo nettir; sade ECA tercihinde Yunus söylerse alternatif indirilebilir. NOT: 'Mitsubishi Electric' ve 'Mitsubishi' (üst sıra ile alt sıra) DB'de duplicate kayıt — Yunus admin'den birini silmek isteyebilir; logo dosyası ikisinde de aynı içerik. 6 dosya değişti (5 PNG + 1 migration).",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -36,6 +36,7 @@
         "43-teklif-yazdir-ad-soyad-kolonu-fix-trycatch",
         "44-izmirgaz-yetkili-tesisat-firmasi-rozeti-kaldirildi",
         "45-izmirgaz-yetkili-demirdokum-bayisi-kombine-rozetler-kaldirildi",
-        "46-izmirgaz-tum-referanslarin-tamamen-temizligi"
+        "46-izmirgaz-tum-referanslarin-tamamen-temizligi",
+        "47-eksik-marka-logolari-eca-arcelik-beko-mitsubishi-elec-heavy"
     ]
 }
