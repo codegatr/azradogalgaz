@@ -52,6 +52,8 @@ try {
 <?php if ($gsc): ?><meta name="google-site-verification" content="<?= e($gsc) ?>"><?php endif; ?>
 
 <link rel="icon" href="<?= SITE_URL ?>/assets/img/favicon.ico">
+<link rel="icon" type="image/png" sizes="256x256" href="<?= SITE_URL ?>/assets/img/favicon-256.png">
+<link rel="apple-touch-icon" sizes="180x180" href="<?= SITE_URL ?>/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
@@ -109,11 +111,7 @@ gtag('config', '<?= e($ga) ?>');
     <div class="container">
         <div class="header-inner">
             <a href="<?= SITE_URL ?>/" class="brand" aria-label="Azra Doğalgaz Ana Sayfa">
-                <div class="brand-text">
-                    <span class="azra">AZRA</span>
-                    <span class="doga">DOĞALGAZ</span>
-                    <small>İzmir · Demirdöküm Yetkili</small>
-                </div>
+                <img src="<?= SITE_URL ?>/assets/img/logo-header.png" alt="Azra Doğalgaz — Kombi · Klima · Tesisat" class="brand-logo" width="190" height="124">
             </a>
 
             <nav class="main-nav" id="mainNav" aria-label="Ana Menü">

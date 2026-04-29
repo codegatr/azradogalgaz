@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.6",
-    "release_date": "2026-04-28",
+    "version": "1.12.7",
+    "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.6: KRİTİK SMTP MAIL GÖNDERİM FIX. Yunus'un test mail SMTP konuşma günlüğünden teşhis: DATA komutu sonrası mesaj gönderiliyordu ama sunucu yanıt vermeden 15sn timeout oluyordu. Sebep: dot-stuffing yanlış sırada yapılıyordu — mesaj sonlandırıcı '.\\r\\n' de yanlışlıkla '..\\r\\n' olarak escape ediliyordu, sunucu mesajın bittiğini hiç anlayamadığı için devam beklerdi. RFC 5321 uyumlu yeni sıra: (1) CRLF normalize, (2) sadece body'de dot-stuffing (^\\. → ..), (3) EN SON terminator '\\r\\n.\\r\\n' eklenir (escape EDİLMEZ). Test edildi: mesaj artık doğru sonlanıyor.",
+    "changelog": "v1.12.7: GÖRSEL KİMLİK TAMAMLANDI. assets\/img\/ tamamen boştu — kod logo.png, favicon.ico, og-default.jpg referans veriyordu ama dosyalar yoktu, schema.org markup'ı 404 veriyordu, sosyal paylaşımda preview gelmiyordu. (1) Yunus'un yüklediği AZRA DOĞALGAZ logosu işlenip transparan PNG'ye çevrildi, (2) header için optimize 763x500 versiyon üretildi, (3) favicon.ico (16\/32\/48\/64 multi-size) + favicon-256.png + apple-touch-icon.png (180x180) + og-default.jpg (1200x630) üretildi. inc\/header.php text branding logo görseli ile değiştirildi, scroll'da daralan responsive sticky logo eklendi. admin\/index.php login sayfası beyaz pill içinde logo görseli aldı (admin koyu temasıyla uyum). Footer ve admin sidebar (her ikisi de koyu zemin) mevcut text gradient branding'le bırakıldı — renkli logo koyu zeminde okunmazdı.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -25,6 +25,7 @@
         "32-smtp-host-validation-sistem-tani-dosya-butunluk",
         "33-smtp-tab-php-echo-attribute-temizleme-prod-render-fix",
         "34-smtp-hata-log-frontend-tls-fallback-mail-class",
-        "35-smtp-data-terminator-dot-stuffing-fix"
+        "35-smtp-data-terminator-dot-stuffing-fix",
+        "36-logo-favicon-og-image-gorsel-kimlik"
     ]
 }

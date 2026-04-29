@@ -17,6 +17,8 @@ $eposta_son = $_GET['e'] ?? '';
 <title>Giriş Yap · Azra Doğalgaz Yönetim</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="<?= SITE_URL ?>/assets/img/favicon.ico">
+<link rel="icon" type="image/png" sizes="256x256" href="<?= SITE_URL ?>/assets/img/favicon-256.png">
+<link rel="apple-touch-icon" sizes="180x180" href="<?= SITE_URL ?>/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
@@ -28,8 +30,9 @@ $eposta_son = $_GET['e'] ?? '';
 <div class="login-wrap">
     <div class="login-card">
         <div class="login-logo">
-            <span class="azra">AZRA</span>
-            <span class="doga">DOĞALGAZ</span>
+            <div class="login-logo-img">
+                <img src="<?= SITE_URL ?>/assets/img/logo-header.png" alt="Azra Doğalgaz">
+            </div>
             <small>Yönetim Paneli</small>
         </div>
         <h2>Hoş Geldiniz</h2>
