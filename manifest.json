@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.12",
+    "version": "1.12.13",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.12: KRİTİK MIGRATOR BUGFIX. v1.12.8 Migration 005 (5 hukuki metin) production'da SQL syntax error veriyordu — sebep: inc\/migrator.php'deki sql_bol() fonksiyonu naif explode(';',$sql) ile bölme yapıyordu, HTML inline style attribute'larının (style='color:#fff;font-size:14px') içindeki noktalı virgüller statement'ı yarıda kesiyordu. Hata mesajı: 'You have an error in your SQL syntax... near 1. Veri Sorumlusunun Kimliği'. ÇÖZÜM: sql_bol tamamen yeniden yazıldı — string-aware char-by-char parser: tek tırnak ('...') ve çift tırnak ('...') içindeki ; karakterlerini boundary saymaz, SQL escape (`''`) ve backslash escape (`\\\\'`) kurallarını respect eder, -- ile satır yorumları ve \/* *\/ blok yorumlarını doğru handle eder. Test: Migration 005 (43 yanlış parça → 5 doğru parça), Migration 006 (4 doğru), HTML inline style içeren test case (2 doğru). bekleyenler() fonksiyonu zaten 'hata' durumundaki migration'ları yeniden deniyordu — bu fix sonrası 005 admin'den 'Migrasyonları Şimdi Uygula' butonuyla yeniden çalışır ve INSERT...ON DUPLICATE KEY UPDATE pattern sayesinde idempotent. 1 dosya değişti: inc\/migrator.php.",
+    "changelog": "v1.12.13: TEKLİF YAZDIRMA — KOMPAKT KURUMSAL TASARIM (1 A4). admin\/teklif-yazdir.php tamamen yeniden yazıldı. Önceki sürüm 4 kalem için bile 2 sayfaya taşıyordu, şimdi 8-10 kalem rahat sığar. Tipografi 13px→10.5px sıkılaştırıldı (Helvetica Neue\/Inter sans-serif), line-height 1.55→1.45, padding ve gap'ler tüm bölümlerde kompakt. Kurumsal banker tarzı: koyu lacivert + amber palet, müşteri ve teklif detayları yan yana 2 kolon (label-value pair satırları), konu kompakt highlight bar, kalemler tablosu siyah header + alternating row, toplamlar sağa hizalı 260px kutu (ara toplam + iskonto + KDV + GENEL TOPLAM 14px amber). Notlar\/şartlar tek bilgi kutusu (sadece dolu olan alan render edilir). İmzalar 30px gap'li 2 kolon. Footer kompakt one-liner. Yeni eklenenler: 'Hazırlayan' (kullanicilar tablosundan join), 'Kalem Sayısı', İZMİRGAZ Yetkili + Demirdöküm Bayisi yetki rozetleri header'da. @page A4 12mm\/14mm margin, page-break-inside:avoid kuralları (toplamlar, bilgi, imzalar). Print color exact rendering (-webkit-print-color-adjust:exact). 1 dosya değişti.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -31,6 +31,7 @@
         "38-logo-ekstra-25-buyutme",
         "39-whatsapp-sola-scrollup-kombi-alevli",
         "40-marka-logolari-yuvarlak-avatar",
-        "41-migrator-string-aware-sql-splitter-fix"
+        "41-migrator-string-aware-sql-splitter-fix",
+        "42-teklif-yazdir-kompakt-kurumsal-a4"
     ]
 }
