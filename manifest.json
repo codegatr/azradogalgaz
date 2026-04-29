@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.11",
+    "version": "1.12.12",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.11: YETKILI MARKA LOGOLARI YUVARLAK AVATAR. Ana sayfada metin olarak listelenen 7 marka (Demirdöküm, Bosch, Vaillant, Baymak, Buderus, Mitsubishi Electric, Daikin) için gerçek logolar eklendi. Her logo 240x240 transparent PNG olarak optimize edildi (toplam ~63 KB). Frontend'de yuvarlak beyaz frame içinde (110x110) ortalanmış, gri filtre + opacity ile başlıyor, hover'da renkli + scale + lift animasyonu ile canlanıyor. radial-gradient ile inner highlight efekti, turuncu border on hover. Migration 007 ile DB'deki markalar.logo kolonuna otomatik path yazılır (sadece NULL\/boş olanlar — admin override korunur). Mobile breakpoint 88x88 küçük versiyon. brand-card-circle div + img + fallback SPAN harf yapısı (logo eksikse büyük baş harf gösterilir). assets\/img\/markalar\/ yeni klasör. Logolar seeklogo.com'dan resmi yetkili bayilik kullanımı için indirildi.",
+    "changelog": "v1.12.12: KRİTİK MIGRATOR BUGFIX. v1.12.8 Migration 005 (5 hukuki metin) production'da SQL syntax error veriyordu — sebep: inc\/migrator.php'deki sql_bol() fonksiyonu naif explode(';',$sql) ile bölme yapıyordu, HTML inline style attribute'larının (style='color:#fff;font-size:14px') içindeki noktalı virgüller statement'ı yarıda kesiyordu. Hata mesajı: 'You have an error in your SQL syntax... near 1. Veri Sorumlusunun Kimliği'. ÇÖZÜM: sql_bol tamamen yeniden yazıldı — string-aware char-by-char parser: tek tırnak ('...') ve çift tırnak ('...') içindeki ; karakterlerini boundary saymaz, SQL escape (`''`) ve backslash escape (`\\\\'`) kurallarını respect eder, -- ile satır yorumları ve \/* *\/ blok yorumlarını doğru handle eder. Test: Migration 005 (43 yanlış parça → 5 doğru parça), Migration 006 (4 doğru), HTML inline style içeren test case (2 doğru). bekleyenler() fonksiyonu zaten 'hata' durumundaki migration'ları yeniden deniyordu — bu fix sonrası 005 admin'den 'Migrasyonları Şimdi Uygula' butonuyla yeniden çalışır ve INSERT...ON DUPLICATE KEY UPDATE pattern sayesinde idempotent. 1 dosya değişti: inc\/migrator.php.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -30,6 +30,7 @@
         "37-yasal-metinler-teklif-sistemi-logo-buyutme",
         "38-logo-ekstra-25-buyutme",
         "39-whatsapp-sola-scrollup-kombi-alevli",
-        "40-marka-logolari-yuvarlak-avatar"
+        "40-marka-logolari-yuvarlak-avatar",
+        "41-migrator-string-aware-sql-splitter-fix"
     ]
 }

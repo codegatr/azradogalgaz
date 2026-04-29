@@ -167,16 +167,138 @@ class Migrator
     }
 
     /**
-     * Ham SQL'i statement'lara böl. Basit ; tabanlı parser, comment'leri yok sayar.
-     * (-- ile başlayan satırlar ve /* * / blokları çıkarılır.)
+    /**
+     * Ham SQL'i statement'lara böl. String-aware parser:
+     * - Tek tırnak ('...') ve çift tırnak ("...") içindeki ; karakterlerini boundary saymaz
+     * - SQL escape kuralı: '' (çift tek tırnak) string içinde literal ' demektir
+     * - Backslash escape (\') de tanınır (MySQL/MariaDB için)
+     * - -- ile başlayan satır yorumları ve /*...* / blok yorumları yok sayar
+     *
+     * v1.12.12: HTML inline style'lar içindeki noktalı virgüller (örn:
+     * "style='color:#fff;font-size:14px'") naif explode(';',$sql) ile statement'ı
+     * yarıda kesiyordu — bu fix string literal'lerin içine girmiyor artık.
      */
     private function sql_bol(string $sql): array
     {
-        // Yorumları kaldır
-        $sql = preg_replace('!/\*.*?\*/!s', '', $sql);
-        $sql = preg_replace('/^\s*--.*$/m', '', $sql);
-        // ; ile böl
-        $parts = explode(';', $sql);
-        return array_filter(array_map('trim', $parts));
+        $stmts = [];
+        $cur = '';
+        $i = 0;
+        $len = strlen($sql);
+        $in_single = false;   // '...' içinde miyiz
+        $in_double = false;   // "..." içinde miyiz
+        $in_line_comment = false; // -- ... \n
+        $in_block_comment = false; // /* ... */
+
+        while ($i < $len) {
+            $c = $sql[$i];
+            $next = $i + 1 < $len ? $sql[$i + 1] : '';
+
+            // Blok yorum içindeysek
+            if ($in_block_comment) {
+                if ($c === '*' && $next === '/') {
+                    $in_block_comment = false;
+                    $i += 2;
+                    continue;
+                }
+                $i++;
+                continue;
+            }
+
+            // Satır yorum içindeysek
+            if ($in_line_comment) {
+                if ($c === "\n") {
+                    $in_line_comment = false;
+                    $cur .= $c; // newline'ı koru (formatting için)
+                }
+                $i++;
+                continue;
+            }
+
+            // Single-quoted string içindeysek
+            if ($in_single) {
+                $cur .= $c;
+                if ($c === '\\' && $next !== '') {
+                    // Backslash escape — sonraki karakteri de al
+                    $cur .= $next;
+                    $i += 2;
+                    continue;
+                }
+                if ($c === "'") {
+                    if ($next === "'") {
+                        // SQL escape: '' literal '
+                        $cur .= $next;
+                        $i += 2;
+                        continue;
+                    }
+                    $in_single = false;
+                }
+                $i++;
+                continue;
+            }
+
+            // Double-quoted string içindeysek (identifier veya string)
+            if ($in_double) {
+                $cur .= $c;
+                if ($c === '\\' && $next !== '') {
+                    $cur .= $next;
+                    $i += 2;
+                    continue;
+                }
+                if ($c === '"') {
+                    if ($next === '"') {
+                        $cur .= $next;
+                        $i += 2;
+                        continue;
+                    }
+                    $in_double = false;
+                }
+                $i++;
+                continue;
+            }
+
+            // Yorum başlangıcı
+            if ($c === '-' && $next === '-') {
+                $in_line_comment = true;
+                $i += 2;
+                continue;
+            }
+            if ($c === '/' && $next === '*') {
+                $in_block_comment = true;
+                $i += 2;
+                continue;
+            }
+
+            // String başlangıcı
+            if ($c === "'") {
+                $in_single = true;
+                $cur .= $c;
+                $i++;
+                continue;
+            }
+            if ($c === '"') {
+                $in_double = true;
+                $cur .= $c;
+                $i++;
+                continue;
+            }
+
+            // Statement boundary
+            if ($c === ';') {
+                $t = trim($cur);
+                if ($t !== '') $stmts[] = $t;
+                $cur = '';
+                $i++;
+                continue;
+            }
+
+            $cur .= $c;
+            $i++;
+        }
+
+        // Son cümle (terminator yoksa)
+        $t = trim($cur);
+        if ($t !== '') $stmts[] = $t;
+
+        return $stmts;
     }
 }
