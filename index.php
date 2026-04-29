@@ -223,9 +223,22 @@ require_once __DIR__ . '/inc/header.php';
 <?php if ($markalar): ?>
 <section class="brands">
     <div class="container">
-        <p style="text-align:center;color:var(--c-muted);font-size:.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:30px;font-weight:700">Yetkili Bayisi Olduğumuz Markalar</p>
+        <p style="text-align:center;color:var(--c-muted);font-size:.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:36px;font-weight:700">Yetkili Bayisi Olduğumuz Markalar</p>
         <div class="brand-strip">
-            <?php foreach ($markalar as $m): ?><div class="b"><?= e($m['ad']) ?></div><?php endforeach; ?>
+            <?php foreach ($markalar as $m): ?>
+                <div class="brand-card" data-marka="<?= e($m['slug']) ?>">
+                    <div class="brand-card-circle">
+                        <?php if (!empty($m['logo'])):
+                            $logo_url = (preg_match('#^(https?:)?//#', $m['logo']) ? $m['logo'] : SITE_URL . '/' . ltrim($m['logo'], '/'));
+                        ?>
+                            <img src="<?= e($logo_url) ?>" alt="<?= e($m['ad']) ?> Yetkili Bayi" loading="lazy">
+                        <?php else: ?>
+                            <span class="brand-fallback" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($m['ad'], 0, 1))) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="brand-name"><?= e($m['ad']) ?></div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

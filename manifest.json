@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.10",
+    "version": "1.12.11",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.10: WHATSAPP SOLA + SCROLL-UP BUTONU (KOMBİ ALEVLİ). (1) Floating WhatsApp butonu sağdan sola alındı (right→left, hem desktop hem mobil). (2) Sağa yeni .fab-scrollup butonu eklendi: turuncu-kırmızı alev gradient (#fbbf24→#f97316→#dc2626), büyük yukarı ok (fa-arrow-up), sağ alt köşesinde flame-flicker animasyonlu beyaz daire içinde minik alev rozeti (fa-fire). Hover'da scale+lift, active'de tıklama feedback. Smooth scroll-to-top, 400px scroll altında otomatik gizlenme (50ms throttle ile passive scroll listener). 700px altı mobil için boyutlar küçültüldü (52×52, 21×21 rozet). cubic-bezier(.34,1.56,.64,1) ile pop-in animasyonu, warm-pulse 2.6s ve flame-flicker 1.4s alternate keyframes. Mikro yama: 3 dosya (style.css, footer.php, manifest.json).",
+    "changelog": "v1.12.11: YETKILI MARKA LOGOLARI YUVARLAK AVATAR. Ana sayfada metin olarak listelenen 7 marka (Demirdöküm, Bosch, Vaillant, Baymak, Buderus, Mitsubishi Electric, Daikin) için gerçek logolar eklendi. Her logo 240x240 transparent PNG olarak optimize edildi (toplam ~63 KB). Frontend'de yuvarlak beyaz frame içinde (110x110) ortalanmış, gri filtre + opacity ile başlıyor, hover'da renkli + scale + lift animasyonu ile canlanıyor. radial-gradient ile inner highlight efekti, turuncu border on hover. Migration 007 ile DB'deki markalar.logo kolonuna otomatik path yazılır (sadece NULL\/boş olanlar — admin override korunur). Mobile breakpoint 88x88 küçük versiyon. brand-card-circle div + img + fallback SPAN harf yapısı (logo eksikse büyük baş harf gösterilir). assets\/img\/markalar\/ yeni klasör. Logolar seeklogo.com'dan resmi yetkili bayilik kullanımı için indirildi.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -29,6 +29,7 @@
         "36-logo-favicon-og-image-gorsel-kimlik",
         "37-yasal-metinler-teklif-sistemi-logo-buyutme",
         "38-logo-ekstra-25-buyutme",
-        "39-whatsapp-sola-scrollup-kombi-alevli"
+        "39-whatsapp-sola-scrollup-kombi-alevli",
+        "40-marka-logolari-yuvarlak-avatar"
     ]
 }
