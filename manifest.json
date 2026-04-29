@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.8",
+    "version": "1.12.9",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.8: TEKLİF SİSTEMİ + 5 HUKUKİ METİN + LOGO BÜYÜTME. (1) Logo header'da çok küçük kalıyordu — %75 büyütüldü (54px→95px desktop, 46→80 scroll, 40→64 mobil). (2) admin\/sayfalar.php'de EKSİK görünen 5 hukuki metin profesyonel Türkçe içerikle dolduruldu: KVKK Aydınlatma Metni (KVKK 6698 + madde 11 hakları), Gizlilik Politikası (GDPR uyumlu), Çerez Politikası (zorunlu\/performans\/işlevsellik kategorileri), Mesafeli Satış Sözleşmesi (TKHK 6502 + Mesafeli Sözleşmeler Yönetmeliği), İade Politikası (14 gün cayma + ayıplı mal). Migration 005 INSERT...ON DUPLICATE KEY UPDATE pattern ile mevcut admin düzenlemelerini koruyor. (3) Yeni public sayfalar: \/cerez, \/mesafeli, \/iade — gizlilik.php pattern'inde, breadcrumb + section + .prose layout. .htaccess rewrite rules eklendi. Footer Kurumsal kolonuna 3 yeni link eklendi. (4) TEKLİF SİSTEMİ: Migration 006 ile 3 yeni tablo (teklifler, teklif_kalemleri, teklif_log). admin\/teklifler.php tam CRUD: cari otomatik bilgi doldurma, dinamik kalem tablosu (JS canlı hesaplama: miktar × b.fiyat → iskonto → KDV → toplam), durum workflow (taslak→gönderildi→görüntülendi→kabul\/red\/iptal\/faturalandı), faturaya dönüştürme (kabul edilen teklif tek tıkla fatura+cari hareket oluşturuyor), public link kopyalama widget. admin\/teklif-yazdir.php A4 yazdırılabilir teklif (kurumsal başlık + müşteri kartı + kalemler tablosu + toplamlar kutusu + imza alanları). teklif.php public sayfa (token tabanlı \/teklif\/{32hex} URL, ilk açılışta otomatik gonderildi→goruntulendi geçişi + IP\/UA log, müşteri kabul\/red butonu + opsiyonel red sebebi, süre dolduysa uyarı). Topbar Muhasebe dropdown'a Teklifler eklendi. random_bytes(16) ile public_token üretimi.",
+    "changelog": "v1.12.9: LOGO %25 DAHA BÜYÜK. v1.12.8'de 54→95px (%75) yapılmıştı, hâlâ küçük kalıyordu. Bu sürümde 95→120px (ekstra %25 büyütme). Tüm breakpoint değerleri orantılı güncellendi: desktop 95→120, scroll 80→100, 1100px breakpoint 80→100, 600px mobil 64→80, 600px mobil scroll 56→70. Sadece assets\/css\/style.css değişti — micro patch.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -27,6 +27,7 @@
         "34-smtp-hata-log-frontend-tls-fallback-mail-class",
         "35-smtp-data-terminator-dot-stuffing-fix",
         "36-logo-favicon-og-image-gorsel-kimlik",
-        "37-yasal-metinler-teklif-sistemi-logo-buyutme"
+        "37-yasal-metinler-teklif-sistemi-logo-buyutme",
+        "38-logo-ekstra-25-buyutme"
     ]
 }
