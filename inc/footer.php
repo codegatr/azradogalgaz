@@ -97,6 +97,11 @@ $tw   = ayar('sosyal_x', '');
 
 <a href="https://wa.me/<?= e($wa) ?>" target="_blank" class="fab-whatsapp" aria-label="WhatsApp ile iletişim"><i class="fab fa-whatsapp"></i></a>
 
+<button type="button" class="fab-scrollup" id="fabScrollup" aria-label="Yukarı dön" title="Yukarı dön">
+    <i class="fas fa-arrow-up ok" aria-hidden="true"></i>
+    <span class="alev" aria-hidden="true"><i class="fas fa-fire"></i></span>
+</button>
+
 <nav class="mobile-bar" aria-label="Mobil hızlı erişim">
     <div class="container">
         <div class="mobile-bar-grid">
@@ -123,6 +128,24 @@ document.addEventListener('scroll', () => {
             n.classList.remove('open');
         }
     });
+})();
+/* Scroll-up butonu — 400px altta görünür, smooth scroll yukarı */
+(function(){
+    const btn = document.getElementById('fabScrollup');
+    if (!btn) return;
+    const esik = 400;
+    let zamanlayici = null;
+    const guncelle = () => {
+        btn.classList.toggle('show', window.scrollY > esik);
+    };
+    window.addEventListener('scroll', () => {
+        if (zamanlayici) return;
+        zamanlayici = setTimeout(() => { guncelle(); zamanlayici = null; }, 60);
+    }, {passive:true});
+    btn.addEventListener('click', () => {
+        window.scrollTo({top:0, behavior:'smooth'});
+    });
+    guncelle();
 })();
 </script>
 

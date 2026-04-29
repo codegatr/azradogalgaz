@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.9",
+    "version": "1.12.10",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.9: LOGO %25 DAHA BÜYÜK. v1.12.8'de 54→95px (%75) yapılmıştı, hâlâ küçük kalıyordu. Bu sürümde 95→120px (ekstra %25 büyütme). Tüm breakpoint değerleri orantılı güncellendi: desktop 95→120, scroll 80→100, 1100px breakpoint 80→100, 600px mobil 64→80, 600px mobil scroll 56→70. Sadece assets\/css\/style.css değişti — micro patch.",
+    "changelog": "v1.12.10: WHATSAPP SOLA + SCROLL-UP BUTONU (KOMBİ ALEVLİ). (1) Floating WhatsApp butonu sağdan sola alındı (right→left, hem desktop hem mobil). (2) Sağa yeni .fab-scrollup butonu eklendi: turuncu-kırmızı alev gradient (#fbbf24→#f97316→#dc2626), büyük yukarı ok (fa-arrow-up), sağ alt köşesinde flame-flicker animasyonlu beyaz daire içinde minik alev rozeti (fa-fire). Hover'da scale+lift, active'de tıklama feedback. Smooth scroll-to-top, 400px scroll altında otomatik gizlenme (50ms throttle ile passive scroll listener). 700px altı mobil için boyutlar küçültüldü (52×52, 21×21 rozet). cubic-bezier(.34,1.56,.64,1) ile pop-in animasyonu, warm-pulse 2.6s ve flame-flicker 1.4s alternate keyframes. Mikro yama: 3 dosya (style.css, footer.php, manifest.json).",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -28,6 +28,7 @@
         "35-smtp-data-terminator-dot-stuffing-fix",
         "36-logo-favicon-og-image-gorsel-kimlik",
         "37-yasal-metinler-teklif-sistemi-logo-buyutme",
-        "38-logo-ekstra-25-buyutme"
+        "38-logo-ekstra-25-buyutme",
+        "39-whatsapp-sola-scrollup-kombi-alevli"
     ]
 }
