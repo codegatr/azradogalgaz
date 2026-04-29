@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.16",
+    "version": "1.12.17",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.16: 'İZMİRGAZ Yetkili · Demirdöküm Bayisi' kombine rozeti kaldırıldı. (1) index.php hero-badge span (anasayfa kahraman bölümünün üzerindeki turuncu sertifika rozeti) tamamen kaldırıldı — h1 başlığı doğrudan açılıyor şimdi. (2) admin\/teklif-yazdir.php yazdırma sayfası header'ında bulunan 'İZMİRGAZ Yetkili' ve 'Demirdöküm Bayisi' yetki pill rozetleri kaldırıldı, sadece firma bilgileri (unvan + adres + tel + e-posta + web) kaldı. 2 dosya değişti.",
+    "changelog": "v1.12.17: TÜM İZMİRGAZ REFERANSLARININ KAPSAMLI TEMİZLİĞİ. Hukuki güvenlik gerekçesiyle (firma İZMİRGAZ yetkili olmadığı için yetki iddiası içeren tüm metinler kaldırıldı) tüm PHP kaynak dosyalardaki İZMİRGAZ\/İzmirgaz\/izmirgaz referansları sistematik olarak temizlendi. Toplam 50 referans 13 dosyada işlendi. İki kategoride yaklaşım: (A) Yetki iddiası içeren cümleler tamamen kaldırıldı veya generic ifadeyle değiştirildi (\"Sertifikalı İç Tesisat Firması\", \"İzmirgaz onaylı yetkili firmadır\", \"İZMİRGAZ Yetkili\" feature kartı, vs); (B) Süreç bilgisi içeren ama İZMİRGAZ kelimesi geçen ifadeler nötr ifadeyle değiştirildi (\"İzmirgaz onayı\" → \"dağıtım şirketi onayı\", \"İzmirgaz şartnamesine\" → \"yerel dağıtım şirketi şartnamesine\", \"187 İzmirgaz Acil\" → \"187 Doğalgaz Acil\", \"İZMİRGAZ uyumlu\" → \"mevzuata uygun\"). Değişen dosyalar: index.php (hero-badge, feature kartı, structured data FAQ, meta), inc\/header.php (top-bar tag — v1.12.15'te zaten kaldırılmıştı, base güncel), inc\/footer.php (firma açıklama paragrafı), hakkimizda.php (sertifika listesi + paragraf + meta), iletisim.php (187 acil hat metni), sss.php (5 SSS sorusu+cevap), kvkk.php (veri paylaşımı paragrafı), kampanyalar.php (meta), bilgi-bankasi.php (7 paragraf+başlık), hizmetler.php (meta), kategori.php (meta), kurulum.php (paket içerikleri+meta), seed.php (urun seed datası — slug değişti). NOT: config.php gitignored, Yunus kendi sunucusunda manuel güncellemeli (SITE_DESC + SITE_KEYWORDS). NOT: DB'de seed.php'den gelen sayfalar\/sss\/urunler tablolarındaki içeriklerde de İZMİRGAZ referansı kalmış olabilir — admin\/sayfalar, admin\/sss, admin\/urunler, admin\/projeler, admin\/hizmet-kategorileri üzerinden manuel gözden geçir. 13 dosya değişti.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -35,6 +35,7 @@
         "42-teklif-yazdir-kompakt-kurumsal-a4",
         "43-teklif-yazdir-ad-soyad-kolonu-fix-trycatch",
         "44-izmirgaz-yetkili-tesisat-firmasi-rozeti-kaldirildi",
-        "45-izmirgaz-yetkili-demirdokum-bayisi-kombine-rozetler-kaldirildi"
+        "45-izmirgaz-yetkili-demirdokum-bayisi-kombine-rozetler-kaldirildi",
+        "46-izmirgaz-tum-referanslarin-tamamen-temizligi"
     ]
 }

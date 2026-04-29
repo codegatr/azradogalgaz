@@ -17,7 +17,7 @@ $kart_fiyat  = $kampanya['kart_fiyat']  ?? 87000;
 $taksit      = $kampanya['taksit_sayisi'] ?? 6;
 
 $sayfa_baslik   = 'Azra Doğalgaz — İzmir Demirdöküm Yetkili Doğalgaz, Kombi, Klima Tesisatı';
-$sayfa_aciklama = 'İzmir\'de Demirdöküm Ademix kombi, klima, doğalgaz tesisat, yerden ısıtma, sıhhi tesisat ve havalandırma. İZMİRGAZ uyumlu, garantili, 7/24 teknik destek.';
+$sayfa_aciklama = 'İzmir\'de Demirdöküm Ademix kombi, klima, doğalgaz tesisat, yerden ısıtma, sıhhi tesisat ve havalandırma. mevzuata uygun kurulum, garantili, 7/24 teknik destek.';
 $kanonik_url    = SITE_URL . '/';
 
 $schema_jsonld = [
@@ -31,12 +31,12 @@ $schema_jsonld = [
         '@context' => 'https://schema.org',
         '@type'    => 'FAQPage',
         'mainEntity' => [
-            ['@type' => 'Question', 'name' => 'İzmirgaz yetkili doğalgaz firması nasıl seçilir?',
-             'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Firmanın geçerli "Sertifikalı İç Tesisat Firması" belgesi olmalı, projeyi İzmirgaz sistemine yükleyebiliyor olmalı, gaz açma sürecinde yetkili teknisyen ile çalışmalıdır. Azra Doğalgaz İzmirgaz onaylı yetkili firmadır.']],
+            ['@type' => 'Question', 'name' => 'Doğalgaz tesisat firması nasıl seçilir?',
+             'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Firmanın geçerli "Sertifikalı İç Tesisat Firması" niteliği bulunmalı, projeyi yerel dağıtım şirketi sistemine yükleyebiliyor olmalı, gaz açma sürecinde teknisyenleri yetkili olmalıdır.']],
             ['@type' => 'Question', 'name' => 'Kombi seçerken hangi kapasite m² için uygundur?',
              'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Kabaca her 10 m² için 1.5-2 kW kombi gücü gerekir. 100-120 m² için 24 kW yoğuşmalı kombi, 150-180 m² için 30 kW idealdir.']],
             ['@type' => 'Question', 'name' => 'Doğalgaz projesi kaç günde onaylanır?',
-             'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'İzmirgaz proje onayı eksiksiz başvurularda 2-5 iş günü içinde tamamlanır. Toplam süreç ortalama 7-10 gün.']],
+             'acceptedAnswer' => ['@type' => 'Answer', 'text' => 'Doğalgaz proje onayı eksiksiz başvurularda 2-5 iş günü içinde tamamlanır. Toplam süreç ortalama 7-10 gün.']],
         ],
     ],
 ];
@@ -85,7 +85,7 @@ require_once __DIR__ . '/inc/header.php';
                     <li>Demirdöküm Ademix 24 kW Tam Yoğuşmalı Kombi</li>
                     <li>5 Metre Termopan Petek</li>
                     <li>Kombi Dolabı + 50x100 Havlupan</li>
-                    <li>Siyah Boru + İZMİRGAZ Onaylı Proje</li>
+                    <li>Siyah Boru + Onaylı Proje</li>
                     <li>Tesisat İşçiliği Dahil</li>
                 </ul>
                 <a href="<?= SITE_URL ?>/kampanya/<?= e($kampanya['slug']) ?>" class="btn btn-primary btn-block"><i class="fas fa-fire"></i> Kampanya Detayları</a>
@@ -100,10 +100,10 @@ require_once __DIR__ . '/inc/header.php';
         <div class="s-head">
             <span class="s-tag">Neden Azra Doğalgaz?</span>
             <h2>Kalite, güvenlik ve müşteri memnuniyeti</h2>
-            <p>İZMİRGAZ yetkili firma olarak tüm tesisat ve montaj işlerinizi yasal mevzuata uygun, garantili ve uzman ekibimizle gerçekleştiriyoruz.</p>
+            <p>Tecrübeli ekibimiz ve mevzuata tam uyumlu süreçlerimizle tesisat ve montaj işlerinizi garantili şekilde gerçekleştiriyoruz.</p>
         </div>
         <div class="features">
-            <div class="feature"><div class="ico"><i class="fas fa-certificate"></i></div><h4>İZMİRGAZ Yetkili</h4><p>Sertifikalı iç tesisat firması olarak proje onayı, montaj ve gaz açma süreçlerinde resmi prosedürlere tam uyum.</p></div>
+            <div class="feature"><div class="ico"><i class="fas fa-certificate"></i></div><h4>Mevzuata Uyum</h4><p>Tüm proje onayı, montaj ve gaz açma süreçlerinde resmi prosedürlere ve yerel dağıtım şirketi şartlarına tam uyum.</p></div>
             <div class="feature"><div class="ico"><i class="fas fa-medal"></i></div><h4>Demirdöküm Yetkili</h4><p>Türkiye'nin lider markası Demirdöküm'ün yetkili satıcısı ve montaj firması olarak orijinal ürün, garantili servis.</p></div>
             <div class="feature"><div class="ico"><i class="fas fa-clipboard-check"></i></div><h4>Ücretsiz Keşif</h4><p>Adresinize ücretsiz keşif ekibi gönderiyor, ihtiyacınızı yerinde analiz edip en uygun çözümü sunuyoruz.</p></div>
             <div class="feature"><div class="ico"><i class="fas fa-handshake"></i></div><h4>Şeffaf Fiyatlandırma</h4><p>Sürpriz maliyet yok. Önceden net teklif veriyor, sözleşme yapıyor ve verdiğimiz fiyata sadık kalıyoruz.</p></div>
@@ -126,7 +126,7 @@ require_once __DIR__ . '/inc/header.php';
         <div class="services">
             <?php
             $hizmet_ikon_map = [
-                'dogalgaz-tesisati' => ['fa-fire-flame-curved', 'Doğalgaz tesisat projesi, döşeme, gaz açma. İZMİRGAZ onaylı.'],
+                'dogalgaz-tesisati' => ['fa-fire-flame-curved', 'Doğalgaz tesisat projesi, döşeme, gaz açma. Mevzuata tam uyumlu.'],
                 'kombi-servisi'     => ['fa-screwdriver-wrench', 'Yoğuşmalı kombi satış, montaj, bakım, arıza. Tüm markalar.'],
                 'klima-montaji'     => ['fa-snowflake', 'Inverter split klima, multi-split sistem montaj ve bakım.'],
                 'yerden-isitma'     => ['fa-temperature-arrow-up', 'PE-X borulu yerden ısıtma sistem tasarımı ve montajı.'],
@@ -339,9 +339,9 @@ require_once __DIR__ . '/inc/header.php';
         </div>
         <div class="faq-list">
             <details class="faq" open>
-                <summary>İzmirgaz yetkili doğalgaz firması nasıl seçilir?</summary>
+                <summary>Doğalgaz tesisat firması nasıl seçilir?</summary>
                 <div class="faq-body">
-                    <p>Bir doğalgaz firmasının ilk yetkinlik kanıtı, İzmirgaz tarafından verilmiş geçerli "Sertifikalı İç Tesisat Firması" belgesidir. Yalnızca yetkili firmaların hazırladığı projeler İzmirgaz sistemine yüklenebilir ve onaylanır. <strong>Azra Doğalgaz İzmirgaz onaylı yetkili firmadır</strong> — yetki numaramızı talep edebilirsiniz.</p>
+                    <p>Bir doğalgaz tesisat firmasında dikkat edilecek temel kriterler: bölgenizdeki dağıtım şirketi tarafından kabul edilen "Sertifikalı İç Tesisat Firması" niteliği, deneyimli teknik kadro, sigortalı uygulama, yazılı sözleşme ve garanti şartlarıdır.</p>
                 </div>
             </details>
             <details class="faq">
@@ -361,7 +361,7 @@ require_once __DIR__ . '/inc/header.php';
             <details class="faq">
                 <summary>Doğalgaz projesi kaç günde onaylanır? Tüm süreç ne kadar sürer?</summary>
                 <div class="faq-body">
-                    <p>İzmirgaz onay süreci eksiksiz başvurularda <strong>2–5 iş günüdür</strong>. Tesisat tamamlandıktan sonra gaz açma için randevu alınır, kontrol 2–5 iş günü içinde yapılır. <strong>Toplam süreç ortalama 7–10 iş günü</strong>'dür.</p>
+                    <p>Dağıtım şirketi onay süreci eksiksiz başvurularda <strong>2–5 iş günüdür</strong>. Tesisat tamamlandıktan sonra gaz açma için randevu alınır, kontrol 2–5 iş günü içinde yapılır. <strong>Toplam süreç ortalama 7–10 iş günü</strong>'dür.</p>
                 </div>
             </details>
             <details class="faq">

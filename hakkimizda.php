@@ -2,7 +2,7 @@
 require_once __DIR__ . '/config.php';
 
 $sayfa_baslik   = 'Hakkımızda — Azra Doğalgaz İzmir';
-$sayfa_aciklama = 'Azra Doğalgaz, İzmir\'de doğalgaz tesisatı, kombi ve klima montajı alanında uzun yıllara dayanan deneyime sahip İzmirgaz onaylı, Demirdöküm yetkili firmadır.';
+$sayfa_aciklama = 'Azra Doğalgaz, İzmir\'de doğalgaz tesisatı, kombi ve klima montajı alanında uzun yıllara dayanan deneyime sahip Demirdöküm yetkili firmadır.';
 $kanonik_url    = SITE_URL . '/hakkimizda';
 
 $schema_jsonld = [
@@ -41,7 +41,7 @@ require_once __DIR__ . '/inc/header.php';
         <div class="prose">
             <h2>Biz Kimiz?</h2>
             <p><strong>Azra Doğalgaz</strong>, İzmir'de doğalgaz tesisatı, kombi montajı ve servisi, klima sistemleri, yerden ısıtma ve mekanik tesisat alanlarında <strong>10+ yıldır</strong> hizmet veren, sektöründe öncü bir firmadır.</p>
-            <p>İzmirgaz tarafından onaylı <strong>Sertifikalı İç Tesisat Firması</strong> ve <strong>Demirdöküm yetkili bayisi</strong> olarak; konutlardan ticari mekanlara, küçük dairelerden büyük dubleks villalara kadar her ölçekte projede müşterilerimize uçtan uca profesyonel çözüm sunuyoruz.</p>
+            <p><strong>Demirdöküm yetkili bayisi</strong> olarak; konutlardan ticari mekanlara, küçük dairelerden büyük dubleks villalara kadar her ölçekte projede müşterilerimize uçtan uca profesyonel çözüm sunuyoruz.</p>
 
             <h2>Misyonumuz</h2>
             <p>Müşterilerimize <strong>güvenilir, garantili ve şeffaf</strong> doğalgaz, kombi, klima ve mekanik tesisat hizmetleri sunmak. Her projede yasal mevzuata uygun, kaliteli malzeme ve uzman işçilikle, sürpriz maliyet çıkarmadan, söz verdiğimiz tarihte tamamlamak.</p>
@@ -81,7 +81,7 @@ require_once __DIR__ . '/inc/header.php';
         <div class="prose">
             <h2>Yetkilerimiz ve Belgelerimiz</h2>
             <ul>
-                <li><strong>İZMİRGAZ Sertifikalı İç Tesisat Firması</strong> — Resmi yetki belgesi</li>
+                
                 <li><strong>Demirdöküm Yetkili Bayi</strong> — Türkiye'nin lider markası</li>
                 <li><strong>Bosch / Vaillant / ECA / Buderus</strong> — Çoklu marka satış ve montaj yetkisi</li>
                 <li><strong>Klima yetkili servisleri</strong> — Daikin, Mitsubishi, LG, Samsung, Vestel</li>

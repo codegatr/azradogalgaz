@@ -412,18 +412,18 @@ if ($kurulumu_calistir) {
         $st->execute([
             'Azra Doğalgaz Süper Kombi Paketi — Demirdöküm Ademix 24 kW',
             'azra-dogalgaz-super-kombi-paketi',
-            'Demirdöküm Ademix 24 kW tam yoğuşmalı kombi, 5 metre termopan petek, kombi dolabı, 50x100 havlupan, siyah boru ve proje dahil İzmirgaz uyumlu tesisat hizmeti.',
+            'Demirdöküm Ademix 24 kW tam yoğuşmalı kombi, 5 metre termopan petek, kombi dolabı, 50x100 havlupan, siyah boru ve proje dahil mevzuata uygun tesisat hizmeti.',
             '<h2>Paket İçeriği</h2><ul>'
             .'<li>Demirdöküm Ademix 24 kW Tam Yoğuşmalı Kombi</li>'
             .'<li>5 Metre Termopan Petek</li>'
             .'<li>Kombi Dolabı</li>'
             .'<li>50x100 Havlupan</li>'
             .'<li>Siyah Boru + Proje Dahil</li>'
-            .'<li>İzmirgaz Uyumlu Tesisat Hizmetleri</li>'
+            .'<li>Doğalgaz Tesisat Hizmetleri</li>'
             .'</ul><p>Konforlu yaşam ve güvenli gelecek için Azra Doğalgaz garantisi.</p>',
             80000.00, 87000.00, 6,
             'İzmir Kombi Paketi 80.000 TL — Demirdöküm Ademix 24 kW | Azra Doğalgaz',
-            'İzmir\'de Demirdöküm Ademix 24 kW tam yoğuşmalı kombi paketi 80.000 TL nakit. 5 m petek, kombi dolabı, havlupan, siyah boru, proje ve İzmirgaz uyumlu tesisat dahil.',
+            'İzmir\'de Demirdöküm Ademix 24 kW tam yoğuşmalı kombi paketi 80.000 TL nakit. 5 m petek, kombi dolabı, havlupan, siyah boru, proje ve mevzuata uygun tesisat dahil.',
         ]);
         $ok('Demo kampanya yüklendi.');
 

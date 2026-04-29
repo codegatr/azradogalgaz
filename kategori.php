@@ -14,7 +14,7 @@ if (!$kat) {
 $hizmetler = db_all("SELECT * FROM hizmetler WHERE kategori_id=? AND aktif=1 ORDER BY sira ASC, id DESC", [$kat['id']]);
 
 $sayfa_baslik   = e($kat['ad']) . ' — İzmir | Azra Doğalgaz';
-$sayfa_aciklama = !empty($kat['seo_aciklama']) ? e($kat['seo_aciklama']) : (e($kat['ad']) . ' hizmeti İzmir\'de Azra Doğalgaz güvencesiyle. İzmirgaz uyumlu, garantili, hızlı keşif.');
+$sayfa_aciklama = !empty($kat['seo_aciklama']) ? e($kat['seo_aciklama']) : (e($kat['ad']) . ' hizmeti İzmir\'de Azra Doğalgaz güvencesiyle. Mevzuata uygun, garantili, hızlı keşif.');
 $kanonik_url    = SITE_URL . '/kategori/' . e($slug);
 
 $schema_jsonld = [

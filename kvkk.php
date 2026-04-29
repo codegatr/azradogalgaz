@@ -43,7 +43,7 @@ require_once __DIR__ . '/inc/header.php';
                 <p>Toplanan kişisel verileriniz aşağıdaki amaçlarla işlenmektedir:</p>
                 <ul>
                     <li>Hizmet talebinizin yanıtlanması ve teklif sunulması</li>
-                    <li>Doğalgaz tesisat projelerinin İzmirgaz sistemine yüklenmesi</li>
+                    <li>Doğalgaz tesisat projelerinin yerel dağıtım şirketi sistemine yüklenmesi</li>
                     <li>Sözleşme süreçlerinin yürütülmesi</li>
                     <li>Müşteri hizmetlerinin gerçekleştirilmesi</li>
                     <li>Yasal yükümlülüklerin yerine getirilmesi</li>
@@ -51,7 +51,7 @@ require_once __DIR__ . '/inc/header.php';
                 </ul>
 
                 <h2>Kişisel Verilerin Aktarılması</h2>
-                <p>Kişisel verileriniz; yasal düzenlemelerin öngördüğü ölçüde İzmirgaz, ilgili kamu kurum ve kuruluşları, yetkili tedarikçilerimiz, bayilik ilişkimiz olan üretici firmalar (Demirdöküm vb.) ve hizmet aldığımız üçüncü taraflar (muhasebe, hukuk vb.) ile paylaşılabilir.</p>
+                <p>Kişisel verileriniz; yasal düzenlemelerin öngördüğü ölçüde yerel doğalgaz dağıtım şirketi, ilgili kamu kurum ve kuruluşları, yetkili tedarikçilerimiz, bayilik ilişkimiz olan üretici firmalar (Demirdöküm vb.) ve hizmet aldığımız üçüncü taraflar (muhasebe, hukuk vb.) ile paylaşılabilir.</p>
 
                 <h2>Kişisel Veri Sahibinin Hakları</h2>
                 <p>KVKK'nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:</p>

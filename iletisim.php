@@ -158,8 +158,8 @@ require_once __DIR__ . '/inc/header.php';
 
                 <div class="card" style="background:var(--c-primary-l);border-color:#fed7aa">
                     <h4 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:12px"><i class="fas fa-circle-info" style="color:var(--c-primary);margin-right:8px"></i>Acil Durumda</h4>
-                    <p style="color:var(--c-text-2);font-size:.92rem;line-height:1.6;margin-bottom:14px">Gaz kaçağı şüphesi gibi acil durumlarda <strong>önce 187 İzmirgaz Acil Müdahale</strong> hattını arayın, ardından bizi bilgilendirin.</p>
-                    <a href="tel:187" class="btn btn-out btn-sm" style="background:#fff"><i class="fas fa-phone"></i> 187 İzmirgaz Acil</a>
+                    <p style="color:var(--c-text-2);font-size:.92rem;line-height:1.6;margin-bottom:14px">Gaz kaçağı şüphesi gibi acil durumlarda <strong>önce 187 Doğalgaz Acil İhbar</strong> hattını arayın, ardından bizi bilgilendirin.</p>
+                    <a href="tel:187" class="btn btn-out btn-sm" style="background:#fff"><i class="fas fa-phone"></i> 187 Doğalgaz Acil</a>
                 </div>
             </div>
 

@@ -259,9 +259,9 @@ if (!empty($_POST['calistir'])) {
 
     $hizmetler = [
         // Doğalgaz Tesisatı
-        ['dogalgaz-tesisati','İzmirgaz Onaylı Doğalgaz Tesisatı','izmirgaz-onayli-dogalgaz-tesisati',
-            'İzmirgaz sertifikalı uzman ekiple projelendirme, tesisat döşeme, sızdırmazlık testi ve gaz açma uçtan uca hizmet.',
-            '<h2>İzmirgaz Onaylı Doğalgaz Tesisatı</h2><p><strong>Azra Doğalgaz</strong>, İzmirgaz tarafından sertifikalı yetkili iç tesisat firmasıdır. Yeni doğalgaz aboneliği, kombi dönüşümü veya mevcut tesisat yenileme işlemlerini İzmirgaz mevzuatına %100 uygun şekilde gerçekleştiririz.</p><h3>Süreç (Toplam 7-10 İş Günü)</h3><ol><li>Ücretsiz keşif ve yazılı teklif</li><li>Yetkili makine mühendisi proje çizimi</li><li>İzmirgaz online onay süreci (2-5 iş günü)</li><li>Tesisat döşeme (1-2 iş günü)</li><li>Sızdırmazlık testi (basınç testi)</li><li>İzmirgaz teknik personeli kontrol + gaz arzı</li><li>Doğal Gaz Uygunluk Belgesi tanzimi</li></ol><h3>Kullanılan Malzemeler</h3><ul><li>TS EN 15266 standartlarına uygun çelik veya gasfil paslanmaz boru</li><li>İzmirgaz onaylı küresel vana ve sayaç odası fitingleri</li><li>2 yıl işçilik garantisi, sigortalı uygulama</li></ul>',
+        ['dogalgaz-tesisati','Doğalgaz Tesisatı','dogalgaz-tesisati',
+            'Uzman ekiple projelendirme, tesisat döşeme, sızdırmazlık testi ve gaz açma uçtan uca hizmet.',
+            '<h2>Doğalgaz Tesisatı</h2><p><strong>Azra Doğalgaz</strong>, bölgenin deneyimli doğalgaz tesisat firmalarından biridir. Yeni doğalgaz aboneliği, kombi dönüşümü veya mevcut tesisat yenileme işlemlerini yerel dağıtım şirketi mevzuatına %100 uygun şekilde gerçekleştiririz.</p><h3>Süreç (Toplam 7-10 İş Günü)</h3><ol><li>Ücretsiz keşif ve yazılı teklif</li><li>Yetkili makine mühendisi proje çizimi</li><li>dağıtım şirketi online onay süreci (2-5 iş günü)</li><li>Tesisat döşeme (1-2 iş günü)</li><li>Sızdırmazlık testi (basınç testi)</li><li>dağıtım şirketi teknik kontrolü + gaz arzı</li><li>Doğal Gaz Uygunluk Belgesi tanzimi</li></ol><h3>Kullanılan Malzemeler</h3><ul><li>TS EN 15266 standartlarına uygun çelik veya gasfil paslanmaz boru</li><li>standartlara uygun küresel vana ve sayaç odası fitingleri</li><li>2 yıl işçilik garantisi, sigortalı uygulama</li></ul>',
             10, img('gas,pipes,plumbing,installation')],
 
         ['dogalgaz-tesisati','Doğalgaz Dönüşüm Hizmeti','dogalgaz-donusum-hizmeti',
@@ -287,7 +287,7 @@ if (!empty($_POST['calistir'])) {
 
         ['kombi-servisi','Kombi Arıza ve Acil Servis','kombi-ariza-acil-servis',
             'Aynı gün servis. Hata kodu çözümü, sıcak su gelmemesi, basınç problemleri.',
-            '<h2>Kombi Arıza Servisi</h2><p>Aynı gün servis politikamız: çağrı saatinden 2-4 saat içinde teknisyen adresinizde.</p><h3>Sık Karşılaşılan Arızalar</h3><ul><li><strong>E1, E2, E3 hatası:</strong> Tesisat basıncı düşük (1-2 bar olmalı)</li><li><strong>F37:</strong> Kombi suyu eklenmesi gerekli</li><li><strong>Sıcak su gelmiyor:</strong> Plakalı eşanjör tıkanmış</li><li><strong>Sürekli açıp kapanıyor:</strong> Modülasyon arızası</li><li><strong>Petek soğuk:</strong> Hava kalmış (havasını alın)</li></ul><p><strong>UYARI:</strong> Gaz kokusunda <strong>187 İzmirgaz Acil</strong>\'i arayın.</p>',
+            '<h2>Kombi Arıza Servisi</h2><p>Aynı gün servis politikamız: çağrı saatinden 2-4 saat içinde teknisyen adresinizde.</p><h3>Sık Karşılaşılan Arızalar</h3><ul><li><strong>E1, E2, E3 hatası:</strong> Tesisat basıncı düşük (1-2 bar olmalı)</li><li><strong>F37:</strong> Kombi suyu eklenmesi gerekli</li><li><strong>Sıcak su gelmiyor:</strong> Plakalı eşanjör tıkanmış</li><li><strong>Sürekli açıp kapanıyor:</strong> Modülasyon arızası</li><li><strong>Petek soğuk:</strong> Hava kalmış (havasını alın)</li></ul><p><strong>UYARI:</strong> Gaz kokusunda <strong>187 Doğalgaz Acil</strong>\'i arayın.</p>',
             30, img('repair,emergency,technician,boiler')],
 
         // Klima Montajı
@@ -375,7 +375,7 @@ if (!empty($_POST['calistir'])) {
 
         ['Apartman Doğalgaz Dönüşüm Paketi','apartman-dogalgaz-donusum-paketi',
             'Apartmanınızdaki tüm daireler için tek seferlik avantajlı toplu doğalgaz dönüşüm paketi.',
-            '<h2>Apartman Toplu Doğalgaz Dönüşümü</h2><p>Apartman yöneticileri için: Tüm dairelerde aynı anda doğalgaz dönüşümü yaptırırsanız, daire başına %15-20 indirimle hizmet sunuyoruz.</p><h3>Pakete Dahil</h3><ul><li>Tüm bina için tek koordinatör</li><li>Kolon hattı projelendirme ve döşeme</li><li>Her daire için bireysel proje çizimi</li><li>İzmirgaz onay süreçleri</li><li>Tesisat döşeme (her daire 1-2 gün)</li><li>Sızdırmazlık testleri</li><li>Toplu gaz açma randevusu</li><li>Apartman karar metni desteği</li><li>Toplu fiyat avantajı (%15-20)</li></ul><p>Yöneticilerimize yazılı paket teklifi sunmak için bize ulaşın.</p>',
+            '<h2>Apartman Toplu Doğalgaz Dönüşümü</h2><p>Apartman yöneticileri için: Tüm dairelerde aynı anda doğalgaz dönüşümü yaptırırsanız, daire başına %15-20 indirimle hizmet sunuyoruz.</p><h3>Pakete Dahil</h3><ul><li>Tüm bina için tek koordinatör</li><li>Kolon hattı projelendirme ve döşeme</li><li>Her daire için bireysel proje çizimi</li><li>dağıtım şirketi onay süreçleri</li><li>Tesisat döşeme (her daire 1-2 gün)</li><li>Sızdırmazlık testleri</li><li>Toplu gaz açma randevusu</li><li>Apartman karar metni desteği</li><li>Toplu fiyat avantajı (%15-20)</li></ul><p>Yöneticilerimize yazılı paket teklifi sunmak için bize ulaşın.</p>',
             0, 0, 0, '2026-01-01', '2026-12-31', img('apartment,building,gas,team')],
     ];
 
@@ -461,8 +461,8 @@ if (!empty($_POST['calistir'])) {
     $projeler_arr = [
         ['Bornova Konut Sitesi — 48 Daire Doğalgaz Tesisat','bornova-konut-sitesi-dogalgaz',
             'Doğalgaz Tesisatı','Bornova/İzmir','2026-03',
-            '48 daireli yeni konut sitesinde komple doğalgaz tesisat işi. Kolon hatları, sayaç odası, daire içi tesisatlar tamamlandı, İzmirgaz onayı alındı, gaz arzı sağlandı.',
-            '<p>Bornova\'da inşaatı tamamlanan 48 daireli konut sitesinin komple doğalgaz tesisat projesini Şubat-Mart 2026\'da tamamladık.</p><h3>Kapsam</h3><ul><li>Sayaç odası tesisatı</li><li>Kolon hatları (8 katlı 6 blok)</li><li>Daire içi tesisatları (48 daire × ortalama 2 noktası)</li><li>Sızdırmazlık testleri</li><li>İzmirgaz onayı + toplu gaz açma</li></ul><p><strong>Süre:</strong> 25 iş günü</p>',
+            '48 daireli yeni konut sitesinde komple doğalgaz tesisat işi. Kolon hatları, sayaç odası, daire içi tesisatlar tamamlandı, dağıtım şirketi onayı alındı, gaz arzı sağlandı.',
+            '<p>Bornova\'da inşaatı tamamlanan 48 daireli konut sitesinin komple doğalgaz tesisat projesini Şubat-Mart 2026\'da tamamladık.</p><h3>Kapsam</h3><ul><li>Sayaç odası tesisatı</li><li>Kolon hatları (8 katlı 6 blok)</li><li>Daire içi tesisatları (48 daire × ortalama 2 noktası)</li><li>Sızdırmazlık testleri</li><li>dağıtım şirketi onayı + toplu gaz açma</li></ul><p><strong>Süre:</strong> 25 iş günü</p>',
             img('apartment,building,modern,construction')],
 
         ['Karşıyaka Dubleks Villa — Yerden Isıtma + Kombi','karsiyaka-dubleks-villa-yerden-isitma',
@@ -518,7 +518,7 @@ if (!empty($_POST['calistir'])) {
     // 9) AYARLAR — eksik olanlar default'la doldur
     // =========================================================================
     $varsayilan = [
-        'meta_anahtar_kelime' => 'izmir doğalgaz, demirdöküm yetkili bayi, kombi montaj izmir, klima izmir, yerden ısıtma izmir, izmirgaz onaylı tesisat, ısı pompası izmir',
+        'meta_anahtar_kelime' => 'izmir doğalgaz, demirdöküm yetkili bayi, kombi montaj izmir, klima izmir, yerden ısıtma izmir,  ısı pompası izmir',
     ];
     foreach ($varsayilan as $k => $v) {
         try {

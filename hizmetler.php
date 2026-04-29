@@ -4,7 +4,7 @@ require_once __DIR__ . '/config.php';
 $kategoriler = db_all("SELECT * FROM hizmet_kategorileri WHERE aktif=1 ORDER BY sira ASC, id ASC");
 
 $sayfa_baslik   = 'Hizmetlerimiz — Doğalgaz, Kombi, Klima, Tesisat | Azra Doğalgaz İzmir';
-$sayfa_aciklama = 'İzmir\'de doğalgaz tesisatı, kombi montajı, klima montajı, yerden ısıtma, sıhhi tesisat ve mekanik tesisat hizmetleri. İzmirgaz uyumlu, garantili kurulum.';
+$sayfa_aciklama = 'İzmir\'de doğalgaz tesisatı, kombi montajı, klima montajı, yerden ısıtma, sıhhi tesisat ve mekanik tesisat hizmetleri. Mevzuata uygun, garantili kurulum.';
 $kanonik_url    = SITE_URL . '/hizmetler';
 
 $schema_jsonld = [

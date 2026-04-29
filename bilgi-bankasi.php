@@ -43,16 +43,16 @@ require_once __DIR__ . '/inc/header.php';
 
 <!-- 1 -->
 <h2 id="dogalgaz-baglanti" style="scroll-margin-top:100px"><i class="fas fa-fire-flame-curved" style="color:var(--c-primary);margin-right:10px"></i>1. Doğalgaz Bağlantı Süreci (Adım Adım)</h2>
-<p>İzmir'de yeni bir konuta doğalgaz çekmek istiyorsanız, izlemeniz gereken süreç aşağıdadır. Tüm aşamalar İzmirgaz şartnamesine ve EPDK mevzuatına uygun olmalıdır.</p>
+<p>İzmir'de yeni bir konuta doğalgaz çekmek istiyorsanız, izlemeniz gereken süreç aşağıdadır. Tüm aşamalar bölgenizdeki yerel doğalgaz dağıtım şirketi şartnamesine ve EPDK mevzuatına uygun olmalıdır.</p>
 
 <h3>Adım 1 — Yetkili firma seçimi</h3>
-<p>İlk ve en önemli adım, İzmirgaz tarafından sertifikalı bir iç tesisat firması ile çalışmaktır. Yetkisiz firma ile yaptırılan tesisat <strong>İzmirgaz tarafından kabul edilmez</strong>, gaz açılmaz, baştan yapılması gerekir.</p>
+<p>İlk ve en önemli adım, bölgenizdeki yerel doğalgaz dağıtım şirketi tarafından sertifikalı bir iç tesisat firması ile çalışmaktır. Yetkisiz firma ile yaptırılan tesisat <strong>dağıtım şirketi tarafından kabul edilmez</strong>, gaz açılmaz, baştan yapılması gerekir.</p>
 
 <h3>Adım 2 — Keşif ve teklif</h3>
 <p>Yetkili firma adresinize keşif ekibi gönderir. Ölçüm yapılır, kombi konumu, baca durumu, petek sayısı/uzunluğu, sayaç yeri belirlenir. <strong>Yazılı teklif sunulur.</strong> Teklif kabul edilirse sözleşme imzalanır.</p>
 
-<h3>Adım 3 — Proje çizimi ve İzmirgaz onayı</h3>
-<p>Yetkili makine mühendisi tarafından proje çizilir, İzmirgaz online sistemine yüklenir. <strong>2-5 iş günü</strong> içinde teknik kontrol sonrası onaylanır. Eksik proje düzeltilmek üzere geri gönderilir.</p>
+<h3>Adım 3 — Proje çizimi ve dağıtım şirketi onayı</h3>
+<p>Yetkili makine mühendisi tarafından proje çizilir, yerel doğalgaz dağıtım şirketi online sistemine yüklenir. <strong>2-5 iş günü</strong> içinde teknik kontrol sonrası onaylanır. Eksik proje düzeltilmek üzere geri gönderilir.</p>
 
 <h3>Adım 4 — Onay bedeli ve sözleşme</h3>
 <p>Proje onayı sonrası firmanın onay bedeli ödemesi yapılır. Sigorta poliçesi, doğal gaz dönüşüm sözleşmesi ve diğer evraklar proje dosyasına yüklenir, arşivlenir.</p>
@@ -63,11 +63,11 @@ require_once __DIR__ . '/inc/header.php';
 <h3>Adım 6 — Güvence bedeli ve gaz açma randevusu</h3>
 <p>Müşteri abone merkezine giderek <strong>güvence bedeli</strong>ni yatırır (kullanım sonunda iade edilir). Sayaç firmaya teslim edilir. Online sistem üzerinden gaz açma randevusu alınır.</p>
 
-<h3>Adım 7 — İzmirgaz kontrol ve gaz açma</h3>
-<p>İzmirgaz teknik personeli ve sertifikalı firma yetkilisi adresinize gelir. Tesisat kontrol edilir, ocak/kombi gibi cihazların bağlı olması gerekir. Uygunluk durumunda gaz arzı sağlanır, <strong>Doğal Gaz Uygunluk Belgesi</strong> verilir.</p>
+<h3>Adım 7 — Dağıtım şirketi kontrolü ve gaz açma</h3>
+<p>Dağıtım şirketi teknik personeli ve sertifikalı firma yetkilisi adresinize gelir. Tesisat kontrol edilir, ocak/kombi gibi cihazların bağlı olması gerekir. Uygunluk durumunda gaz arzı sağlanır, <strong>Doğal Gaz Uygunluk Belgesi</strong> verilir.</p>
 
 <h3>Adım 8 — Kombi devreye alma</h3>
-<p>Yetkili kombi servisi ile görüşülerek kombi devreye alınır. Servis bu işlem sırasında İzmirgaz Uygunluk Belgesi'ni talep eder.</p>
+<p>Yetkili kombi servisi ile görüşülerek kombi devreye alınır. Servis bu işlem sırasında Doğal Gaz Uygunluk Belgesi'ni talep eder.</p>
 
 <blockquote><strong>Toplam süre:</strong> Standart bir daire için keşiften aktif kullanıma <strong>ortalama 7-10 iş günü</strong>'dür. Yoğun dönemlerde 14 güne kadar uzayabilir.</blockquote>
 

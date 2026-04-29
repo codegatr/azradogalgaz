@@ -12,16 +12,16 @@ $faq_kategoriler = [
         'ikon'   => 'fa-fire-flame-curved',
         'sorular' => [
             [
-                'İzmirgaz yetkili doğalgaz firması nasıl seçilir?',
-                'Bir doğalgaz firmasının ilk yetkinlik kanıtı, İzmirgaz tarafından verilmiş geçerli "Sertifikalı İç Tesisat Firması" belgesidir. Yalnızca yetkili firmaların projeleri İzmirgaz sistemine yüklenebilir ve onaylanabilir. <strong>Azra Doğalgaz İzmirgaz onaylı yetkili firmadır</strong> — yetki numaramızı talep ederek iletişim sayfasından doğrulayabilirsiniz.',
+                'Doğalgaz tesisat firması nasıl seçilir?',
+                'Bir doğalgaz tesisat firmasında dikkat edilecek temel kriterler: bölgenizdeki dağıtım şirketi tarafından kabul edilen "Sertifikalı İç Tesisat Firması" niteliği, deneyimli teknik kadro, sigortalı uygulama, yazılı sözleşme ve garanti şartlarıdır. Detaylı referans ve belgeler için bizimle iletişime geçebilirsiniz.',
             ],
             [
                 'Doğalgaz projesi kaç günde onaylanır?',
-                'İzmirgaz proje onayı eksiksiz başvurularda <strong>2–5 iş günü</strong> içinde tamamlanır. Proje onayı sonrası firmanın onay bedeli ödemesi yapılır, ardından sigorta poliçesi ve sözleşme yüklenir. Eksik proje düzeltilmek üzere geri gönderilir.',
+                'Doğalgaz proje onayı eksiksiz başvurularda <strong>2–5 iş günü</strong> içinde tamamlanır. Proje onayı sonrası firmanın onay bedeli ödemesi yapılır, ardından sigorta poliçesi ve sözleşme yüklenir. Eksik proje düzeltilmek üzere geri gönderilir.',
             ],
             [
                 'Yeni doğalgaz tesisatı için tüm süreç ne kadar sürer?',
-                'Standart bir daire için: <ul><li>Keşif: 1 gün</li><li>Proje çizimi + İzmirgaz onayı: 2–5 iş günü</li><li>Tesisat döşeme: 1–2 gün</li><li>Sızdırmazlık testi + gaz açma randevusu: 2–5 iş günü</li><li>İzmirgaz kontrol + gaz arzı: 1 gün</li></ul>Toplam: <strong>ortalama 7–10 iş günü</strong>.',
+                'Standart bir daire için: <ul><li>Keşif: 1 gün</li><li>Proje çizimi + dağıtım şirketi onayı: 2–5 iş günü</li><li>Tesisat döşeme: 1–2 gün</li><li>Sızdırmazlık testi + gaz açma randevusu: 2–5 iş günü</li><li>Dağıtım şirketi kontrolü + gaz arzı: 1 gün</li></ul>Toplam: <strong>ortalama 7–10 iş günü</strong>.',
             ],
             [
                 'Tesisat için evde bulunmak gerekiyor mu?',
@@ -107,7 +107,7 @@ $faq_kategoriler = [
             ],
             [
                 'Kombi yerine merkezi sistemden bireysel sisteme geçiş yapabilir miyim?',
-                'Evet, <strong>kat kaloriferi</strong>nden bireysel doğalgaz kombiye geçiş İzmirgaz onayı ile mümkündür. Apartman yöneticisi onayı ve ortak gider düzenlemesi gerekir. Süreç: keşif → proje → İzmirgaz onayı → tesisat döşeme → kombi montajı → gaz açma. Ortalama 10-15 iş günü, 80-150 bin TL maliyet (kombi dahil).',
+                'Evet, <strong>kat kaloriferi</strong>nden bireysel doğalgaz kombiye geçiş dağıtım şirketi onayı ile mümkündür. Apartman yöneticisi onayı ve ortak gider düzenlemesi gerekir. Süreç: keşif → proje → dağıtım şirketi onayı → tesisat döşeme → kombi montajı → gaz açma. Ortalama 10-15 iş günü, 80-150 bin TL maliyet (kombi dahil).',
             ],
         ],
     ],
@@ -133,7 +133,7 @@ $faq_kategoriler = [
             ],
             [
                 'Acil durumda 7/24 ulaşılabilir misiniz?',
-                'Gaz kaçağı şüphesi gibi <strong>acil durumlarda öncelikle 187 İzmirgaz Acil Müdahale</strong> hattını arayın. Ardından bizi de bilgilendirin — hafta sonu/gece dahil teknik ekibimiz ulaşılabilir. WhatsApp\'tan da hızlı dönüş alabilirsiniz.',
+                'Gaz kaçağı şüphesi gibi <strong>acil durumlarda öncelikle 187 Doğalgaz Acil İhbar</strong> hattını arayın. Ardından bizi de bilgilendirin — hafta sonu/gece dahil teknik ekibimiz ulaşılabilir. WhatsApp\'tan da hızlı dönüş alabilirsiniz.',
             ],
         ],
     ],

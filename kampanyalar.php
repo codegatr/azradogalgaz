@@ -4,7 +4,7 @@ require_once __DIR__ . '/config.php';
 $kampanyalar = db_all("SELECT * FROM kampanyalar WHERE aktif=1 ORDER BY id DESC");
 
 $sayfa_baslik   = 'Kampanyalar — Kombi & Klima Paket Fiyatları | Azra Doğalgaz';
-$sayfa_aciklama = 'İzmir\'de Demirdöküm kombi paketi 80.000 ₺\'den başlayan fiyatlarla. 6 taksit, ücretsiz keşif, İzmirgaz uyumlu kurulum.';
+$sayfa_aciklama = 'İzmir\'de Demirdöküm kombi paketi 80.000 ₺\'den başlayan fiyatlarla. 6 taksit, ücretsiz keşif, Mevzuata uygun kurulum.';
 $kanonik_url    = SITE_URL . '/kampanyalar';
 
 $schema_jsonld = [
