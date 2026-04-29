@@ -48,7 +48,6 @@ require_once __DIR__ . '/inc/header.php';
     <div class="container">
         <div class="hero-grid">
             <div>
-                <span class="hero-badge"><i class="fas fa-certificate"></i> İZMİRGAZ Yetkili · Demirdöküm Bayisi</span>
                 <h1>İzmir'in <strong>güvenilir</strong><br>doğalgaz ve ısıtma çözümleri</h1>
                 <p class="lead">
                     Konforlu yaşam, güvenli gelecek. Demirdöküm Ademix kombi, klima, doğalgaz tesisatı,

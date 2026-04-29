@@ -223,10 +223,6 @@ table.kalemler tfoot td{
                 <?= e($firma_adres) ?><br>
                 Tel: <?= e($firma_tel1) ?><?php if ($firma_tel2): ?> <span style="color:#cbd5e1">·</span> <?= e($firma_tel2) ?><?php endif; ?>
                 <span style="color:#cbd5e1">·</span> <?= e($firma_eposta) ?><br>
-                <span class="yetki">İZMİRGAZ Yetkili</span>
-                <span style="color:#cbd5e1">·</span>
-                <span class="yetki">Demirdöküm Bayisi</span>
-                <span style="color:#cbd5e1">·</span>
                 <?= e($firma_web) ?>
             </div>
         </div>
