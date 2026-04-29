@@ -112,6 +112,8 @@ require_once __DIR__ . '/inc/header.php';
                         <div class="field">
                             <label>Konu</label>
                             <select name="konu">
+                                <option value="Ücretsiz Keşif Talebi">⭐ Ücretsiz Keşif Talebi</option>
+                                <option value="Fiyat Teklifi">Fiyat Teklifi</option>
                                 <option value="Genel Bilgi">Genel Bilgi</option>
                                 <option value="Doğalgaz Tesisatı">Doğalgaz Tesisatı</option>
                                 <option value="Kombi Montajı / Servisi">Kombi Montajı / Servisi</option>

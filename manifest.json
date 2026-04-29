@@ -1,12 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.19",
+    "version": "1.12.20",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "changelog": "v1.12.19: SCROLL-UP BUTONU GERİ GETİRİLDİ. v1.12.10'da eklenen kombi-alevli scroll-up butonu (turuncu-kırmızı gradient + flame badge + pop-in animasyon) v1.12.16 ve v1.12.17 release'lerinde inc\/footer.php'yi production snapshot'tan (v1.12.6 base, scroll-up yoktu) kopyalayıp İzmirgaz temizliği uygularken yanlışlıkla ezildi. Bu sürümde v1.12.10'daki scroll-up'lı footer.php base alındı, üzerine v1.12.17'deki İzmirgaz temizliği değişikliği uygulandı (Demirdöküm yetkili + mevzuata uygun cümlesi). Style.css zaten v1.12.11'de güncellenmiş ve production'da scroll-up CSS'ini içerdiği için sadece footer.php yenilendi. 1 dosya değişti.",
+    "changelog": "v1.12.20: İLETİŞİM FORMU SMTP BİLDİRİM SİSTEMİ. (1) api\/iletisim-gonder.php tamamen yeniden yazıldı: PHP native mail() yerine inc\/mail.php SMTP class kullanır (Mail::ayardan_yukle()->gonder()). Yöneticiye HTML şablonlu kurumsal bildirim e-postası gönderir — koyu lacivert header + amber\/yeşil vurgu (Ücretsiz Keşif konusu yeşil, diğerleri amber), müşteri bilgileri tablosu (telefon\/e-posta tıklanabilir mailto\/tel link), mesaj quote-box, IP+timestamp, 'Admin Panelinde Görüntüle' CTA. Subject 'Ücretsiz Keşif' içeren konularda [KEŞİF] etiketi, diğerlerinde [İLETİŞİM]. Reply-To müşteri e-postası (yöneticinin Yanıtla tuşu doğru hedefe gider). SMTP konfigüre değil veya başarısız olursa fallback PHP mail() kullanılır. (2) BUG FIX: Önceki kod $_POST['kvkk'] arıyordu ama form name='kvkk_onay' kullanıyordu — KVKK validation her zaman fail oluyordu, mesajlar gönderilemiyor olabilirdi. (3) Müşteriye opsiyonel teşekkür e-postası: e-posta verdiyse + iletisim_musteri_onay=1 ise 'Mesajınız bize ulaştı' onay maili (yeşil ✓ ikonu, talep özeti, acil durumu için Hemen Ara CTA). (4) iletisim.php konu listesine 'Ücretsiz Keşif Talebi' (en başa, ⭐ rozeti) ve 'Fiyat Teklifi' eklendi. (5) Migration 009: ayarlar tablosuna 'iletisim_bildirim_eposta' (boş - firma_eposta'ya fallback) ve 'iletisim_musteri_onay' (default '1') key'lerini ekler INSERT IGNORE. SMTP class zaten v24'ten beri kullanılan bakım hatırlatma sistemiyle aynı, ek bağımlılık yok. 4 dosya değişti: api\/iletisim-gonder.php, iletisim.php, migrations\/009_iletisim_bildirim_ayarlari.sql, manifest.json.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -38,6 +38,7 @@
         "45-izmirgaz-yetkili-demirdokum-bayisi-kombine-rozetler-kaldirildi",
         "46-izmirgaz-tum-referanslarin-tamamen-temizligi",
         "47-eksik-marka-logolari-eca-arcelik-beko-mitsubishi-elec-heavy",
-        "48-scroll-up-buton-geri-getirildi-footer-regression-fix"
+        "48-scroll-up-buton-geri-getirildi-footer-regression-fix",
+        "49-iletisim-formu-smtp-bildirim-sistemi-html-sablon-kvkk-fix"
     ]
 }
