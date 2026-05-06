@@ -1,13 +1,12 @@
 {
     "name": "Azra Doğalgaz Web Sistemi",
-    "version": "1.12.24",
+    "version": "1.12.25",
     "release_date": "2026-04-29",
     "min_php": "8.1",
     "repo": "codegatr\/azradogalgaz",
     "branch": "main",
     "channel": "stable",
-    "channel": "stable",
-    "changelog": "v1.12.24: Mobil hero h1 kesik görünme bugfix. Anasayfa hero başlığı 'İzmir'in güvenilir doğalgaz ve ısıtma çözümleri' iPhone gibi 360-390px viewport'larda son harfler kesik kalıyordu. Üç kök neden: (1) min font-size çok büyük — clamp(2rem, 4.5vw, 3.4rem) → mobilde minimum 32px font 'doğalgaz ve ısıtma çözümleri' cümlesini sığdırmıyor; (2) <br> ile zorla satır kırılması mobilde de geçerliyken doğal wrap'i engelliyor — uzun cümle tek satıra hapsoluyor; (3) overflow-wrap eksik, kelime sığmadığında container'dan taşıyor. ÇÖZÜM: assets\/css\/style.css'de hero h1 kuralı güncellendi — min font 2rem → 1.55rem (clamp(1.55rem, 5.2vw, 3.4rem)), overflow-wrap\/word-wrap\/hyphens eklendi, max-width:600px media query'sinde .hero h1 br {display:none} ile mobilde <br> kaldırıldı (masaüstünde aynen 2 satır kalır), letter-spacing ve line-height mobil için yumuşatıldı. 1 dosya değişti: assets\/css\/style.css.",
+    "changelog": "v1.12.25: KAPSAMLI SEO UYUMLULUK ALTYAPISI. Search Console 'Yönlendirmeli sayfa' uyarısı + indeksleme problemi 7 katmanlı sistemle çözüldü. (1) .htaccess TEK-HOP REDIRECT: HTTPS+www birleştirildi, www.azradogalgaz.com|http://* → tek 301 ile https://azradogalgaz.com (önceden 2 redirect zinciri vardı, Search Console kafası karışıyordu). Ek: X-Robots-Tag header ('index, follow, max-image-preview:large'), Link rel=canonical HTTP header, IndexNow key passthrough rule, sitemap-images.xml + rss.xml + opensearch.xml rewrite kuralları. (2) inc\/seo.php: canonical_url() helper (query string strip + slug normalize, 'sayfa\/slug\/kategori' dışını atar, trailing slash kaldırır), schema_local_business() merkezi LocalBusiness JSON-LD (HVACBusiness type, openingHours, sameAs sosyal medya, foundingDate 2014, areaServed İzmir, Buca lokasyon), schema_website() Sitelinks Search Box desteği, schema_breadcrumb() helper, schema_render() çoklu blok render. (3) inc\/header.php: \$can = canonical_url() ile değişti, schema_local_business + schema_website her sayfada otomatik basılır, RSS feed + OpenSearch + sitemap link rel'leri eklendi. (4) robots.txt GENİŞLETME: Googlebot\/Bingbot\/Yandex\/DuckDuckBot\/Baidu özel kuralları, sosyal medya bot'ları (FB\/Twitter\/LinkedIn\/WhatsApp\/Telegram), AI tarayıcıları (GPTBot\/ChatGPT-User\/ClaudeBot\/PerplexityBot\/Google-Extended) izinli, agresif SEO bot'ları (SemrushBot\/AhrefsBot\/MJ12bot) engelli, Crawl-delay yapılandırması, Host hint, çoklu Sitemap. (5) sitemap.php YENİDEN YAZIM: W3C ISO-8601 lastmod (2026-04-29T08:30:00+03:00 formatı), <image:image> namespace ile resim sitemap entegrasyonu (Google Image Search), sitemap-images.xml ayrı endpoint, kapak resimleri otomatik ekleme, HTTP Cache-Control header. (6) rss.php: RSS 2.0 feed, blog yazıları + kampanyalar, ATOM self link, dc:creator namespace. (7) opensearch.php: OpenSearch 1.1 description, tarayıcı adres çubuğu site-içi arama. (8) inc\/indexnow.php: IndexNow protokol (Bing+Yandex+Naver+Seznam), bildir_tek\/bildir_coklu\/bildir_tum, otomatik 32-char hex anahtar üretimi, doğrulama dosyası ({key}.txt) otomatik oluşturma. (9) admin\/seo.php SEO Sağlık Kontrol Paneli: 10 kontrol (HTTPS, canonical, robots, sitemap, schema, IndexNow, RSS, OpenSearch, GSC, GA), SEO skor 0-100 (yeşil\/sarı\/kırmızı), tek tıkla 'Tüm URL'leri IndexNow'a Bildir' (sabit + hizmetler + ürünler + kampanyalar + blog), anahtar yenileme, hızlı erişim linkleri (Rich Results Test, Bing Webmaster, PageSpeed Insights, W3C Validator). (10) Migration 010: indexnow_anahtar + 5 sosyal medya key'i ayarlar tablosuna INSERT IGNORE. (11) Admin sidebar'a 'SEO Sağlık' menü item'ı eklendi. 11 dosya değişti\/eklendi.",
     "stages_completed": [
         "1-temel-altyapi","2-frontend-sayfalari","3a-admin-temeli","3b-icerik-modulleri",
         "5-guncelleme-sistemi","6a-acik-tema","6b-yeni-sayfalar","6c-ic-sayfalar-tema-fix",
@@ -44,6 +43,7 @@
         "50-hakkimizda-sayfasi-kurumsal-yeniden-tasarim-9-bolum",
         "51-iletisim-kesif-form-kvkk-fix-data-preservation-ek-alanlar",
         "52-iletisim-bildirim-tum-aktif-adminlere-coklu-alici",
-        "53-mobil-hero-h1-kesik-fix-overflow-wrap-br-display-none"
+        "53-mobil-hero-h1-kesik-fix-overflow-wrap-br-display-none",
+        "54-kapsamli-seo-uyumluluk-7-katman-htaccess-canonical-sitemap-schema-indexnow"
     ]
 }

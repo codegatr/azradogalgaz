@@ -1,25 +1,34 @@
 # =========================================================
-# Azra Doğalgaz — .htaccess  (v1.1.1 — kurulum.php hatası düzeltildi)
+# Azra Doğalgaz — .htaccess  (v1.12.25 — SEO uyumluluğu)
 # DirectAdmin / Apache 2.4 + LiteSpeed uyumlu
 # =========================================================
 
 Options -Indexes -MultiViews
 DirectoryIndex index.php index.html
+ServerSignature Off
 
-# ---------- HTTPS & www yönlendirmesi ----------
+# UTF-8 default charset
+AddDefaultCharset UTF-8
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # HTTPS zorunlu
+    # ---------- TEK-HOP REDIRECT (HTTPS + www birleşik) ----------
+    # Önce: HTTP/HTTPS + www/non-www kombinasyonları → tek-hop
+    # https://azradogalgaz.com (canonical) — tüm diğerleri 301 burada birleşir.
+    RewriteCond %{HTTP_HOST} ^www\.azradogalgaz\.com$ [NC,OR]
     RewriteCond %{HTTPS} !=on
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    RewriteRule ^(.*)$ https://azradogalgaz.com/$1 [L,R=301,NE]
 
-    # www -> non-www
-    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+    # ---------- IndexNow key file passthrough ----------
+    # Bing/Yandex IndexNow protokolü key doğrulaması için
+    RewriteRule ^([a-f0-9]{32})\.txt$ - [L]
 
-    # ---------- Sitemap ----------
+    # ---------- Sitemap & Feed ----------
     RewriteRule ^sitemap\.xml$ sitemap.php [L]
+    RewriteRule ^sitemap-(images|news|sayfalar|hizmetler|urunler)\.xml$ sitemap.php?tur=$1 [L,QSA]
+    RewriteRule ^rss\.xml$ rss.php [L]
+    RewriteRule ^opensearch\.xml$ opensearch.php [L]
 
     # ---------- SEO dostu URL'ler ----------
     RewriteRule ^hizmet/([a-z0-9\-]+)/?$ hizmet.php?slug=$1 [L,QSA]
@@ -41,10 +50,6 @@ DirectoryIndex index.php index.html
     RewriteRule ^mesafeli/?$ mesafeli.php [L]
     RewriteRule ^iade/?$ iade.php [L]
 
-    # v1.12.8 — Teklif sistemi (token tabanlı public link)
-    RewriteRule ^teklif/([a-zA-Z0-9]+)/?$ teklif.php?token=$1 [L,QSA]
-
-    # v1.4.0 — Yeni sayfalar
     RewriteRule ^kesif/?$ kesif.php [L]
     RewriteRule ^projeler/?$ projeler.php [L]
     RewriteRule ^sss/?$ sss.php [L]
@@ -52,33 +57,33 @@ DirectoryIndex index.php index.html
     RewriteRule ^klima-hesaplama/?$ klima-hesaplama.php [L]
     RewriteRule ^bilgi-bankasi/?$ bilgi-bankasi.php [L]
 
-    # Trailing slash kaldır
+    # Trailing slash kaldır (canonical'la tutarlı tek URL)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} ^(.+)/$
     RewriteRule ^ %1 [R=301,L]
 </IfModule>
 
 # ---------- Hassas dosyaları engelle ----------
-# NOT: kurulum.php burada KASTEN YASAKLI DEĞİL.
-# Kurulum tamamlanınca dosyayı MANUEL SİLİN. Sistem zaten kilit dosyası ile
-# 2. çalıştırmayı engeller; ama dosyanın kendisi sunucuda kalmamalı.
-<FilesMatch "^(\.htaccess|\.htpasswd|config\.php|manifest\.json|composer\.json|composer\.lock|\.env|\.git.*|.*\.sql)$">
+<FilesMatch "^(\.htaccess|\.htpasswd|config\.php|manifest\.json|composer\.json|composer\.lock|\.env|\.git.*|.*\.sql|.*\.md|.*\.log)$">
     Require all denied
 </FilesMatch>
 
 <IfModule mod_rewrite.c>
-    RewriteRule ^(\.git|inc|api/private)(/|$) - [F,L]
+    RewriteRule ^(\.git|inc|api/private|migrations|vendor)(/|$) - [F,L]
 </IfModule>
 
-# ---------- Güvenlik başlıkları ----------
+# ---------- Güvenlik başlıkları (geliştirilmiş) ----------
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+    Header set X-Robots-Tag "index, follow, max-image-preview:large, max-snippet:-1"
     Header unset X-Powered-By
     Header always unset Server
+    # Canonical link header — bots HTML parse etmeden de canonical'i bilebilsin
+    Header set Link '<https://azradogalgaz.com%{REQUEST_URI}e>; rel="canonical"' "expr=%{REQUEST_URI} =~ /^\/(hakkimizda|iletisim|hizmetler|urunler|kampanyalar|sss|kesif|projeler|bilgi-bankasi)?$/"
 </IfModule>
 
 # ---------- Gzip / Deflate ----------
@@ -86,6 +91,7 @@ DirectoryIndex index.php index.html
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
     AddOutputFilterByType DEFLATE application/javascript application/json application/xml
     AddOutputFilterByType DEFLATE application/rss+xml application/xhtml+xml image/svg+xml
+    AddOutputFilterByType DEFLATE application/atom+xml application/ld+json
 </IfModule>
 
 # ---------- Tarayıcı önbelleği ----------
@@ -93,6 +99,8 @@ DirectoryIndex index.php index.html
     ExpiresActive On
     ExpiresDefault                              "access plus 1 month"
     ExpiresByType text/html                     "access plus 0 seconds"
+    ExpiresByType application/xml               "access plus 1 hour"
+    ExpiresByType application/rss+xml           "access plus 1 hour"
     ExpiresByType text/css                      "access plus 1 year"
     ExpiresByType application/javascript        "access plus 1 year"
     ExpiresByType image/jpeg                    "access plus 1 year"

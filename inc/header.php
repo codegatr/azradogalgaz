@@ -2,9 +2,11 @@
 /**
  * Frontend ortak header — v1.4.0 açık tema
  */
+require_once __DIR__ . '/seo.php';
+
 $tit = $sayfa_baslik ?? ayar('site_baslik', defined('SITE_TITLE')?SITE_TITLE:'Azra Doğalgaz');
 $des = $sayfa_aciklama ?? ayar('site_aciklama', defined('SITE_DESC')?SITE_DESC:'');
-$can = $kanonik_url ?? (SITE_URL . $_SERVER['REQUEST_URI']);
+$can = $kanonik_url ?? canonical_url();
 $og  = $og_resim ?? (SITE_URL . '/assets/img/og-default.jpg');
 $key = $sayfa_anahtar ?? ayar('site_anahtar_kelime', defined('SITE_KEYWORDS')?SITE_KEYWORDS:'');
 
@@ -35,6 +37,9 @@ try {
 <meta name="geo.region" content="TR-35">
 <meta name="geo.placename" content="İzmir">
 <link rel="canonical" href="<?= e($can) ?>">
+<link rel="alternate" type="application/rss+xml" title="Azra Doğalgaz — Bilgi & Kampanyalar" href="<?= SITE_URL ?>/rss.xml">
+<link rel="alternate" type="application/opensearchdescription+xml" title="Azra Doğalgaz site içi arama" href="<?= SITE_URL ?>/opensearch.xml">
+<link rel="sitemap" type="application/xml" href="<?= SITE_URL ?>/sitemap.xml">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="<?= e($tit) ?>">
@@ -61,24 +66,13 @@ try {
 <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/../assets/css/style.css') ?: time() ?>">
 
 <?php
-$base_schema = [
-    '@context' => 'https://schema.org',
-    '@type'    => 'HVACBusiness',
-    'name'     => 'Azra Doğalgaz Tesisat',
-    'image'    => SITE_URL . '/assets/img/logo.png',
-    'url'      => SITE_URL,
-    'telephone'=> $tel1,
-    'email'    => $mail,
-    'priceRange'=> '₺₺',
-    'address'  => ['@type' => 'PostalAddress', 'addressLocality' => 'İzmir', 'addressRegion' => 'İzmir', 'addressCountry' => 'TR'],
-    'areaServed' => ['@type' => 'City', 'name' => 'İzmir'],
-    'openingHoursSpecification' => ['@type' => 'OpeningHoursSpecification', 'dayOfWeek' => ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], 'opens' => '08:00', 'closes' => '20:00'],
-];
-echo schema_org($base_schema);
+// Genel LocalBusiness + WebSite — her sayfada
+echo schema_render([schema_local_business(), schema_website()]);
 
+// Sayfaya özel ek JSON-LD bloklar (sayfa içinde tanımlanmışsa)
 if (!empty($schema_jsonld)) {
-    if (isset($schema_jsonld['@context'])) echo schema_org($schema_jsonld);
-    else foreach ($schema_jsonld as $s) echo schema_org($s);
+    if (isset($schema_jsonld['@context'])) echo schema_render([$schema_jsonld]);
+    else echo schema_render($schema_jsonld);
 }
 ?>
 

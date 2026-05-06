@@ -90,6 +90,9 @@ try {
         <a href="<?= SITE_URL ?>/admin/sistem-tani.php" class="<?= nav_active('sistem-tani.php') ?>">
             <i class="fas fa-stethoscope"></i> Sistem Tanı
         </a>
+        <a href="<?= SITE_URL ?>/admin/seo.php" class="<?= nav_active('seo.php') ?>">
+            <i class="fas fa-magnifying-glass-chart"></i> SEO Sağlık
+        </a>
         <a href="<?= SITE_URL ?>/admin/guncelleme.php" class="<?= nav_active('guncelleme.php') ?>">
             <i class="fas fa-cloud-arrow-down"></i> Güncelleme
         </a>
@@ -123,9 +126,6 @@ try {
                 </a>
                 <a href="<?= SITE_URL ?>/admin/cari-ekstre.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-file-lines" style="width:16px;color:var(--c-orange)"></i> Cari Ekstre
-                </a>
-                <a href="<?= SITE_URL ?>/admin/teklifler.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
-                    <i class="fas fa-file-signature" style="width:16px;color:var(--c-orange)"></i> Teklifler
                 </a>
                 <a href="<?= SITE_URL ?>/admin/faturalar.php" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--c-text);text-decoration:none;font-size:.88rem;border-bottom:1px solid var(--c-line);transition:.12s" onmouseover="this.style.background='rgba(255,140,0,.08)';this.style.color='var(--c-orange)'" onmouseout="this.style.background='';this.style.color='var(--c-text)'">
                     <i class="fas fa-file-invoice-dollar" style="width:16px;color:var(--c-orange)"></i> Faturalar
@@ -179,7 +179,7 @@ try {
                 if (um) um.style.display = 'none';
             });
             const sayfa = location.pathname.split('/').pop();
-            if (['cariler.php','cari-ekstre.php','teklifler.php','faturalar.php','fisler.php'].includes(sayfa)) {
+            if (['cariler.php','cari-ekstre.php','faturalar.php','fisler.php'].includes(sayfa)) {
                 btn.style.background = 'rgba(255,140,0,.22)';
                 btn.style.borderColor = 'var(--c-orange)';
             }

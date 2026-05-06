@@ -1,12 +1,136 @@
+# =========================================================
+# Azra Doğalgaz — robots.txt (v1.12.25)
+# https://azradogalgaz.com
+# =========================================================
+
+# ─── Tüm tarayıcılara genel kurallar ───
 User-agent: *
 Allow: /
+Allow: /assets/img/
+Allow: /assets/css/
+Allow: /assets/js/
+
 Disallow: /admin/
+Disallow: /api/
 Disallow: /inc/
-Disallow: /api/private/
+Disallow: /migrations/
+Disallow: /vendor/
 Disallow: /assets/uploads/temp/
 Disallow: /kurulum.php
 Disallow: /config.php
-Disallow: /*.json$
+Disallow: /seed.php
 Disallow: /404.php
+Disallow: /*.json$
+Disallow: /*.sql$
+Disallow: /*.md$
+Disallow: /*.log$
+Disallow: /*?csrf=*
+Disallow: /*&csrf=*
+Disallow: /*?hata=*
+Disallow: /*?ok=*
 
+# Crawl-delay yapılandırması — agresif tarayıcılara nezaket
+Crawl-delay: 1
+
+# ─── Google özel kuralları ───
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /inc/
+Disallow: /migrations/
+
+User-agent: Googlebot-Image
+Allow: /assets/img/
+Allow: /assets/uploads/
+
+User-agent: Googlebot-News
+Allow: /blog/
+Allow: /kampanyalar/
+
+# ─── Bing ───
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /inc/
+Crawl-delay: 1
+
+# ─── Yandex ───
+User-agent: Yandex
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /inc/
+Crawl-delay: 2
+
+# ─── DuckDuckGo ───
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# ─── Baidu ───
+User-agent: Baiduspider
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# ─── Sosyal medya bot'ları (rich preview için tam erişim) ───
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Telegrambot
+Allow: /
+
+# ─── Yapay zeka tarayıcıları (içerik sahibi olarak izin) ───
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# ─── Agresif/zararlı bot'ları engelle ───
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+# ─── Sitemap'lar ───
 Sitemap: https://azradogalgaz.com/sitemap.xml
+Sitemap: https://azradogalgaz.com/sitemap-images.xml
+Sitemap: https://azradogalgaz.com/rss.xml
+
+# ─── Host hint ───
+Host: azradogalgaz.com
