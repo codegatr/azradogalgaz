@@ -112,17 +112,17 @@ gtag('config', '<?= e($ga) ?>');
             <nav class="main-nav" id="mainNav" aria-label="Ana Menü">
                 <a href="<?= SITE_URL ?>/" class="<?= $aktif==='index'?'active':'' ?>">Ana Sayfa</a>
                 <div class="has-dropdown">
-                    <a href="<?= SITE_URL ?>/hizmetler" class="<?= in_array($aktif,['hizmetler','hizmet','kategori'])?'active':'' ?>">Hizmetler</a>
+                    <a href="<?= SITE_URL ?>/hizmetler" class="<?= in_array($aktif,['hizmetler','hizmet','kategori','iller','il'])?'active':'' ?>">Hizmetler</a>
                     <div class="dropdown">
                         <?php foreach (array_slice($hizmet_menu, 0, 8) as $h): ?>
                             <a href="<?= SITE_URL ?>/kategori/<?= e($h['slug']) ?>"><i class="fas fa-fire"></i><?= e($h['ad']) ?></a>
                         <?php endforeach; ?>
-                        <a href="<?= SITE_URL ?>/hizmetler" style="border-top:1px solid var(--c-line);margin-top:6px;padding-top:14px;font-weight:700"><i class="fas fa-arrow-right"></i>Tüm Hizmetler</a>
+                        <a href="<?= SITE_URL ?>/hizmetler" style="border-top:1px solid var(--c-line);margin-top:6px;padding-top:10px;font-weight:700"><i class="fas fa-arrow-right"></i>Tüm Hizmetler</a>
+                        <a href="<?= SITE_URL ?>/iller" style="font-weight:700;color:var(--c-primary-d)"><i class="fas fa-map-marker-alt"></i>Hizmet Bölgeleri (81 İl)</a>
                     </div>
                 </div>
                 <a href="<?= SITE_URL ?>/urunler" class="<?= in_array($aktif,['urunler','urun'])?'active':'' ?>">Ürünler</a>
-                <a href="<?= SITE_URL ?>/projeler" class="<?= $aktif==='projeler'?'active':'' ?>">Projelerimiz</a>
-                <a href="<?= SITE_URL ?>/iller" class="<?= in_array($aktif,['iller','il'])?'active':'' ?>">Hizmet Bölgeleri</a>
+                <a href="<?= SITE_URL ?>/projeler" class="<?= $aktif==='projeler'?'active':'' ?>">Projeler</a>
                 <a href="<?= SITE_URL ?>/kampanyalar" class="<?= in_array($aktif,['kampanyalar','kampanya'])?'active':'' ?>">Kampanyalar</a>
                 <div class="has-dropdown">
                     <a href="<?= SITE_URL ?>/rehber" class="<?= in_array($aktif,['rehber','rehberler','bilgi-bankasi','blog','sss','kombi-hesaplama','klima-hesaplama'])?'active':'' ?>">Bilgi</a>

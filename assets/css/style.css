@@ -49,14 +49,14 @@ button{font-family:inherit;cursor:pointer;border:0;background:transparent;color:
 .brand-text .azra{font-family:var(--font-display);font-weight:900;font-size:1.4rem;color:var(--c-text);letter-spacing:1px}
 .brand-text .doga{font-family:var(--font-display);font-weight:800;font-size:.95rem;background:var(--grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:1px}
 .brand-text small{font-size:.68rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px}
-.main-nav{display:flex;align-items:center;gap:4px;flex:1;justify-content:center}
-.main-nav a{padding:10px 14px;border-radius:10px;color:var(--c-text-2);font-weight:500;font-size:.95rem;transition:.2s}
+.main-nav{display:flex;align-items:center;gap:2px;flex:1;justify-content:center;flex-wrap:nowrap}
+.main-nav a{padding:9px 12px;border-radius:9px;color:var(--c-text-2);font-weight:500;font-size:.93rem;transition:.2s;white-space:nowrap}
 .main-nav a:hover,.main-nav a.active{background:var(--c-primary-l);color:var(--c-primary-d)}
 .has-dropdown{position:relative}
-.has-dropdown>a::after{content:'\f107';font-family:'Font Awesome 6 Free';font-weight:900;margin-left:6px;font-size:.75rem;opacity:.6}
-.dropdown{position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--c-line);border-radius:var(--r);min-width:240px;padding:8px;box-shadow:var(--sh-md);opacity:0;visibility:hidden;transform:translateY(8px);transition:.2s;z-index:100}
+.has-dropdown>a::after{content:'\f107';font-family:'Font Awesome 6 Free';font-weight:900;margin-left:5px;font-size:.72rem;opacity:.6}
+.dropdown{position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--c-line);border-radius:var(--r);min-width:260px;padding:8px;box-shadow:var(--sh-md);opacity:0;visibility:hidden;transform:translateY(8px);transition:.2s;z-index:100}
 .has-dropdown:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
-.dropdown a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.9rem;color:var(--c-text-2)}
+.dropdown a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.9rem;color:var(--c-text-2);white-space:nowrap}
 .dropdown a:hover{background:var(--c-primary-l);color:var(--c-primary-d)}
 .dropdown a i{width:18px;text-align:center;color:var(--c-primary)}
 .header-cta{display:flex;align-items:center;gap:8px}
