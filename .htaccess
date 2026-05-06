@@ -37,6 +37,14 @@ AddDefaultCharset UTF-8
     RewriteRule ^blog/([a-z0-9\-]+)/?$ blog.php?slug=$1 [L,QSA]
     RewriteRule ^kategori/([a-z0-9\-]+)/?$ kategori.php?slug=$1 [L,QSA]
 
+    # ---------- v1.12.27 — 81 il SEO landing pattern ----------
+    # /iller                              → 81 il hub sayfası
+    # /il/izmir                           → İzmir tüm hizmetler
+    # /il/izmir/dogalgaz-tesisati         → İzmir × Doğalgaz Tesisatı
+    RewriteRule ^iller/?$ iller.php [L]
+    RewriteRule ^il/([a-z0-9\-]+)/([a-z0-9\-]+)/?$ il.php?il=$1&hizmet=$2 [L,QSA]
+    RewriteRule ^il/([a-z0-9\-]+)/?$ il.php?il=$1 [L,QSA]
+
     # Statik sayfalar
     RewriteRule ^hakkimizda/?$ hakkimizda.php [L]
     RewriteRule ^iletisim/?$ iletisim.php [L]

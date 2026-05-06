@@ -9,6 +9,8 @@ $ig   = ayar('sosyal_instagram', '');
 $yt   = ayar('sosyal_youtube', '');
 $tw   = ayar('sosyal_x', '');
 ?>
+</main>
+
 <footer class="site-footer">
     <div class="container">
         <div class="footer-grid">

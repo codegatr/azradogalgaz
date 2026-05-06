@@ -48,6 +48,7 @@ $sabit = [
     ['kvkk',              '0.3', 'yearly',  time()],
     ['gizlilik',          '0.3', 'yearly',  time()],
     ['cerez',             '0.2', 'yearly',  time()],
+    ['iller',             '0.85','weekly',  time()],
 ];
 foreach ($sabit as $s) {
     $urls[] = [
@@ -56,6 +57,31 @@ foreach ($sabit as $s) {
         'changefreq' => $s[2],
         'lastmod'    => iso_tarih($s[3]),
     ];
+}
+
+// ─── v1.12.27: 81 il SEO landing URL'leri ───
+// 81 il hub + 81 × 8 hizmet kombinasyonları = 729 URL
+require_once __DIR__ . '/inc/iller.php';
+$oncelik_priority = [1 => '0.95', 2 => '0.85', 3 => '0.7', 4 => '0.5'];
+foreach (iller_listesi() as $il_slug => $il) {
+    $p = $oncelik_priority[$il['oncelik']] ?? '0.5';
+    // İl hub
+    $urls[] = [
+        'loc'        => SITE_URL . '/il/' . $il_slug,
+        'priority'   => $p,
+        'changefreq' => 'monthly',
+        'lastmod'    => iso_tarih(),
+    ];
+    // İl × hizmet
+    foreach (array_keys(hizmetler_listesi()) as $hizmet_slug) {
+        $urls[] = [
+            'loc'        => SITE_URL . '/il/' . $il_slug . '/' . $hizmet_slug,
+            // İl × hizmet sayfaları il hub'tan biraz daha düşük öncelikli
+            'priority'   => number_format(max(0.3, (float)$p - 0.1), 2),
+            'changefreq' => 'monthly',
+            'lastmod'    => iso_tarih(),
+        ];
+    }
 }
 
 try {

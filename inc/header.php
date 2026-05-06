@@ -88,6 +88,8 @@ gtag('config', '<?= e($ga) ?>');
 </head>
 <body>
 
+<a href="#ana-icerik" class="skip-link">Ana içeriğe atla</a>
+
 <div class="top-bar">
     <div class="container">
         <div class="left">
@@ -120,6 +122,7 @@ gtag('config', '<?= e($ga) ?>');
                 </div>
                 <a href="<?= SITE_URL ?>/urunler" class="<?= in_array($aktif,['urunler','urun'])?'active':'' ?>">Ürünler</a>
                 <a href="<?= SITE_URL ?>/projeler" class="<?= $aktif==='projeler'?'active':'' ?>">Projelerimiz</a>
+                <a href="<?= SITE_URL ?>/iller" class="<?= in_array($aktif,['iller','il'])?'active':'' ?>">Hizmet Bölgeleri</a>
                 <a href="<?= SITE_URL ?>/kampanyalar" class="<?= in_array($aktif,['kampanyalar','kampanya'])?'active':'' ?>">Kampanyalar</a>
                 <div class="has-dropdown">
                     <a href="<?= SITE_URL ?>/bilgi-bankasi" class="<?= in_array($aktif,['bilgi-bankasi','blog','sss','kombi-hesaplama','klima-hesaplama'])?'active':'' ?>">Bilgi</a>
@@ -142,3 +145,5 @@ gtag('config', '<?= e($ga) ?>');
         </div>
     </div>
 </header>
+
+<main id="ana-icerik" role="main">
