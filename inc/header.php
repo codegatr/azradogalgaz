@@ -125,8 +125,9 @@ gtag('config', '<?= e($ga) ?>');
                 <a href="<?= SITE_URL ?>/iller" class="<?= in_array($aktif,['iller','il'])?'active':'' ?>">Hizmet Bölgeleri</a>
                 <a href="<?= SITE_URL ?>/kampanyalar" class="<?= in_array($aktif,['kampanyalar','kampanya'])?'active':'' ?>">Kampanyalar</a>
                 <div class="has-dropdown">
-                    <a href="<?= SITE_URL ?>/bilgi-bankasi" class="<?= in_array($aktif,['bilgi-bankasi','blog','sss','kombi-hesaplama','klima-hesaplama'])?'active':'' ?>">Bilgi</a>
+                    <a href="<?= SITE_URL ?>/rehber" class="<?= in_array($aktif,['rehber','rehberler','bilgi-bankasi','blog','sss','kombi-hesaplama','klima-hesaplama'])?'active':'' ?>">Bilgi</a>
                     <div class="dropdown">
+                        <a href="<?= SITE_URL ?>/rehber"><i class="fas fa-book-open"></i>Bilgi Rehberi</a>
                         <a href="<?= SITE_URL ?>/blog"><i class="fas fa-newspaper"></i>Blog</a>
                         <a href="<?= SITE_URL ?>/sss"><i class="fas fa-circle-question"></i>Sık Sorulan Sorular</a>
                         <a href="<?= SITE_URL ?>/kombi-hesaplama"><i class="fas fa-calculator"></i>Kombi Kapasite Hesaplama</a>

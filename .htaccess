@@ -45,6 +45,12 @@ AddDefaultCharset UTF-8
     RewriteRule ^il/([a-z0-9\-]+)/([a-z0-9\-]+)/?$ il.php?il=$1&hizmet=$2 [L,QSA]
     RewriteRule ^il/([a-z0-9\-]+)/?$ il.php?il=$1 [L,QSA]
 
+    # ---------- v1.12.28 — Bilgi Rehberi (uzun-form içerik) ----------
+    # /rehber                             → tüm rehberler hub
+    # /rehber/kombi-secimi-rehberi        → tek konu sayfası
+    RewriteRule ^rehber/?$ rehberler.php [L]
+    RewriteRule ^rehber/([a-z0-9\-]+)/?$ rehber.php?slug=$1 [L,QSA]
+
     # Statik sayfalar
     RewriteRule ^hakkimizda/?$ hakkimizda.php [L]
     RewriteRule ^iletisim/?$ iletisim.php [L]

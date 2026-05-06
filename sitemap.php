@@ -84,6 +84,23 @@ foreach (iller_listesi() as $il_slug => $il) {
     }
 }
 
+// ─── v1.12.28: Bilgi Rehberi sayfaları (uzun-form içerik) ───
+require_once __DIR__ . '/inc/seo_konular.php';
+$urls[] = [
+    'loc'        => SITE_URL . '/rehber',
+    'priority'   => '0.85',
+    'changefreq' => 'weekly',
+    'lastmod'    => iso_tarih(),
+];
+foreach (seo_konular() as $rehber_slug => $konu) {
+    $urls[] = [
+        'loc'        => SITE_URL . '/rehber/' . $rehber_slug,
+        'priority'   => '0.75',
+        'changefreq' => 'monthly',
+        'lastmod'    => iso_tarih(),
+    ];
+}
+
 try {
     // Hizmetler — kapak resmi varsa image:image olarak ekle
     foreach (db_all("SELECT slug, kapak, COALESCE(guncelleme_tarihi, olusturma_tarihi) g FROM hizmetler WHERE aktif=1") as $r) {
