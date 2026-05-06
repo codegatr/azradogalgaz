@@ -29,6 +29,20 @@ class Guncelleyici
         'assets/uploads/',
     ];
 
+    /**
+     * Karşılaştırma sırasında hariç tutulacak dosyalar.
+     * v1.12.26: manifest.json her release'de değişir — kendisi ile kıyaslamak
+     * her zaman "1 Değişmiş" gösterir. SHA hariç tutulur, sadece sürüm karşılaştırma için kullanılır.
+     */
+    public array $karsilastirma_haric = [
+        'manifest.json',
+        // README ve LICENSE gibi statik repo dosyaları da gereksizce flagleniyor
+        'README.md',
+        'LICENSE',
+        '.gitignore',
+        '.gitattributes',
+    ];
+
     /** İzinli dosya uzantıları (manifest yoksa filtre uygulanır). */
     public array $izinli_uzantilar = [
         'php','html','htm','css','js','json','txt','md','xml',
@@ -68,12 +82,68 @@ class Guncelleyici
     public function manifest_yaz(array $data): bool
     {
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        return (bool)file_put_contents($this->manifest_yolu, $json);
+        if ($json === false) return false;
+
+        // v1.12.26: atomik yazım — temp dosyaya yaz, rename ile yer değiştir.
+        // file_put_contents direkt path'e yazınca yetki sorunu olunca tüm yazma sessizce başarısız.
+        $temp = $this->manifest_yolu . '.tmp.' . bin2hex(random_bytes(4));
+        $bytes = @file_put_contents($temp, $json);
+        if ($bytes === false || $bytes === 0) {
+            error_log('manifest_yaz: temp yazılamadı → ' . $temp);
+            @unlink($temp);
+            return false;
+        }
+        if (!@rename($temp, $this->manifest_yolu)) {
+            // rename başarısızsa direkt yazmayı dene
+            $bytes2 = @file_put_contents($this->manifest_yolu, $json);
+            @unlink($temp);
+            if ($bytes2 === false) {
+                error_log('manifest_yaz: hedef yazılamadı → ' . $this->manifest_yolu . ' (yetki sorunu olabilir)');
+                return false;
+            }
+        }
+        @chmod($this->manifest_yolu, 0644);
+        return true;
     }
 
     public function mevcut_surum(): string
     {
-        return (string)($this->manifest_oku()['version'] ?? '0.0.0');
+        $manifest = $this->manifest_oku();
+        $v = (string)($manifest['version'] ?? '');
+        if ($v !== '' && preg_match('/^\d+\.\d+\.\d+/', $v)) {
+            return $v;
+        }
+        // v1.12.26: yerel manifest bozuk veya yoksa ayarlar.son_yuklenen_surum'a bak
+        if (function_exists('ayar')) {
+            $kayit = (string)ayar('son_yuklenen_surum', '');
+            if ($kayit !== '' && preg_match('/^\d+\.\d+\.\d+/', $kayit)) return $kayit;
+        }
+        return '0.0.0';
+    }
+
+    /**
+     * v1.12.26: Başarılı bir update'ten sonra ayarlar tablosuna sürüm not düşülür.
+     * manifest.json bozuk/silindiği zamanlarda fallback kaynak olur.
+     */
+    public function surum_kaydet(string $surum): void
+    {
+        if (!preg_match('/^\d+\.\d+\.\d+/', $surum)) return;
+        try {
+            if (function_exists('db_run')) {
+                db_run(
+                    "INSERT INTO ayarlar (anahtar, deger) VALUES ('son_yuklenen_surum', ?)
+                     ON DUPLICATE KEY UPDATE deger=VALUES(deger)",
+                    [$surum]
+                );
+                db_run(
+                    "INSERT INTO ayarlar (anahtar, deger) VALUES ('son_yukleme_tarihi', ?)
+                     ON DUPLICATE KEY UPDATE deger=VALUES(deger)",
+                    [date('Y-m-d H:i:s')]
+                );
+            }
+        } catch (Throwable $e) {
+            error_log('surum_kaydet hata: ' . $e->getMessage());
+        }
     }
 
     // --------------------------------------------------------------
@@ -322,6 +392,9 @@ class Guncelleyici
         $manifest_clean = $manifest;
         unset($manifest_clean['files']); // files listesini ana manifest'te tutma
         $this->manifest_yaz($manifest_clean);
+
+        // v1.12.26: Ayarlar tablosuna da yaz (manifest.json bozulursa fallback)
+        $this->surum_kaydet((string)$manifest['version']);
 
         $log[] = "✅ $yazilan dosya yazıldı.";
         $log[] = "Sürüm: $eski_surum → " . $manifest['version'];
@@ -618,6 +691,17 @@ class Guncelleyici
 
         foreach ($tree['files'] as $rel => $info) {
             $stat['toplam']++;
+
+            // v1.12.26: Karşılaştırma sırasında her zaman değişen dosyaları (manifest.json, README) hariç tut
+            if (in_array($rel, $this->karsilastirma_haric, true)) {
+                $sonuc[$rel] = [
+                    'durum'      => 'haric',
+                    'yerel_sha'  => null,
+                    'github_sha' => $info['sha'],
+                    'boyut'      => $info['size'],
+                ];
+                continue;
+            }
 
             // Korumalı yol mu? (config.php, uploads/ vb)
             $korumali = false;
